@@ -3301,6 +3301,9 @@ def download_model_from_hub(hub_path):
         return None
 
 if __name__ == "__main__":
+    import time
+    startup_start = time.time()
+    
     print("=" * 60)
     print("Starting SPAD for Vision application...")
     print("=" * 60)
@@ -3310,10 +3313,13 @@ if __name__ == "__main__":
     # Use port 7889 for local testing, 7860 for Hugging Face Spaces
     port = int(os.environ.get("PORT", 7889))
     print(f"Starting Flask server on port {port}...")
-    print("=" * 60)
     
     # Kill any existing processes on the port before starting (for local testing)
     if os.environ.get("WERKZEUG_RUN_MAIN") != "true":
         kill_existing_processes_on_port(port)
+    
+    startup_time = time.time() - startup_start
+    print(f"Startup completed in {startup_time:.2f} seconds")
+    print("=" * 60)
     
     app.run(host="0.0.0.0", port=port, debug=False)
