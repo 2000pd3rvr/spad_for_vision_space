@@ -3010,20 +3010,43 @@ def setup_huggingface_resources():
         
         # Quick check: only download if directory doesn't exist or is truly empty
         # Use a faster check that doesn't list all files
-        models_exist = os.path.exists(models_dir) and any(os.scandir(models_dir))
-        datasets_exist = os.path.exists(datasets_dir) and any(os.scandir(datasets_dir))
+        # Also check for specific required files to avoid unnecessary downloads
+        models_exist = False
+        datasets_exist = False
+        
+        if os.path.exists(models_dir):
+            try:
+                # Check for at least one required model file
+                required_model = os.path.join(models_dir, "spatiotemporal", "training_results_material_classifier_best_99.25%.pth")
+                models_exist = os.path.exists(required_model) or any(os.scandir(models_dir))
+            except:
+                models_exist = False
+        
+        if os.path.exists(datasets_dir):
+            try:
+                # Check for at least one required dataset directory
+                required_dataset = os.path.join(datasets_dir, "testmages_spatiotemporal")
+                datasets_exist = os.path.exists(required_dataset) or any(os.scandir(datasets_dir))
+            except:
+                datasets_exist = False
         
         # Download models if not present
         if not models_exist:
+            print("=" * 60)
             print("Downloading models from Hugging Face Hub...")
+            print(f"Target directory: {models_dir}")
+            print("This may take several minutes depending on model sizes...")
+            print("=" * 60)
             try:
                 snapshot_download(
                     repo_id="mvplus/spatiotemporal_models",
                     local_dir=models_dir,
                     repo_type="model",
-                    token=os.environ.get("HF_TOKEN")  # Use token from Space secrets
+                    token=os.environ.get("HF_TOKEN"),  # Use token from Space secrets
+                    local_dir_use_symlinks=False,  # Don't use symlinks for better compatibility
+                    resume_download=True  # Resume if interrupted
                 )
-                print(f"Models downloaded successfully to {models_dir}")
+                print(f"✓ Models downloaded successfully to {models_dir}")
                 # Verify the expected structure
                 spatiotemporal_model = os.path.join(models_dir, "spatiotemporal", "training_results_material_classifier_best_99.25%.pth")
                 if os.path.exists(spatiotemporal_model):
@@ -3037,15 +3060,21 @@ def setup_huggingface_resources():
         
         # Download datasets if not present
         if not datasets_exist:
+            print("=" * 60)
             print("Downloading datasets from Hugging Face Hub...")
+            print(f"Target directory: {datasets_dir}")
+            print("This may take a few minutes...")
+            print("=" * 60)
             try:
                 snapshot_download(
                     repo_id="mvplus/spatiotemporal_dataset",
                     local_dir=datasets_dir,
                     repo_type="dataset",
-                    token=os.environ.get("HF_TOKEN")
+                    token=os.environ.get("HF_TOKEN"),
+                    local_dir_use_symlinks=False,  # Don't use symlinks for better compatibility
+                    resume_download=True  # Resume if interrupted
                 )
-                print(f"Datasets downloaded successfully to {datasets_dir}")
+                print(f"✓ Datasets downloaded successfully to {datasets_dir}")
                 # Verify the expected structure
                 spatiotemporal_dataset = os.path.join(datasets_dir, "testmages_spatiotemporal")
                 if os.path.exists(spatiotemporal_dataset):
