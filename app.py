@@ -3170,10 +3170,11 @@ def list_testimages(app_name, subpath=''):
 def get_testimage(app_name, filename):
     """Serve a test image file from the testimages directory, supporting subdirectory paths"""
     try:
-        if app_name not in TESTIMAGES_DIRS:
+        testimages_dirs = get_testimages_dirs()
+        if app_name not in testimages_dirs:
             return jsonify({'error': f'Unknown app: {app_name}'}), 404
         
-        testimages_dir = TESTIMAGES_DIRS[app_name]
+        testimages_dir = testimages_dirs[app_name]
         # filename can now include subdirectory paths (e.g., "subdir/image.jpg")
         filepath = os.path.join(testimages_dir, filename)
         
