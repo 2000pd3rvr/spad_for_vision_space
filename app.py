@@ -282,13 +282,7 @@ def version_control():
     </html>
     """
 
-@app.route("/projects")
-def projects():
-    visitor_ip = request.environ.get("HTTP_X_FORWARDED_FOR", request.remote_addr)
-    log_visitor(visitor_ip)
-    stats = get_visitor_stats()
-    # Pass empty projects list for now
-    return render_template("projects.html", stats=stats, projects=[])
+# Projects route removed - only Demos is accessible via dropdown menu
 
 @app.route("/projects/create", methods=["GET", "POST"])
 def create_project():
