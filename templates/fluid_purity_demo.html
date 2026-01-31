@@ -1,0 +1,1817 @@
+{% extends "base.html" %}
+
+{% block title %}Fluid Purity Detection - MV+{% endblock %}
+
+{% block content %}
+<style>
+    html, body {
+        height: 100%;
+        overflow: auto;
+        margin: 0;
+        padding: 0;
+    }
+
+    .spatiotemporal-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+        min-height: 100vh;
+        box-sizing: border-box;
+    }
+
+    .spatiotemporal-container .main-content {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr 1fr !important;
+        gap: 20px !important;
+        margin-bottom: 30px !important;
+        margin-top: 0 !important;
+        min-height: auto !important;
+        padding: 0 !important;
+        overflow-y: visible !important;
+        flex-direction: row !important;
+    }
+
+    .card {
+        background: rgba(0, 0, 0, 0.8);
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        border: 1px solid rgba(185, 29, 48, 0.3);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        min-height: 700px;
+        max-height: calc(100vh - 40px);
+        overflow-y: auto;
+        box-sizing: border-box;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+        border-color: #B91D30;
+    }
+
+    .card h2 {
+        color: #ffffff;
+        margin-bottom: 15px;
+        font-size: 1.5rem;
+        font-weight: normal;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .upload-section {
+        margin-bottom: 20px;
+    }
+
+    .upload-options {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .upload-btn {
+        flex: 1;
+        padding: 15px;
+        border: 2px dashed #555555;
+        border-radius: 15px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: rgba(0, 0, 0, 0.3);
+        color: #ffffff;
+        font-size: 1rem;
+    }
+
+    .upload-btn:hover {
+        background: rgba(185, 29, 48, 0.1);
+        color: white;
+        border-color: #ffffff;
+    }
+
+    .upload-btn.active {
+        background: rgba(185, 29, 48, 0.2);
+        border-color: #ffffff;
+    }
+
+    .upload-btn i {
+        margin-right: 8px;
+        font-size: 1rem;
+    }
+
+    .file-input {
+        display: none;
+    }
+
+    /* File Browser Modal */
+    .file-browser-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 10000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .file-browser-modal.active {
+        display: flex;
+    }
+
+    .file-browser-content {
+        background: rgba(0, 0, 0, 0.95);
+        border: 2px solid #B91D30;
+        border-radius: 20px;
+        padding: 30px;
+        max-width: 800px;
+        max-height: 80vh;
+        width: 90%;
+        overflow-y: auto;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .file-browser-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #333;
+    }
+
+    .file-browser-header h3 {
+        color: #ffffff;
+        margin: 0;
+        font-size: 1.5rem;
+    }
+
+    .file-browser-close {
+        background: none;
+        border: none;
+        color: #ffffff;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 5px 10px;
+        border-radius: 5px;
+        transition: background 0.3s ease;
+    }
+
+    .file-browser-close:hover {
+        background: rgba(185, 29, 48, 0.3);
+    }
+
+    .file-browser-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 20px;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .file-browser-item {
+        background: rgba(0, 0, 0, 0.6);
+        border: 2px solid #333;
+        border-radius: 8px;
+        padding: 12px 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        text-align: left;
+    }
+
+    .file-browser-item:hover {
+        border-color: #B91D30;
+        background: rgba(185, 29, 48, 0.1);
+        transform: translateX(5px);
+    }
+
+    .file-browser-item.selected {
+        border-color: #B91D30;
+        background: rgba(185, 29, 48, 0.2);
+    }
+
+    .file-browser-item img {
+        display: none;
+    }
+
+    .file-browser-item .file-name {
+        color: #ffffff;
+        font-size: 0.9rem;
+        word-break: break-word;
+        flex: 1;
+        margin-right: 15px;
+    }
+
+    .file-browser-item .file-size {
+        color: #999;
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+
+    .file-browser-item.directory {
+        border-color: #555;
+    }
+
+    .file-browser-item.directory:hover {
+        border-color: #B91D30;
+    }
+
+    .file-browser-item.directory .file-name {
+        color: #B91D30;
+        font-weight: bold;
+    }
+
+    .file-browser-item.directory .directory-icon {
+        font-size: 2rem;
+        color: #B91D30;
+        margin-bottom: 10px;
+    }
+
+    .file-browser-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+        padding: 10px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 8px;
+        flex-wrap: wrap;
+    }
+
+    .file-browser-breadcrumb-item {
+        color: #ffffff;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: background 0.3s ease;
+    }
+
+    .file-browser-breadcrumb-item:hover {
+        background: rgba(185, 29, 48, 0.3);
+    }
+
+    .file-browser-breadcrumb-item.active {
+        color: #B91D30;
+        cursor: default;
+    }
+
+    .file-browser-breadcrumb-separator {
+        color: #666;
+    }
+
+    .file-browser-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #333;
+    }
+
+    .file-browser-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .file-browser-btn-primary {
+        background: #B91D30;
+        color: white;
+    }
+
+    .file-browser-btn-primary:hover {
+        background: #8a1523;
+    }
+
+    .file-browser-btn-secondary {
+        background: #333;
+        color: white;
+    }
+
+    .file-browser-btn-secondary:hover {
+        background: #555;
+    }
+
+    .file-browser-loading {
+        text-align: center;
+        color: #ffffff;
+        padding: 40px;
+    }
+
+    .file-browser-empty {
+        text-align: center;
+        color: #999;
+        padding: 40px;
+    }
+
+    .image-controls {
+        margin-bottom: 25px;
+    }
+
+    .control-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+
+    .control-group.full-width {
+        grid-template-columns: 1fr;
+    }
+
+    .control-label {
+        color: #ffffff;
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+
+    .model-select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #3C3435;
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.5);
+        color: #ffffff;
+        font-size: 0.9rem;
+    }
+
+    .model-select:focus {
+        outline: none;
+        border-color: #ffffff;
+        box-shadow: 0 0 0 2px rgba(185, 29, 48, 0.3);
+    }
+
+    .model-select option {
+        background: #000000;
+        color: #ffffff;
+    }
+
+    .image-preview-wrapper {
+        position: relative;
+        width: 100%;
+        height: 300px;
+        border: 2px dashed #B91D30;
+        border-radius: 15px;
+        overflow: hidden;
+        background: rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .image-preview-wrapper.has-image {
+        border-style: solid;
+        background: transparent;
+    }
+
+    .image-preview-wrapper img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        border-radius: 10px;
+    }
+
+    .image-preview-wrapper .placeholder {
+        color: #666;
+        text-align: center;
+        font-size: 1rem;
+    }
+
+    .image-preview-wrapper .placeholder i {
+        font-size: 3rem;
+        margin-bottom: 10px;
+        display: block;
+        color: #B91D30;
+    }
+
+    .transform-buttons-compact {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+
+    .transform-btn {
+        padding: 8px 12px;
+        border: 1px solid #B91D30;
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.3);
+        color: #ffffff;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .transform-btn:hover {
+        background: rgba(185, 29, 48, 0.2);
+        border-color: #ffffff;
+    }
+
+    .transform-btn.active {
+        background: rgba(185, 29, 48, 0.3);
+        border-color: #ffffff;
+    }
+
+    .detect-btn {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #2F1113, #2f0e11);
+        border: none;
+        border-radius: 10px;
+        color: white;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+    }
+
+    .detect-btn:hover:not(:disabled) {
+        background: linear-gradient(135deg, #2f0e11, #2F1113);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(47, 17, 19, 0.4);
+    }
+
+    .detect-btn:disabled {
+        background: #666;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .performance-section {
+        background: rgba(0, 0, 0, 0.6);
+        border-radius: 15px;
+        padding: 15px;
+        border: 1px solid rgba(185, 29, 48, 0.2);
+    }
+
+    .performance-title {
+        color: #ffffff;
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+
+    .performance-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .performance-item {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid rgba(185, 29, 48, 0.1);
+    }
+
+    .performance-label {
+        color: #ccc;
+        font-size: 0.8rem;
+        margin-bottom: 5px;
+    }
+
+    .performance-value {
+        color: #ffffff;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .metrics-section {
+        background: rgba(0, 0, 0, 0.6);
+        border-radius: 15px;
+        padding: 15px;
+        margin-top: 15px;
+        border: 1px solid rgba(185, 29, 48, 0.2);
+    }
+
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .metric-item {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(185, 29, 48, 0.1);
+    }
+
+    .metric-label {
+        color: #ccc;
+        font-size: 0.8rem;
+        margin-bottom: 5px;
+    }
+
+    .metric-value {
+        color: #ffffff;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .detection-results {
+        background: rgba(0, 0, 0, 0.6);
+        border-radius: 15px;
+        padding: 20px;
+        margin-top: 20px;
+        border: 1px solid rgba(185, 29, 48, 0.2);
+    }
+
+    .detection-title {
+        color: #ffffff;
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+
+    .prediction-item {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        border: 1px solid rgba(185, 29, 48, 0.1);
+        color: #ffffff;
+        font-size: 0.9rem;
+    }
+
+    .detection-results-dual {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 10px;
+    }
+
+    .detection-results-column {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .detection-subtitle {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #cccccc;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .detection-results-column .prediction-item {
+        margin-bottom: 5px;
+        flex: 1;
+    }
+
+    .prediction-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .result-image {
+        width: 100%;
+        max-height: 200px;
+        object-fit: contain;
+        border-radius: 8px;
+        margin-top: 15px;
+        border: 1px solid rgba(185, 29, 48, 0.2);
+    }
+
+    .batch-navigation {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .nav-btn {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #B91D30;
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.3);
+        color: #ffffff;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+        background: rgba(185, 29, 48, 0.2);
+        border-color: #ffffff;
+    }
+
+    .nav-btn:disabled {
+        background: #333;
+        cursor: not-allowed;
+        border-color: #666;
+    }
+
+    .top-sections {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .filename-display {
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .filename-label {
+        font-size: 0.8rem;
+        color: #888;
+        margin-bottom: 5px;
+    }
+
+    .filename-value {
+        font-size: 0.9rem;
+        color: #fff;
+        font-weight: 500;
+        word-break: break-all;
+    }
+
+
+    @media (max-width: 768px) {
+        .spatiotemporal-container .main-content {
+            grid-template-columns: 1fr !important;
+        }
+        
+        .control-group {
+            grid-template-columns: 1fr !important;
+        }
+        
+        .performance-grid {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+
+<div class="spatiotemporal-container">
+    <!-- Simple Status Message -->
+    <div id="statusMessage" style="color: #ccc; font-size: 0.9rem; margin-bottom: 15px; text-align: center;">Please select image(s)</div>
+    
+    <div class="main-content">
+        <div class="card">
+            <h2>
+                Fluid Purity Detection
+            </h2>
+            
+            <div class="upload-section">
+                <div class="upload-options">
+                    <div class="upload-btn" id="singleUploadBtn">
+                        Select Image
+                    </div>
+                    <div class="upload-btn" id="batchUploadBtn">
+                        Batch Upload
+                    </div>
+                </div>
+                
+                <input type="file" id="singleFileInput" class="file-input" accept="image/png,.sto">
+                <input type="file" id="batchFileInput" class="file-input" accept="image/png,.sto" multiple>
+            </div>
+
+            <!-- File Browser Modal -->
+            <div class="file-browser-modal" id="fileBrowserModal">
+                <div class="file-browser-content">
+                    <div class="file-browser-header">
+                        <h3>Select Test Image</h3>
+                        <button class="file-browser-close" id="fileBrowserClose">&times;</button>
+                    </div>
+                    <div id="fileBrowserBreadcrumb" class="file-browser-breadcrumb"></div>
+                    <div id="fileBrowserList" class="file-browser-list">
+                        <div class="file-browser-loading">Loading images...</div>
+                    </div>
+                    <div class="file-browser-actions">
+                        <button class="file-browser-btn file-browser-btn-secondary" id="fileBrowserCancel">Cancel</button>
+                        <button class="file-browser-btn file-browser-btn-primary" id="fileBrowserSelect" disabled>Select</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="image-controls" id="imageControls" style="display: none;">
+                <div class="control-group">
+                    <div>
+                        <div class="control-label">Select Model Weight:</div>
+                        <select id="modelSelect" class="model-select">
+                            <option value="">Loading weights...</option>
+                        </select>
+                    </div>
+                </div>
+
+
+
+                <button class="detect-btn" id="detectBtn" disabled>
+                    Detect Fluid Purity
+                </button>
+
+                <div class="batch-navigation" id="batchNavigation" style="display: none;">
+                    <button class="nav-btn" id="prevImageBtn" disabled>
+                        Previous
+                    </button>
+                    <button class="nav-btn" id="nextImageBtn" disabled>
+                        Next
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Card: Results -->
+        <div class="card">
+            <h2>
+                Detection Results
+            </h2>
+            
+            <div class="top-sections">
+                <div class="filename-display">
+                    <div class="filename-label">Selected Image:</div>
+                    <div class="filename-value" id="filenameValue">No image selected</div>
+                </div>
+
+            </div>
+
+            <div class="detection-results">
+                <div class="detection-subtitle">Detected fluid purity</div>
+                <div id="prediction1" class="prediction-item">1. -</div>
+                <div id="prediction2" class="prediction-item">2. -</div>
+                <div id="prediction3" class="prediction-item">3. -</div>
+                <div id="detectionCount" class="prediction-item">Found no fluid purity</div>
+            </div>
+        </div>
+
+        <!-- Performance and Architecture Card -->
+        <div class="card">
+            <h2>
+                Performance and Architecture
+            </h2>
+            
+            <div class="metrics-section">
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <div class="metric-label">Model Architecture</div>
+                        <div class="metric-value" id="architectureValue">-</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Inference Time</div>
+                        <div class="metric-value" id="inferenceTimeValue">-</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Classes</div>
+                        <div class="metric-value" id="classesValue" style="font-size: 0.85rem; word-break: break-word;">-</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">File Size</div>
+                        <div class="metric-value" id="fileSizeValue">-</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">transient image Dimensions</div>
+                        <div class="metric-value" id="transientImageDimensions">-</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Upload Time</div>
+                        <div class="metric-value" id="uploadTimeValue">-</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Processing Status</div>
+                        <div class="metric-value" id="processingStatusValue"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentImage = null;
+    let currentRotation = 0;
+    let currentFlip = { horizontal: false, vertical: false };
+    let batchFiles = [];
+    let currentBatchIndex = 0;
+    let selectedFile = null;
+    
+    // No caching - always perform fresh inference
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+        setupEventListeners();
+        loadModelWeights();
+    });
+
+    function setupEventListeners() {
+        // Upload buttons now use file browser modal (see file browser code below)
+        // Old file picker code removed - file browser modal handles file selection
+        /*
+        document.getElementById('singleUploadBtn').addEventListener('click', async () => {
+            try {
+                if ('showOpenFilePicker' in window) {
+                    // Use File System Access API (Chrome/Edge) - user can navigate to testimages
+                    const handle = await window.showOpenFilePicker({
+                        types: [{
+                            description: 'Images',
+                            accept: {
+                                'image/png': ['.png'],
+                                'image/*': ['.sto']
+                            }
+                        }],
+                        multiple: false
+                    });
+                    const file = await handle[0].getFile();
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    document.getElementById('singleFileInput').files = dataTransfer.files;
+                    document.getElementById('singleFileInput').dispatchEvent(new Event('change', { bubbles: true }));
+                } else {
+                    // Fallback: regular file input
+                    document.getElementById('singleFileInput').click();
+                }
+            } catch (error) {
+                // User cancelled or API not supported - fallback to regular file input
+                document.getElementById('singleFileInput').click();
+            }
+        });
+
+        document.getElementById('batchUploadBtn').addEventListener('click', async () => {
+            try {
+                if ('showOpenFilePicker' in window) {
+                    // Use File System Access API (Chrome/Edge) - user can navigate to testimages
+                    const handles = await window.showOpenFilePicker({
+                        types: [{
+                            description: 'Images',
+                            accept: {
+                                'image/png': ['.png'],
+                                'image/*': ['.sto']
+                            }
+                        }],
+                        multiple: true
+                    });
+                    const files = await Promise.all(handles.map(h => h.getFile()));
+                    const dataTransfer = new DataTransfer();
+                    files.forEach(file => dataTransfer.items.add(file));
+                    document.getElementById('batchFileInput').files = dataTransfer.files;
+                    document.getElementById('batchFileInput').dispatchEvent(new Event('change', { bubbles: true }));
+                } else {
+                    // Fallback: regular file input
+                    document.getElementById('batchFileInput').click();
+                }
+            } catch (error) {
+                // User cancelled or API not supported - fallback to regular file input
+                document.getElementById('batchFileInput').click();
+            }
+        });
+        */
+
+        // File Browser Modal
+        const fileBrowserModal = document.getElementById('fileBrowserModal');
+        const fileBrowserClose = document.getElementById('fileBrowserClose');
+        const fileBrowserCancel = document.getElementById('fileBrowserCancel');
+        const fileBrowserSelect = document.getElementById('fileBrowserSelect');
+        const fileBrowserList = document.getElementById('fileBrowserList');
+        const fileBrowserBreadcrumb = document.getElementById('fileBrowserBreadcrumb');
+        let selectedFiles = [];
+        let isBatchMode = false;
+        let currentPath = ''; // Track current directory path
+
+        // Upload options - open file browser modal when clicked
+        const uploadOptions = document.querySelector('.upload-options');
+        if (uploadOptions) {
+            uploadOptions.addEventListener('click', (e) => {
+                // Don't trigger if clicking directly on the buttons
+                if (e.target.closest('.upload-btn')) {
+                    return;
+                }
+                // Default to single mode when clicking on upload-options
+                isBatchMode = false;
+                selectedFiles = [];
+                openFileBrowser();
+            });
+        }
+
+        // Upload buttons - open file browser modal
+        const singleUploadBtn = document.getElementById('singleUploadBtn');
+        const batchUploadBtn = document.getElementById('batchUploadBtn');
+        
+        if (singleUploadBtn) {
+            singleUploadBtn.addEventListener('click', () => {
+                isBatchMode = false;
+                selectedFiles = [];
+                openFileBrowser();
+            });
+        }
+
+        if (batchUploadBtn) {
+            batchUploadBtn.addEventListener('click', () => {
+                isBatchMode = true;
+                selectedFiles = [];
+                openFileBrowser();
+            });
+        }
+
+        // Close modal handlers
+        if (fileBrowserClose) {
+            fileBrowserClose.addEventListener('click', closeFileBrowser);
+        }
+        if (fileBrowserCancel) {
+            fileBrowserCancel.addEventListener('click', closeFileBrowser);
+        }
+        if (fileBrowserModal) {
+            fileBrowserModal.addEventListener('click', (e) => {
+                if (e.target === fileBrowserModal) {
+                    closeFileBrowser();
+                }
+            });
+        }
+
+        // Select button handler
+        if (fileBrowserSelect) {
+            fileBrowserSelect.addEventListener('click', () => {
+                if (selectedFiles.length === 0) return;
+                
+                if (isBatchMode) {
+                    loadFilesFromBrowser(selectedFiles);
+                } else {
+                    loadFilesFromBrowser([selectedFiles[0]]);
+                }
+                closeFileBrowser();
+            });
+        }
+
+        // File browser functions
+        async function openFileBrowser() {
+            if (!fileBrowserModal || !fileBrowserList) return;
+            
+            fileBrowserModal.classList.add('active');
+            fileBrowserList.innerHTML = '<div class="file-browser-loading">Loading images...</div>';
+            if (fileBrowserSelect) fileBrowserSelect.disabled = true;
+            selectedFiles = [];
+            currentPath = ''; // Reset to root directory
+            await loadDirectory('');
+        }
+
+        async function loadDirectory(subpath) {
+            if (!fileBrowserList) return;
+            
+            fileBrowserList.innerHTML = '<div class="file-browser-loading">Loading...</div>';
+            if (fileBrowserSelect) fileBrowserSelect.disabled = true;
+            selectedFiles = [];
+            currentPath = subpath;
+            
+            try {
+                let url = '/api/list_testimages/fluid_purity_demo';
+                if (subpath) {
+                    url += '/' + encodeURIComponent(subpath);
+                }
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.success && data.items && data.items.length > 0) {
+                    // Update breadcrumb
+                    updateBreadcrumb(data.relative_path || '');
+                    
+                    fileBrowserList.innerHTML = '';
+                    data.items.forEach(item => {
+                        const itemElement = document.createElement('div');
+                        const isDirectory = item.type === 'directory';
+                        itemElement.className = 'file-browser-item' + (isDirectory ? ' directory' : '');
+                        itemElement.dataset.filename = item.name;
+                        itemElement.dataset.type = item.type;
+                        
+                        if (isDirectory) {
+                            // Directory item
+                            itemElement.innerHTML = `
+                                <div class="file-name">📁 ${item.name}</div>
+                                <div class="file-size">Directory</div>
+                            `;
+                            
+                            // Click to navigate into directory
+                            itemElement.addEventListener('click', () => {
+                                const newPath = currentPath ? `${currentPath}/${item.name}` : item.name;
+                                loadDirectory(newPath);
+                            });
+                        } else {
+                            // File item
+                            const filePath = currentPath ? `${currentPath}/${item.name}` : item.name;
+                            const fileSize = formatFileSize(item.size);
+                            
+                            itemElement.innerHTML = `
+                                <div class="file-name">${item.name}</div>
+                                <div class="file-size">${fileSize}</div>
+                            `;
+                            
+                            // Single click - select in batch mode, import directly in single mode
+                            itemElement.addEventListener('click', () => {
+                                if (isBatchMode) {
+                                    if (itemElement.classList.contains('selected')) {
+                                        itemElement.classList.remove('selected');
+                                        selectedFiles = selectedFiles.filter(f => f.path !== filePath);
+                                    } else {
+                                        itemElement.classList.add('selected');
+                                        selectedFiles.push({ name: item.name, path: filePath });
+                                    }
+                                    if (fileBrowserSelect) fileBrowserSelect.disabled = selectedFiles.length === 0;
+                                } else {
+                                    document.querySelectorAll('.file-browser-item').forEach(item => {
+                                        item.classList.remove('selected');
+                                    });
+                                    itemElement.classList.add('selected');
+                                    selectedFiles = [{ name: item.name, path: filePath }];
+                                    if (fileBrowserSelect) fileBrowserSelect.disabled = false;
+                                    loadFilesFromBrowser([{ name: item.name, path: filePath }]);
+                                    closeFileBrowser();
+                                }
+                            });
+                            
+                            // Double click - always import directly
+                            itemElement.addEventListener('dblclick', () => {
+                                loadFilesFromBrowser([{ name: item.name, path: filePath }]);
+                                closeFileBrowser();
+                            });
+                        }
+                        
+                        fileBrowserList.appendChild(itemElement);
+                    });
+                } else {
+                    updateBreadcrumb(data.relative_path || '');
+                    fileBrowserList.innerHTML = '<div class="file-browser-empty">No files or directories found</div>';
+                }
+            } catch (error) {
+                console.error('Error loading directory:', error);
+                fileBrowserList.innerHTML = '<div class="file-browser-empty">Error loading directory. Please try again.</div>';
+            }
+        }
+
+        function updateBreadcrumb(relativePath) {
+            if (!fileBrowserBreadcrumb) return;
+            
+            fileBrowserBreadcrumb.innerHTML = '';
+            
+            // Add root
+            const rootItem = document.createElement('span');
+            rootItem.className = 'file-browser-breadcrumb-item' + (relativePath === '' ? ' active' : '');
+            rootItem.textContent = 'Root';
+            rootItem.addEventListener('click', () => {
+                if (relativePath !== '') {
+                    loadDirectory('');
+                }
+            });
+            fileBrowserBreadcrumb.appendChild(rootItem);
+            
+            // Add path segments
+            if (relativePath) {
+                const segments = relativePath.split('/');
+                let currentPath = '';
+                
+                segments.forEach((segment, index) => {
+                    // Separator
+                    const separator = document.createElement('span');
+                    separator.className = 'file-browser-breadcrumb-separator';
+                    separator.textContent = ' / ';
+                    fileBrowserBreadcrumb.appendChild(separator);
+                    
+                    // Path segment
+                    currentPath = currentPath ? `${currentPath}/${segment}` : segment;
+                    const isLast = index === segments.length - 1;
+                    
+                    const pathItem = document.createElement('span');
+                    pathItem.className = 'file-browser-breadcrumb-item' + (isLast ? ' active' : '');
+                    pathItem.textContent = segment;
+                    if (!isLast) {
+                        pathItem.addEventListener('click', () => {
+                            loadDirectory(currentPath);
+                        });
+                    }
+                    fileBrowserBreadcrumb.appendChild(pathItem);
+                });
+            }
+        }
+
+        function closeFileBrowser() {
+            if (fileBrowserModal) fileBrowserModal.classList.remove('active');
+            selectedFiles = [];
+            currentPath = '';
+            if (fileBrowserSelect) fileBrowserSelect.disabled = true;
+        }
+
+        async function loadFilesFromBrowser(fileItems) {
+            try {
+                // fileItems can be either array of strings (old format) or array of objects with {name, path}
+                const normalizedItems = fileItems.map(item => {
+                    if (typeof item === 'string') {
+                        return { name: item, path: item };
+                    }
+                    return item;
+                });
+                
+                if (isBatchMode) {
+                    const files = [];
+                    for (const fileItem of normalizedItems) {
+                        const response = await fetch(`/api/get_testimage/fluid_purity_demo/${encodeURIComponent(fileItem.path)}`);
+                        if (!response.ok) {
+                            throw new Error(`Failed to load ${fileItem.name}: ${response.statusText}`);
+                        }
+                        const blob = await response.blob();
+                        const ext = fileItem.name.split('.').pop().toLowerCase();
+                        const mimeTypes = {
+                            'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg',
+                            'sto': 'application/octet-stream'
+                        };
+                        const mimeType = mimeTypes[ext] || blob.type || 'image/png';
+                        const file = new File([blob], fileItem.name, { type: mimeType, lastModified: Date.now() });
+                        files.push(file);
+                    }
+                    
+                    // Set selectedFile to first file
+                    if (files.length > 0) {
+                        selectedFile = files[0];
+                        batchFiles = files;
+                        currentBatchIndex = 0;
+                    }
+                    
+                    const dataTransfer = new DataTransfer();
+                    files.forEach(file => dataTransfer.items.add(file));
+                    const batchFileInput = document.getElementById('batchFileInput');
+                    if (batchFileInput) {
+                        batchFileInput.files = dataTransfer.files;
+                        batchFileInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                    
+                    // Ensure controls are enabled after file is loaded
+                    // Use setTimeout to ensure change event handlers have run
+                    setTimeout(() => {
+                        enableControlsAfterUpload();
+                    }, 100);
+                } else {
+                    const fileItem = normalizedItems[0];
+                    const response = await fetch(`/api/get_testimage/fluid_purity_demo/${encodeURIComponent(fileItem.path)}`);
+                    if (!response.ok) {
+                        throw new Error(`Failed to load ${fileItem.name}: ${response.statusText}`);
+                    }
+                    const blob = await response.blob();
+                    const ext = fileItem.name.split('.').pop().toLowerCase();
+                    const mimeTypes = {
+                        'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg',
+                        'sto': 'application/octet-stream'
+                    };
+                    const mimeType = mimeTypes[ext] || blob.type || 'image/png';
+                    const file = new File([blob], fileItem.name, { type: mimeType, lastModified: Date.now() });
+                    
+                    // Set selectedFile before triggering change event
+                    selectedFile = file;
+                    
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    const singleFileInput = document.getElementById('singleFileInput');
+                    if (singleFileInput) {
+                        singleFileInput.files = dataTransfer.files;
+                        singleFileInput.value = '';
+                        singleFileInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                    
+                    // Ensure controls are enabled after file is loaded
+                    // Use setTimeout to ensure change event handlers have run
+                    setTimeout(() => {
+                        enableControlsAfterUpload();
+                    }, 100);
+                }
+            } catch (error) {
+                console.error('Error loading file from browser:', error);
+                alert(`Error loading file: ${error.message}. Please try again.`);
+            }
+        }
+        
+        function enableControlsAfterUpload() {
+            // Update filename display
+            const filenameElement = document.getElementById('filenameValue');
+            if (selectedFile && filenameElement) {
+                filenameElement.textContent = selectedFile.name;
+            }
+            
+            // Show image controls
+            const imageControls = document.getElementById('imageControls');
+            if (imageControls) {
+                imageControls.style.display = 'block';
+            }
+            
+            // Enable weight selection dropdown
+            const modelSelect = document.getElementById('modelSelect');
+            if (modelSelect) {
+                modelSelect.disabled = false;
+                // Ensure weights are loaded if not already
+                if (modelSelect.options.length <= 1) {
+                    loadModelWeights();
+                }
+            }
+            
+            // Update detect button state based on both image and weight selection
+            updateDetectButtonState();
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        // File inputs
+        document.getElementById('singleFileInput').addEventListener('change', handleSingleFileSelect);
+        document.getElementById('batchFileInput').addEventListener('change', handleBatchFileSelect);
+
+        // Detect button
+        document.getElementById('detectBtn').addEventListener('click', detectObjects);
+
+        // Clear status and update model info when a model weight is selected
+        const modelSelect = document.getElementById('modelSelect');
+        modelSelect.addEventListener('change', () => {
+            const statusDiv = document.getElementById('statusMessage');
+            if (statusDiv) statusDiv.textContent = '';
+            const ps = document.getElementById('processingStatusValue');
+            if (ps) ps.textContent = 'Ready';
+            
+            // Clear previous detection results when weight changes
+            clearDetectionResults();
+            
+            // Fetch and display model info when weight is selected
+            const selectedWeightPath = modelSelect.value;
+            if (selectedWeightPath) {
+                updateModelInfo(selectedWeightPath);
+            } else {
+                // Reset to defaults when no weight is selected
+                document.getElementById('architectureValue').textContent = '-';
+                document.getElementById('classesValue').textContent = '-';
+            }
+            
+            // Update detect button state based on both image and weight selection
+            updateDetectButtonState();
+        });
+
+        // Batch navigation
+        document.getElementById('prevImageBtn').addEventListener('click', () => navigateBatch(-1));
+        document.getElementById('nextImageBtn').addEventListener('click', () => navigateBatch(1));
+    }
+
+    function loadModelWeights() {
+        console.log('Loading model weights from /api/fluid_purity_weights');
+        fetch('/api/fluid_purity_weights')
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Weights data received:', data);
+                const select = document.getElementById('modelSelect');
+                if (!select) {
+                    console.error('modelSelect element not found');
+                    return;
+                }
+                
+                select.innerHTML = '<option value="">Select a model weight...</option>';
+                
+                if (data.success && data.weights && data.weights.length > 0) {
+                    console.log(`Found ${data.weights.length} weights`);
+                    data.weights.forEach(weight => {
+                        const option = document.createElement('option');
+                        option.value = weight.path;
+                        option.textContent = weight.display_name || weight.filename;
+                        select.appendChild(option);
+                    });
+                } else {
+                    console.warn('No weights found or empty response:', data);
+                    select.innerHTML = '<option value="">No weights available</option>';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading weights:', error);
+                const select = document.getElementById('modelSelect');
+                if (select) {
+                    select.innerHTML = '<option value="">Error loading weights</option>';
+                }
+            });
+    }
+
+    function updateModelInfo(weightPath) {
+        const formData = new FormData();
+        formData.append('weight_path', weightPath);
+        
+        fetch('/api/get_model_info', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update architecture
+                const architectureElement = document.getElementById('architectureValue');
+                if (architectureElement) {
+                    architectureElement.textContent = data.architecture || '-';
+                }
+                
+                // Update classes
+                const classesElement = document.getElementById('classesValue');
+                if (classesElement) {
+                    if (data.classes_display) {
+                        classesElement.textContent = data.classes_display;
+                    } else if (data.classes && data.classes.length > 0) {
+                        const classesStr = Array.isArray(data.classes) 
+                            ? data.classes.join(', ') 
+                            : (typeof data.classes === 'string' ? data.classes : '-');
+                        classesElement.textContent = classesStr;
+                    } else {
+                        classesElement.textContent = '-';
+                    }
+                }
+                
+                console.log('Model info updated:', {
+                    architecture: data.architecture,
+                    classes: data.classes,
+                    classes_display: data.classes_display
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error loading model info:', error);
+        });
+    }
+
+    function handleSingleFileSelect(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        // Immediately show controls
+        try {
+            const ic0 = document.getElementById('imageControls');
+            if (ic0) ic0.style.display = 'block';
+        } catch (e) {}
+        const lower = file.name.toLowerCase();
+        if (lower.endsWith('.png')) {
+            selectedFile = file;
+            batchFiles = [file];
+            currentBatchIndex = 0;
+            displayImage(file);
+            showImageControls();
+            // Ensure image controls are visible
+            const ic = document.getElementById('imageControls');
+            if (ic) ic.style.display = 'block';
+            // Update detect button state (will be enabled only if weight is also selected)
+            updateDetectButtonState();
+            hideBatchNavigation();
+        } else if (lower.endsWith('.sto')) {
+            const formData = new FormData();
+            formData.append('file', file);
+            fetch('/api/extract_sto_index0', { method: 'POST', body: formData })
+                .then(async r => {
+                    const raw = await r.text();
+                    try { return JSON.parse(raw); } catch(e) { console.error('Non-JSON response:', raw); throw e; }
+                })
+                .then(data => {
+                    if (data.success && data.image) {
+                        const img = new Image();
+                        img.onload = function() {
+                            selectedFile = file;
+                            batchFiles = [file];
+                            currentBatchIndex = 0;
+                            currentImage = img;
+                            resetImage();
+                            
+                            // Call displayImage to handle filename update and prediction reset
+                            displayImage(file);
+                            
+                            updateImageMetrics(img);
+                            const psEl = document.getElementById('processingStatusValue');
+                            const hasWeight = !!document.getElementById('modelSelect').value;
+                            if (psEl) psEl.textContent = hasWeight ? 'Ready' : 'Not ready';
+                        };
+                        img.src = data.image;
+                        showImageControls();
+                        const ic2 = document.getElementById('imageControls');
+                        if (ic2) ic2.style.display = 'block';
+                        // Update detect button state (will be enabled only if weight is also selected)
+                        updateDetectButtonState();
+                        hideBatchNavigation();
+                    } else {
+                        updateStatus(data.error || 'Invalid STO file: missing PNG at index 0', true);
+                    }
+                })
+                .catch(err => {
+                    console.error('STO extract failed', err);
+                    updateStatus('Invalid STO file: missing PNG at index 0', true);
+                });
+        } else {
+            updateStatus('Unsupported file type. Please select PNG or STO.', true);
+        }
+    }
+
+    function handleBatchFileSelect(event) {
+        const files = Array.from(event.target.files);
+        if (!files.length) return;
+        // Immediately show controls
+        try {
+            const icb0 = document.getElementById('imageControls');
+            if (icb0) icb0.style.display = 'block';
+        } catch (e) {}
+        batchFiles = files;
+        currentBatchIndex = 0;
+        const first = files[0];
+        const lower = first.name.toLowerCase();
+        if (lower.endsWith('.png')) {
+            selectedFile = first;
+            displayImage(first);
+            showImageControls();
+            const ic3 = document.getElementById('imageControls');
+            if (ic3) ic3.style.display = 'block';
+            // Update detect button state (will be enabled only if weight is also selected)
+            updateDetectButtonState();
+            showBatchNavigation();
+        } else if (lower.endsWith('.sto')) {
+            const formData = new FormData();
+            formData.append('file', first);
+            fetch('/api/extract_sto_index0', { method: 'POST', body: formData })
+                .then(async r => {
+                    const raw = await r.text();
+                    try { return JSON.parse(raw); } catch(e) { console.error('Non-JSON response:', raw); throw e; }
+                })
+                .then(data => {
+                    if (data.success && data.image) {
+                        const img = new Image();
+                        img.onload = function() {
+                            selectedFile = first;
+                            currentImage = img;
+                            resetImage();
+                            
+                            // Call displayImage to handle filename update and prediction reset
+                            displayImage(first);
+                            
+                            updateImageMetrics(img);
+                            const psEl2 = document.getElementById('processingStatusValue');
+                            const hasWeight2 = !!document.getElementById('modelSelect').value;
+                            if (psEl2) psEl2.textContent = hasWeight2 ? 'Ready' : 'Not ready';
+                        };
+                        img.src = data.image;
+                        showImageControls();
+                        const ic4 = document.getElementById('imageControls');
+                        if (ic4) ic4.style.display = 'block';
+                        // Update detect button state (will be enabled only if weight is also selected)
+                        updateDetectButtonState();
+                        showBatchNavigation();
+                    } else {
+                        updateStatus(data.error || 'Invalid STO file: missing PNG at index 0', true);
+                    }
+                })
+                .catch(err => {
+                    console.error('STO extract failed', err);
+                    updateStatus('Invalid STO file: missing PNG at index 0', true);
+                });
+        } else {
+            updateStatus('Unsupported file type. Please select PNG or STO.', true);
+        }
+    }
+
+    function displayImage(file) {
+        // Update filename display
+        const filenameElement = document.getElementById('filenameValue');
+        if (filenameElement) {
+            filenameElement.textContent = file.name;
+            console.log('Updated filename to:', file.name);
+        } else {
+            console.error('filenameValue element not found');
+        }
+        // Clear status message after image selection
+        const statusDiv = document.getElementById('statusMessage');
+        if (statusDiv) statusDiv.textContent = '';
+        // Clear detection results when new image is uploaded
+        clearDetectionResults();
+        
+        // Update file metrics
+        updateFileMetrics(file);
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Load the image for transformations
+            const img = new Image();
+            img.onload = function() {
+                currentImage = img;
+                resetImage();
+                // Update image-specific metrics
+                updateImageMetrics(img);
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function updateFileMetrics(file) {
+        // File size
+        const fileSizeKB = (file.size / 1024).toFixed(2);
+        document.getElementById('fileSizeValue').textContent = `${fileSizeKB} KB`;
+        
+        // File format removed
+        
+        // Upload time
+        const uploadTime = new Date().toLocaleTimeString();
+        document.getElementById('uploadTimeValue').textContent = uploadTime;
+        
+        // Processing status: show when image selected
+        const psElUp = document.getElementById('processingStatusValue');
+        const hasWeightUp = !!document.getElementById('modelSelect').value;
+        if (psElUp) psElUp.textContent = hasWeightUp ? 'Ready' : 'Not ready';
+    }
+
+    function updateImageMetrics(img) {
+        // Image dimensions → write to transientImageDimensions (we removed imageDimensionsValue)
+        const transientEl = document.getElementById('transientImageDimensions');
+        if (transientEl) {
+            transientEl.textContent = `${img.width} × ${img.height}`;
+        }
+        
+        // Processing status: clear after image metrics updated
+        const ps = document.getElementById('processingStatusValue');
+        if (ps) ps.textContent = '';
+    }
+
+    function showImageControls() {
+        document.getElementById('imageControls').style.display = 'block';
+        // Ensure weights are loaded when controls are shown
+        const select = document.getElementById('modelSelect');
+        if (select && select.options.length <= 1) {
+            // Only reload if dropdown is empty or only has placeholder
+            loadModelWeights();
+        }
+        // Update detect button state based on both image and weight selection
+        updateDetectButtonState();
+    }
+    
+    // Helper function to update detect button state based on image and weight selection
+    function updateDetectButtonState() {
+        const detectBtn = document.getElementById('detectBtn');
+        if (!detectBtn) return;
+        
+        const hasImage = selectedFile !== null && selectedFile !== undefined;
+        const hasWeight = document.getElementById('modelSelect').value !== '';
+        
+        // Enable detect button only when both image is uploaded and weight is selected
+        detectBtn.disabled = !(hasImage && hasWeight);
+    }
+
+    function hideImageControls() {
+        document.getElementById('imageControls').style.display = 'none';
+        document.getElementById('detectBtn').disabled = true;
+    }
+
+    function showBatchNavigation() {
+        document.getElementById('batchNavigation').style.display = 'flex';
+        updateBatchNavigation();
+    }
+
+    function hideBatchNavigation() {
+        document.getElementById('batchNavigation').style.display = 'none';
+    }
+
+    function updateBatchNavigation() {
+        document.getElementById('prevImageBtn').disabled = currentBatchIndex === 0;
+        document.getElementById('nextImageBtn').disabled = currentBatchIndex === batchFiles.length - 1;
+    }
+
+    function navigateBatch(direction) {
+        const newIndex = currentBatchIndex + direction;
+        if (newIndex >= 0 && newIndex < batchFiles.length) {
+            currentBatchIndex = newIndex;
+            selectedFile = batchFiles[currentBatchIndex];
+            displayImage(selectedFile);
+            updateBatchNavigation();
+            // Update detect button state after navigating to new image
+            updateDetectButtonState();
+        }
+    }
+
+    function rotateImage(degrees) {
+        if (!currentImage) return;
+        
+        currentRotation = (currentRotation + degrees) % 360;
+        if (currentRotation < 0) currentRotation += 360;
+        
+    }
+
+    function flipImage(direction) {
+        if (!currentImage) return;
+        
+        if (direction === 'horizontal') {
+            currentFlip.horizontal = !currentFlip.horizontal;
+        } else if (direction === 'vertical') {
+            currentFlip.vertical = !currentFlip.vertical;
+        }
+        
+    }
+
+    function resetImage() {
+        if (!currentImage) return;
+        
+        currentRotation = 0;
+        currentFlip = { horizontal: false, vertical: false };
+        
+    }
+
+
+
+    // Function to clear detection results
+    function clearDetectionResults() {
+        try {
+            document.getElementById('prediction1').textContent = '1. -';
+            document.getElementById('prediction2').textContent = '2. -';
+            document.getElementById('prediction3').textContent = '3. -';
+            document.getElementById('detectionCount').textContent = 'Found no fluid purity';
+            // Clear performance metrics that are updated during inference
+            document.getElementById('inferenceTimeValue').textContent = '-';
+        } catch (e) {
+            console.warn('Error clearing detection results:', e);
+        }
+    }
+
+    async function detectObjects() {
+        // Validate that image is uploaded
+        if (!selectedFile) {
+            updateStatus('Please upload an image first', true);
+            return;
+        }
+        
+        // Validate that model weight is selected
+        const weightPath = document.getElementById('modelSelect').value;
+        if (!weightPath) {
+            updateStatus('Please select a model weight first', true);
+            return;
+        }
+
+        // Get filename from the displayed value
+        const filenameElement = document.getElementById('filenameValue');
+        const displayedFilename = filenameElement ? filenameElement.textContent : selectedFile.name;
+        
+        // Clear any prior status message before starting detection
+        const statusDivDetect = document.getElementById('statusMessage');
+        if (statusDivDetect) statusDivDetect.textContent = '';
+        
+        // Clear previous detection results to ensure fresh inference
+        clearDetectionResults();
+
+        // Repopulate Input File Metrics at detection time
+        try {
+            if (selectedFile) {
+                updateFileMetrics(selectedFile);
+            }
+            // Always update transient image dimensions when detect button is clicked
+            if (currentImage) {
+                updateImageMetrics(currentImage);
+            } else if (selectedFile) {
+                // If currentImage is not available, load image from file to get dimensions
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        updateImageMetrics(img);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(selectedFile);
+            }
+        } catch (e) {
+            // Safe guard - ignore metric update errors
+            console.warn('Metrics update failed:', e);
+        }
+        
+        // Always perform fresh inference on each Detect click (no frontend caching)
+
+        try {
+            showLoading();
+            const psStart = document.getElementById('processingStatusValue');
+            if (psStart) psStart.textContent = 'Processing...';
+            
+            // Prepare form data
+            const formData = new FormData();
+            
+            // Use the uploaded image file (selectedFile) for inference
+            console.log('Detecting with uploaded image:', displayedFilename);
+            console.log('File object:', selectedFile.name);
+            formData.append('file', selectedFile);
+            formData.append('weight_path', weightPath);
+            
+            // Add timestamp to prevent browser caching
+            const timestamp = Date.now();
+            formData.append('_timestamp', timestamp.toString());
+            
+            // Send to API - always make fresh request
+            const response = await fetch('/api/detect_material_head', {
+                method: 'POST',
+                body: formData,
+                cache: 'no-store'  // Prevent browser caching
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                const psDone = document.getElementById('processingStatusValue');
+                if (psDone) psDone.textContent = 'Inference Complete';
+                // Ensure status is cleared on success
+                const statusDivSuccess = document.getElementById('statusMessage');
+                if (statusDivSuccess) statusDivSuccess.textContent = '';
+                displayResults(data);
+            } else {
+                updateStatus(data.error || 'Detection failed', true);
+            }
+        } catch (error) {
+            console.error('Detection error:', error);
+            updateStatus('Detection failed: ' + error.message, true);
+        } finally {
+            hideLoading();
+        }
+    }
+
+    function displayResults(data) {
+        // Update performance metrics
+        document.getElementById('architectureValue').textContent = data.architecture || '-';
+        document.getElementById('inferenceTimeValue').textContent = data.inference_time ? `${data.inference_time.toFixed(1)}ms` : '-';
+        
+        // Update classes display
+        console.log('DEBUG: Classes data from API:', data.classes);
+        console.log('DEBUG: Classes display from API:', data.classes_display);
+        
+        const classesElement = document.getElementById('classesValue');
+        if (!classesElement) {
+            console.error('DEBUG: classesValue element not found!');
+            return;
+        }
+        
+        if (data.classes_display) {
+            // Use the formatted display string if available
+            console.log('DEBUG: Using classes_display:', data.classes_display);
+            classesElement.textContent = data.classes_display;
+        } else if (data.classes && data.classes.length > 0) {
+            // Otherwise format from array
+            const classesStr = Array.isArray(data.classes) 
+                ? data.classes.join(', ') 
+                : (typeof data.classes === 'string' ? data.classes : '-');
+            console.log('DEBUG: Using formatted classes array:', classesStr);
+            classesElement.textContent = classesStr;
+        } else {
+            console.log('DEBUG: No classes data found, setting to -');
+            classesElement.textContent = '-';
+        }
+        
+        console.log('DEBUG: Final classesValue textContent:', classesElement.textContent);
+
+        // Update predictions - always show 3 with percentages (pad with 0%)
+        const preds = (data.top3_predictions || []).slice(0, 3);
+        while (preds.length < 3) {
+            preds.push({ class: '-', probability: 0 });
+        }
+        for (let i = 0; i < 3; i++) {
+            const element = document.getElementById(`prediction${i + 1}`);
+            const pred = preds[i];
+            element.textContent = `${i + 1}. ${pred.class} - ${(pred.probability * 100).toFixed(2)}%`;
+        }
+
+        // Update detection count - only count objects with >90% confidence
+        let count = 0;
+        if (data.top3_predictions && data.top3_predictions.length > 0) {
+            count = data.top3_predictions.filter(pred => pred.probability > 0.9).length;
+        }
+        document.getElementById('detectionCount').textContent = `Found ${count} object(s)`;
+
+    }
+
+    function showLoading() {
+        document.getElementById('detectBtn').disabled = true;
+        document.getElementById('detectBtn').innerHTML = 'Detecting...';
+    }
+
+    function hideLoading() {
+        document.getElementById('detectBtn').disabled = false;
+        document.getElementById('detectBtn').innerHTML = 'Detect Fluid Purity';
+    }
+
+    function updateStatus(message, isError = false) {
+        const statusDiv = document.getElementById('statusMessage');
+        statusDiv.textContent = message;
+        statusDiv.style.color = isError ? '#ff6666' : '#ccc';
+        
+        if (isError) {
+            setTimeout(() => {
+                statusDiv.textContent = '';
+                statusDiv.style.color = '#ccc';
+            }, 3000);
+        }
+    }
+</script>
+{% endblock %}

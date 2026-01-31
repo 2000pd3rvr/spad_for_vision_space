@@ -1,0 +1,427 @@
+{% extends "base.html" %}
+
+{% block title %}Object Detection - Machine Vision Plus{% endblock %}
+
+{% block content %}
+<div class="detection-container">
+    <div class="detection-header">
+        <h1 class="page-title">
+        </h1>
+        <p class="page-subtitle">Upload a spatially resolved image (e.g RGB encoded) to detect objects using YOLOv3_custom model trained on 80 COCO classes (person, car, dog, cat, etc.)</p>
+    </div>
+
+    <div class="detection-content">
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-content" id="uploadContent">
+                    <h3>Drop your image here</h3>
+                    <p>or click to browse</p>
+                    <input type="file" id="imageInput" accept="image/*" hidden>
+                </div>
+                <div class="crop-content" id="cropContent" style="display: none;">
+                    <div class="crop-container">
+                        <img id="cropImage" alt="Image to crop">
+                    </div>
+                </div>
+            </div>
+            <div class="upload-actions">
+                <button class="btn btn-primary" id="selectImageBtn">
+                    Select Image
+                </button>
+                <button class="btn btn-secondary" id="cancelCropBtn" style="display: none;">
+                    Cancel
+                </button>
+                <button class="btn btn-primary" id="cropAndDetectBtn" style="display: none;">
+                    Crop & Detect
+                </button>
+                <button class="btn btn-secondary" id="detectBtn" disabled>
+                    Detect Objects
+                </button>
+            </div>
+            <div class="crop-tools" id="cropTools" style="display: none;">
+                <button class="btn btn-secondary" id="rotateLeftBtn" title="Rotate Left 90°">Rotate L</button>
+                <button class="btn btn-secondary" id="rotateRightBtn" title="Rotate Right 90°">Rotate R</button>
+                <button class="btn btn-secondary" id="flipHBtn" title="Flip Horizontal">Flip H</button>
+                <button class="btn btn-secondary" id="flipVBtn" title="Flip Vertical">Flip V</button>
+                <button class="btn btn-secondary" id="resetTransformBtn" title="Reset">Reset</button>
+            </div>
+        </div>
+
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <div class="results-header">
+                <div class="loading-spinner" id="loadingSpinner" style="display: none;">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Processing...</span>
+                </div>
+            </div>
+            
+            <div class="results-content">
+                <div class="image-preview-wrapper">
+                    <img id="resultImage" class="image-preview-canvas" alt="Detection result">
+                </div>
+                
+                <div class="detections-list" id="detectionsList">
+                    <!-- Detections will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .image-preview-wrapper {
+        position: relative;
+        display: inline-block;
+        border: 2px solid #333333;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 10px;
+        max-width: 100%;
+        max-height: 300px;
+    }
+
+    .image-preview-canvas {
+        max-width: 100%;
+        max-height: 300px;
+        cursor: crosshair;
+        display: block;
+        image-rendering: auto;
+        image-rendering: smooth;
+    }
+
+    #resultImage {
+        width: 100%;
+        height: auto;
+        max-height: 300px;
+        border-radius: 8px;
+        object-fit: contain;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadArea = document.getElementById('uploadArea');
+    const imageInput = document.getElementById('imageInput');
+    const selectImageBtn = document.getElementById('selectImageBtn');
+    const detectBtn = document.getElementById('detectBtn');
+    const uploadContent = document.getElementById('uploadContent');
+    const cropContent = document.getElementById('cropContent');
+    const cropImage = document.getElementById('cropImage');
+    const cancelCropBtn = document.getElementById('cancelCropBtn');
+    const cropAndDetectBtn = document.getElementById('cropAndDetectBtn');
+    const resultsSection = document.getElementById('resultsSection');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const resultImage = document.getElementById('resultImage');
+    const detectionsList = document.getElementById('detectionsList');
+    const cropTools = document.getElementById('cropTools');
+    const rotateLeftBtn = document.getElementById('rotateLeftBtn');
+    const rotateRightBtn = document.getElementById('rotateRightBtn');
+    const flipHBtn = document.getElementById('flipHBtn');
+    const flipVBtn = document.getElementById('flipVBtn');
+    const resetTransformBtn = document.getElementById('resetTransformBtn');
+
+    let selectedFile = null;
+    let croppedFile = null;
+    let cropper = null;
+    let currentScaleX = 1;
+    let currentScaleY = 1;
+
+    // File selection handlers
+    selectImageBtn.addEventListener('click', () => imageInput.click());
+    
+    uploadArea.addEventListener('click', (e) => {
+        // Only trigger file input if not clicking on crop content
+        if (!e.target.closest('.crop-content')) {
+            imageInput.click();
+        }
+    });
+    
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+    
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            handleFileSelect(files[0]);
+        }
+    });
+
+    imageInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            handleFileSelect(e.target.files[0]);
+        }
+    });
+
+    function handleFileSelect(file) {
+        if (file.type.startsWith('image/')) {
+            selectedFile = file;
+            
+            // Show crop interface within upload area
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                cropImage.src = e.target.result;
+                uploadContent.style.display = 'none';
+                cropContent.style.display = 'block';
+                selectImageBtn.style.display = 'none';
+                cancelCropBtn.style.display = 'inline-flex';
+                cropAndDetectBtn.style.display = 'inline-flex';
+                resultsSection.style.display = 'none';
+                detectBtn.disabled = false;
+                croppedFile = selectedFile; // allow detection without cropping
+                
+                // Initialize cropper after image loads
+                cropImage.onload = () => {
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+                    cropper = new Cropper(cropImage, {
+                        aspectRatio: NaN, // Free aspect ratio
+                        viewMode: 1,
+                        dragMode: 'crop',
+                        autoCropArea: 0,
+                        restore: false,
+                        guides: false,
+                        center: false,
+                        highlight: false,
+                        cropBoxMovable: true,
+                        cropBoxResizable: true,
+                        toggleDragModeOnDblclick: false,
+                        background: false,
+                        autoCrop: false
+                    });
+                    cropTools.style.display = 'flex';
+                    currentScaleX = 1;
+                    currentScaleY = 1;
+                };
+                
+                // Prevent crop content clicks from opening file dialog
+                cropContent.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+            };
+            reader.readAsDataURL(file);
+        } else {
+            alert('Please select a valid image file.');
+        }
+    }
+
+    // Cancel crop handler
+    cancelCropBtn.addEventListener('click', () => {
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        uploadContent.style.display = 'block';
+        cropContent.style.display = 'none';
+        selectImageBtn.style.display = 'inline-flex';
+        cancelCropBtn.style.display = 'none';
+        cropAndDetectBtn.style.display = 'none';
+        resultsSection.style.display = 'none';
+        selectedFile = null;
+        croppedFile = null;
+        detectBtn.disabled = true;
+        cropTools.style.display = 'none';
+        currentScaleX = 1;
+        currentScaleY = 1;
+    });
+
+    // Crop and detect handler
+    cropAndDetectBtn.addEventListener('click', async () => {
+        if (!selectedFile || !cropper) return;
+
+        // Check if user has selected a crop area
+        const cropBoxData = cropper.getCropBoxData();
+        if (!cropBoxData || cropBoxData.width === 0 || cropBoxData.height === 0) {
+            alert('Please select an area to crop by clicking and dragging on the image.');
+            return;
+        }
+
+        // Get cropped canvas
+        const canvas = cropper.getCroppedCanvas({
+            width: 800,
+            height: 600,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high'
+        });
+
+        // Convert canvas to blob
+        canvas.toBlob(async (blob) => {
+            if (blob) {
+                croppedFile = new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' });
+                
+                // Keep crop interface open and show results
+                resultsSection.style.display = 'block';
+                
+                // Process the cropped image
+                await processImage(croppedFile);
+            }
+        }, 'image/jpeg', 0.9);
+    });
+
+    // Original detect button handler (now processes cropped or whole transformed image)
+    detectBtn.addEventListener('click', async () => {
+        if (!selectedFile) return;
+        resultsSection.style.display = 'block';
+
+        if (cropper) {
+            // Get current crop box data
+            const cropBoxData = cropper.getCropBoxData();
+            let hadSelection = !!(cropBoxData && cropBoxData.width > 0 && cropBoxData.height > 0);
+
+            // If no crop selection, use full image
+            if (!hadSelection) {
+                const imageData = cropper.getImageData();
+                cropper.setData({ x: 0, y: 0, width: imageData.naturalWidth, height: imageData.naturalHeight });
+            }
+
+            // Get the canvas with ALL transformations applied (rotation, flip, crop)
+            const canvas = cropper.getCroppedCanvas({
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high',
+                fillColor: '#fff',
+                maxWidth: 2048,
+                maxHeight: 2048
+            });
+
+            // Immediately update resultImage to show EXACT current state of displayed image
+            const canvasDataURL = canvas.toDataURL('image/jpeg', 0.9);
+            resultImage.src = canvasDataURL;
+            resultImage.style.display = 'block';
+            
+            console.log('DEBUG: Updated resultImage with EXACT current state of displayed image');
+            console.log('DEBUG: Canvas dimensions:', canvas.width, 'x', canvas.height);
+            console.log('DEBUG: Cropper rotation:', cropper.getImageData().rotate);
+            console.log('DEBUG: Cropper scaleX:', cropper.getImageData().scaleX);
+            console.log('DEBUG: Cropper scaleY:', cropper.getImageData().scaleY);
+
+            // Clear crop selection if it was auto-set
+            if (!hadSelection) {
+                cropper.clear();
+            }
+
+            // Process the image
+            await new Promise((resolve) => {
+                canvas.toBlob(async (blob) => {
+                    if (blob) {
+                        croppedFile = new File([blob], 'transformed-image.jpg', { type: 'image/jpeg' });
+                        await processImage(croppedFile);
+                    }
+                    resolve();
+                }, 'image/jpeg', 0.9);
+            });
+        } else if (croppedFile) {
+            await processImage(croppedFile);
+        }
+    });
+
+    async function processImage(file) {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        loadingSpinner.style.display = 'flex';
+        detectBtn.disabled = true;
+
+        try {
+            const response = await fetch('/api/detect', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Show annotated image with bounding boxes (this will overlay the current image)
+                resultImage.src = 'data:image/jpeg;base64,' + data.image;
+                console.log('DEBUG: Updated resultImage with annotated result');
+                
+                // Show detections list
+                detectionsList.innerHTML = '';
+                
+                // Show top 3 class confidences
+                if (data.all_class_confidences) {
+                    const confidenceSection = document.createElement('div');
+                    confidenceSection.className = 'confidence-section pretrained-confidence';
+                    confidenceSection.innerHTML = '<h4>Top 3 Class Confidences:</h4>';
+                    
+                    const confidenceGrid = document.createElement('div');
+                    confidenceGrid.className = 'confidence-grid';
+                    
+                    // Sort classes by confidence (highest first)
+                    const sortedClasses = Object.entries(data.all_class_confidences)
+                        .sort(([,a], [,b]) => b - a);
+                    
+                    sortedClasses.forEach(([className, confidence]) => {
+                        const confidenceItem = document.createElement('div');
+                        confidenceItem.className = `confidence-item ${confidence > 0 ? 'detected' : 'not-detected'}`;
+                        confidenceItem.innerHTML = `
+                            <span class="confidence-class">${className}</span>
+                            <span class="confidence-value">${(confidence * 100).toFixed(1)}%</span>
+                        `;
+                        confidenceGrid.appendChild(confidenceItem);
+                    });
+                    
+                    confidenceSection.appendChild(confidenceGrid);
+                    detectionsList.appendChild(confidenceSection);
+                }
+            } else {
+                alert('Error: ' + data.error);
+            }
+        } catch (error) {
+            alert('Error processing image: ' + error.message);
+        } finally {
+            loadingSpinner.style.display = 'none';
+            detectBtn.disabled = false;
+        }
+    }
+
+    // Crop tools handlers
+    rotateLeftBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (cropper) cropper.rotate(-90);
+    });
+
+    rotateRightBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (cropper) cropper.rotate(90);
+    });
+
+    flipHBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (cropper) {
+            currentScaleX = currentScaleX === 1 ? -1 : 1;
+            cropper.scaleX(currentScaleX);
+        }
+    });
+
+    flipVBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (cropper) {
+            currentScaleY = currentScaleY === 1 ? -1 : 1;
+            cropper.scaleY(currentScaleY);
+        }
+    });
+
+    resetTransformBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (cropper) {
+            cropper.reset();
+            currentScaleX = 1;
+            currentScaleY = 1;
+        }
+    });
+});
+</script>
+{% endblock %}

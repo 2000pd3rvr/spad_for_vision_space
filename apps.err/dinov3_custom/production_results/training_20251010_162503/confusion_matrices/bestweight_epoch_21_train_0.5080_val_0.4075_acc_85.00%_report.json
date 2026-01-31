@@ -1,0 +1,69 @@
+{
+  "bowl": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1-score": 1.0,
+    "support": 20.0
+  },
+  "carrot": {
+    "precision": 0.6206896551724138,
+    "recall": 0.9,
+    "f1-score": 0.7346938775510204,
+    "support": 20.0
+  },
+  "eggplant": {
+    "precision": 0.9117647058823529,
+    "recall": 1.0,
+    "f1-score": 0.9538461538461539,
+    "support": 31.0
+  },
+  "greenpepper": {
+    "precision": 1.0,
+    "recall": 0.7777777777777778,
+    "f1-score": 0.875,
+    "support": 9.0
+  },
+  "potato": {
+    "precision": 0.8620689655172413,
+    "recall": 0.8620689655172413,
+    "f1-score": 0.8620689655172413,
+    "support": 29.0
+  },
+  "redpepper": {
+    "precision": 0.5,
+    "recall": 0.2,
+    "f1-score": 0.2857142857142857,
+    "support": 5.0
+  },
+  "teacup": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1-score": 1.0,
+    "support": 20.0
+  },
+  "tomato": {
+    "precision": 0.8666666666666667,
+    "recall": 0.65,
+    "f1-score": 0.7428571428571429,
+    "support": 20.0
+  },
+  "yellowpepper": {
+    "precision": 0.75,
+    "recall": 0.5,
+    "f1-score": 0.6,
+    "support": 6.0
+  },
+  "accuracy": 0.8625,
+  "macro avg": {
+    "precision": 0.8345766659154084,
+    "recall": 0.7655385270327799,
+    "f1-score": 0.7837978250539828,
+    "support": 160.0
+  },
+  "weighted avg": {
+    "precision": 0.868823951994591,
+    "recall": 0.8625,
+    "f1-score": 0.8563988912872842,
+    "support": 160.0
+  }
+}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Demos - MV+{% endblock %}
+
+{% block content %}
+<div class="demos-container">
+
+    <div class="demos-content">
+        <div class="demo-grid">
+            <div class="demo-card">
+                <div class="demo-header">
+                    <h3>Other Vision Models</h3>
+                </div>
+                <div class="demo-features">
+                    <ul>
+                        <li><a href="/detect_yolov3" class="feature-link">YOLOv3_custom</a></li>
+                        <li><a href="/custom_yolov8_demo" class="feature-link">YOLOv8_custom</a></li>
+                        <li><a href="/dinov3_demo" class="feature-link">DINOv3_custom</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <div class="demo-header">
+                    <h3>MV+ Vision Models</h3>
+                </div>
+                <div class="demo-features">
+                    <ul>
+                        <li><a href="/flat_surface_detection" class="feature-link">Material Detection - flat homogenous surfaces</a></li>
+                    <li><a href="/fluid_purity_demo" class="feature-link">Material Detection - fluid purity of homogenized milk</a></li>
+                    <li><a href="/material_detection_head" class="feature-link">Material Detection - spatiotemporal material detection head</a></li>
+                    <li><a href="/spatiotemporal_detection" class="feature-link">spatiotemporal detection</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

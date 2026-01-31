@@ -1,0 +1,65 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Git backups
+.git.backup/
+.git.backup/**
+
+# Database
+*.db
+visitors.db
+
+# Large model files (if any)
+*.pth
+*.pt
+*.h5
+*.ckpt
+
+# Test data directories (if large)
+testmages*/
+test_*/
+val_*/
+train_*/
+
+# Exclude large test data files
+*.sto
+material_detection_naturalobjects/spatiotemporal_model/correct_sto/
+material_detection_naturalobjects/**/correct_sto/
+
+# Binary files (PNG, GIF) - Hugging Face Spaces doesn't allow via git
+# Use Xet storage or exclude from repo
+*.png
+*.gif
+*.jpg
+*.jpeg
+# But allow static images needed for UI (we'll handle separately)
+!static/*.png
+!static/*.gif
+!static/*.jpg
+!static/*.jpeg
+
+# Training results (not needed for deployment)
+**/training_results/
+**/scriptz/training_results/
+
+# Temporary files
+temp_*
+uploads/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git pack files (if accidentally committed)
+.git/objects/pack/*.pack
+.git/objects/pack/*.idx

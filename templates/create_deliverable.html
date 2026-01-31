@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Create Deliverable - MV+{% endblock %}
+
+{% block content %}
+<div class="create-deliverable-container">
+    <div class="create-deliverable-content">
+        <div class="create-deliverable-header">
+            <h1>Create New Deliverable</h1>
+            <p>Add a new deliverable to track your progress</p>
+        </div>
+
+        <div class="create-deliverable-form-container">
+            <form class="create-deliverable-form" method="POST">
+                <div class="form-group">
+                    <label for="title">Title *</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="4"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="deliverable_type">Type</label>
+                        <select id="deliverable_type" name="deliverable_type">
+                            <option value="document">Document</option>
+                            <option value="code">Code</option>
+                            <option value="design">Design</option>
+                            <option value="presentation">Presentation</option>
+                            <option value="report">Report</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="priority">Priority</label>
+                        <select id="priority" name="priority">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="project_id">Project (Optional)</label>
+                        <select id="project_id" name="project_id">
+                            <option value="">No Project</option>
+                            {% for project in projects %}
+                            <option value="{{ project.id }}">{{ project.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="due_date">Due Date (Optional)</label>
+                        <input type="date" id="due_date" name="due_date">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Create Deliverable</button>
+                    <a href="{{ url_for('deliverables') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
