@@ -441,17 +441,53 @@ def api_stats():
 
 @app.route("/api/flat_surface_detection_weights", methods=["GET"])
 def api_flat_surface_detection_weights():
-    """API endpoint to get flat surface detection model weights from local directory"""
+    """API endpoint to get flat surface detection model weights from local directory or Hugging Face Hub"""
     import os
     import glob
     import re
     
     try:
         weights = []
-        
-        # Look for weights in models folder (sibling to BASE_DIR)
         weights_dir = os.path.join(get_models_dir(), "flat_surface")
+        repo_id = "mvplus/spatiotemporal_models"
+        subfolder = "flat_surface"
         
+        # First, try to get weights from Hugging Face Hub
+        hub_files = fetch_weights_from_hub(repo_id, subfolder)
+        for hub_file in hub_files:
+            filename = os.path.basename(hub_file)
+            # Extract accuracy and epoch from filename
+            pattern_match = re.search(r'epoch_(\d+)_Accuracy_([\d\.]+)', filename)
+            if pattern_match:
+                epoch = int(pattern_match.group(1))
+                try:
+                    acc_str = pattern_match.group(2).rstrip('.')
+                    accuracy = float(acc_str)
+                    display_name = f"Epoch {epoch} ({accuracy:.2f}% accuracy)"
+                    weight_type = "Checkpoint"
+                except ValueError:
+                    epoch = 0
+                    accuracy = 0.0
+                    display_name = filename.replace('.pth', '')
+                    weight_type = "Checkpoint"
+            else:
+                epoch = 0
+                accuracy = 0.0
+                display_name = filename.replace('.pth', '')
+                weight_type = "Checkpoint"
+            
+            # Use Hub path format for on-demand download
+            weights.append({
+                "filename": filename,
+                "path": f"hub://{repo_id}/{hub_file}",  # Hub path for on-demand download
+                "display_name": display_name,
+                "accuracy": accuracy,
+                "epoch": epoch,
+                "weight_type": weight_type,
+                "source": "hub"
+            })
+        
+        # Also check local files
         if os.path.exists(weights_dir):
             weight_files = glob.glob(os.path.join(weights_dir, "*.pth"))
             
@@ -518,16 +554,53 @@ def api_flat_surface_detection_weights():
 
 @app.route("/api/fluid_purity_weights", methods=["GET"])
 def api_fluid_purity_weights():
-    """API endpoint to get fluid purity model weights from local directory"""
+    """API endpoint to get fluid purity model weights from local directory or Hugging Face Hub"""
     import os
     import glob
     import re
     
     try:
         weights = []
-        
-        # Look for weights in models folder (sibling to BASE_DIR)
         weights_dir = os.path.join(get_models_dir(), "material_purity")
+        repo_id = "mvplus/spatiotemporal_models"
+        subfolder = "material_purity"
+        
+        # First, try to get weights from Hugging Face Hub
+        hub_files = fetch_weights_from_hub(repo_id, subfolder)
+        for hub_file in hub_files:
+            filename = os.path.basename(hub_file)
+            # Extract accuracy and epoch from filename
+            pattern_match = re.search(r'epoch_(\d+)_Accuracy_([\d\.]+)', filename)
+            if pattern_match:
+                epoch = int(pattern_match.group(1))
+                try:
+                    acc_str = pattern_match.group(2).rstrip('.')
+                    accuracy = float(acc_str)
+                    display_name = f"Epoch {epoch} ({accuracy:.2f}% accuracy)"
+                    weight_type = "Checkpoint"
+                except ValueError:
+                    epoch = 0
+                    accuracy = 0.0
+                    display_name = filename.replace('.pth', '')
+                    weight_type = "Checkpoint"
+            else:
+                epoch = 0
+                accuracy = 0.0
+                display_name = filename.replace('.pth', '')
+                weight_type = "Checkpoint"
+            
+            weights.append({
+                "filename": filename,
+                "path": f"hub://{repo_id}/{hub_file}",
+                "display_name": display_name,
+                "accuracy": accuracy,
+                "epoch": epoch,
+                "weight_type": weight_type,
+                "source": "hub"
+            })
+        
+        # Also check local files
+        if os.path.exists(weights_dir):
         
         if os.path.exists(weights_dir):
             weight_files = glob.glob(os.path.join(weights_dir, "*.pth"))
@@ -559,14 +632,18 @@ def api_fluid_purity_weights():
                     display_name = filename.replace('.pth', '')
                     weight_type = "Checkpoint"
                 
-                weights.append({
-                    "filename": filename,
-                    "path": weight_file,  # Use local path
-                    "display_name": display_name,
-                    "accuracy": accuracy,
-                    "epoch": epoch,
-                    "weight_type": weight_type
-                })
+                # Check if this weight is already in the list from Hub
+                existing = next((w for w in weights if w['filename'] == filename), None)
+                if not existing:
+                    weights.append({
+                        "filename": filename,
+                        "path": weight_file,  # Use local path
+                        "display_name": display_name,
+                        "accuracy": accuracy,
+                        "epoch": epoch,
+                        "weight_type": weight_type,
+                        "source": "local"
+                    })
             
             # Sort by accuracy (highest first), then by epoch
             weights.sort(key=lambda x: (x['accuracy'], x['epoch']), reverse=True)
@@ -589,16 +666,53 @@ def api_fluid_purity_weights():
 
 @app.route("/api/material_detection_head_weights", methods=["GET"])
 def api_material_detection_head_weights():
-    """API endpoint to get material detection head model weights from local directory"""
+    """API endpoint to get material detection head model weights from local directory or Hugging Face Hub"""
     import os
     import glob
     import re
     
     try:
         weights = []
-        
-        # Look for weights in models folder (sibling to BASE_DIR)
         weights_dir = os.path.join(get_models_dir(), "material_detection_head")
+        repo_id = "mvplus/spatiotemporal_models"
+        subfolder = "material_detection_head"
+        
+        # First, try to get weights from Hugging Face Hub
+        hub_files = fetch_weights_from_hub(repo_id, subfolder)
+        for hub_file in hub_files:
+            filename = os.path.basename(hub_file)
+            # Extract accuracy and epoch from filename
+            pattern_match = re.search(r'epoch_(\d+)_Accuracy_([\d\.]+)', filename)
+            if pattern_match:
+                epoch = int(pattern_match.group(1))
+                try:
+                    acc_str = pattern_match.group(2).rstrip('.')
+                    accuracy = float(acc_str)
+                    display_name = f"Epoch {epoch} ({accuracy:.2f}% accuracy)"
+                    weight_type = "Checkpoint"
+                except ValueError:
+                    epoch = 0
+                    accuracy = 0.0
+                    display_name = filename.replace('.pth', '')
+                    weight_type = "Checkpoint"
+            else:
+                epoch = 0
+                accuracy = 0.0
+                display_name = filename.replace('.pth', '')
+                weight_type = "Checkpoint"
+            
+            weights.append({
+                "filename": filename,
+                "path": f"hub://{repo_id}/{hub_file}",
+                "display_name": display_name,
+                "accuracy": accuracy,
+                "epoch": epoch,
+                "weight_type": weight_type,
+                "source": "hub"
+            })
+        
+        # Also check local files
+        if os.path.exists(weights_dir):
         
         if os.path.exists(weights_dir):
             weight_files = glob.glob(os.path.join(weights_dir, "*.pth"))
@@ -630,14 +744,18 @@ def api_material_detection_head_weights():
                     display_name = filename.replace('.pth', '')
                     weight_type = "Checkpoint"
                 
-                weights.append({
-                    "filename": filename,
-                    "path": weight_file,  # Use local path
-                    "display_name": display_name,
-                    "accuracy": accuracy,
-                    "epoch": epoch,
-                    "weight_type": weight_type
-                })
+                # Check if this weight is already in the list from Hub
+                existing = next((w for w in weights if w['filename'] == filename), None)
+                if not existing:
+                    weights.append({
+                        "filename": filename,
+                        "path": weight_file,  # Use local path
+                        "display_name": display_name,
+                        "accuracy": accuracy,
+                        "epoch": epoch,
+                        "weight_type": weight_type,
+                        "source": "local"
+                    })
             
             # Sort by accuracy (highest first), then by epoch
             weights.sort(key=lambda x: (x['accuracy'], x['epoch']), reverse=True)
@@ -763,33 +881,13 @@ def api_detect_material_head():
         
         # If not found as local path, check if it's a Hugging Face Hub path
         if local_model_path is None:
-            # Check if it looks like a Hugging Face Hub path (format: "repo/filename.pth")
-            # HF Hub paths typically don't start with / and have at least one /
-            if '/' in weight_path and not os.path.isabs(weight_path) and not weight_path.startswith('.'):
-                parts = weight_path.split('/')
-                if len(parts) >= 2:
-                    model_repo = '/'.join(parts[:-1])
-                    model_filename = parts[-1]
-                    
-                    # Download model from HF Hub if not cached locally
-                    local_model_dir = get_models_dir()
-                    os.makedirs(local_model_dir, exist_ok=True)
-                    local_model_path = os.path.join(local_model_dir, model_filename)
-                    
-                    if not os.path.exists(local_model_path):
-                        print(f"Downloading model from {model_repo}/{model_filename}...")
-                        try:
-                            hf_hub_download(
-                                repo_id=model_repo,
-                                filename=model_filename,
-                                local_dir=local_model_dir,
-                                local_dir_use_symlinks=False
-                            )
-                            print(f"Model downloaded to {local_model_path}")
-                        except Exception as e:
-                            return jsonify({'error': f'Failed to download model: {str(e)}'}), 500
+            # Check if it's a Hub path (hub://repo_id/path/to/file)
+            if weight_path.startswith('hub://'):
+                downloaded_path = download_model_from_hub(weight_path)
+                if downloaded_path:
+                    local_model_path = downloaded_path
                 else:
-                    return jsonify({'error': 'Invalid weight path format'}), 400
+                    return jsonify({'error': f'Failed to download model from Hub: {weight_path}'}), 400
             else:
                 return jsonify({'error': f'Weight path not found: {weight_path}. Please check the path is correct.'}), 400
         
@@ -1563,14 +1661,50 @@ def api_extract_sto_index1():
 
 @app.route('/api/yolov3_weights', methods=['GET'])
 def api_yolov3_weights():
-    """API endpoint to get YOLOv3 model weights"""
+    """API endpoint to get YOLOv3 model weights from local directory or Hugging Face Hub"""
     try:
         import glob
         import re
         
         yolov3_weights = []
-        # Use actual YOLOv3 custom trained weights
         weights_dir = os.path.join(get_models_dir(), "yolov3")
+        repo_id = "mvplus/spatiotemporal_models"
+        subfolder = "yolov3"
+        
+        # First, try to get weights from Hugging Face Hub
+        hub_files = fetch_weights_from_hub(repo_id, subfolder)
+        for hub_file in hub_files:
+            filename = os.path.basename(hub_file)
+            # Parse YOLOv3 model filenames
+            if "best" in filename.lower():
+                weight_type = "Best"
+                acc_match = re.search(r'acc_(\d+\.?\d*)%', filename)
+                if acc_match:
+                    acc_score = float(acc_match.group(1))
+                    display_name = f"YOLOv3 Best ({acc_score}% accuracy)"
+                else:
+                    display_name = f"YOLOv3 Best"
+            elif "last" in filename.lower():
+                weight_type = "Last"
+                acc_match = re.search(r'acc_(\d+\.?\d*)%', filename)
+                if acc_match:
+                    acc_score = float(acc_match.group(1))
+                    display_name = f"YOLOv3 Last ({acc_score}% accuracy)"
+                else:
+                    display_name = f"YOLOv3 Last"
+            else:
+                weight_type = "Checkpoint"
+                display_name = f"YOLOv3 Checkpoint ({filename.replace('.pt', '')})"
+            
+            yolov3_weights.append({
+                "filename": filename,
+                "path": f"hub://{repo_id}/{hub_file}",
+                "display_name": display_name,
+                "weight_type": weight_type,
+                "source": "hub"
+            })
+        
+        # Also check local files
         
         # Look for .pt files in the weights directory
         if os.path.exists(weights_dir):
@@ -1602,12 +1736,16 @@ def api_yolov3_weights():
                     weight_type = "Checkpoint"
                     display_name = f"YOLOv3 Checkpoint ({filename.replace('.pt', '')})"
                 
-                yolov3_weights.append({
-                    "filename": filename,
-                    "path": weight_file,
-                    "display_name": display_name,
-                    "weight_type": weight_type
-                })
+                # Check if this weight is already in the list from Hub
+                existing = next((w for w in yolov3_weights if w['filename'] == filename), None)
+                if not existing:
+                    yolov3_weights.append({
+                        "filename": filename,
+                        "path": weight_file,
+                        "display_name": display_name,
+                        "weight_type": weight_type,
+                        "source": "local"
+                    })
         
         # Sort by weight type (Best first), then by filename
         yolov3_weights.sort(key=lambda x: (x['weight_type'] == 'Best', x['filename']), reverse=True)
@@ -1628,7 +1766,7 @@ def api_yolov3_weights():
 
 @app.route('/api/yolov8_custom_weights', methods=['GET'])
 def api_yolov8_custom_weights():
-    """API endpoint to get YOLOv8 custom model weights"""
+    """API endpoint to get YOLOv8 custom model weights from local directory or Hugging Face Hub"""
     import os
     import glob
     import re
@@ -1636,6 +1774,43 @@ def api_yolov8_custom_weights():
     try:
         yolov8_weights = []
         weights_dir = os.path.join(get_models_dir(), "yolov8")
+        repo_id = "mvplus/spatiotemporal_models"
+        subfolder = "yolov8"
+        
+        # First, try to get weights from Hugging Face Hub
+        hub_files = fetch_weights_from_hub(repo_id, subfolder)
+        for hub_file in hub_files:
+            filename = os.path.basename(hub_file)
+            # Parse YOLOv8 model filenames
+            if "best" in filename.lower():
+                weight_type = "Best"
+                map_match = re.search(r'(\d+\.?\d*)mAp', filename, re.IGNORECASE)
+                if map_match:
+                    map_score = float(map_match.group(1))
+                    display_name = f"YOLOv8 Best ({map_score}% mAP)"
+                else:
+                    display_name = f"YOLOv8 Best"
+            elif "last" in filename.lower():
+                weight_type = "Last"
+                map_match = re.search(r'(\d+\.?\d*)mAp', filename, re.IGNORECASE)
+                if map_match:
+                    map_score = float(map_match.group(1))
+                    display_name = f"YOLOv8 Last ({map_score}% mAP)"
+                else:
+                    display_name = f"YOLOv8 Last"
+            else:
+                weight_type = "Checkpoint"
+                display_name = f"YOLOv8 Checkpoint ({filename.replace('.pt', '')})"
+            
+            yolov8_weights.append({
+                "filename": filename,
+                "path": f"hub://{repo_id}/{hub_file}",
+                "display_name": display_name,
+                "weight_type": weight_type,
+                "source": "hub"
+            })
+        
+        # Also check local files
         
         # Look for .pt files in the weights directory
         if os.path.exists(weights_dir):
@@ -1667,12 +1842,16 @@ def api_yolov8_custom_weights():
                     weight_type = "Checkpoint"
                     display_name = f"YOLOv8 {weight_type} ({filename.replace('.pt', '')})"
                 
-                yolov8_weights.append({
-                    "filename": filename,
-                    "path": weight_file,
-                    "display_name": display_name,
-                    "weight_type": weight_type
-                })
+                # Check if this weight is already in the list from Hub
+                existing = next((w for w in yolov8_weights if w['filename'] == filename), None)
+                if not existing:
+                    yolov8_weights.append({
+                        "filename": filename,
+                        "path": weight_file,
+                        "display_name": display_name,
+                        "weight_type": weight_type,
+                        "source": "local"
+                    })
         
         # Sort by weight type (Best first, then Last, then others)
         weight_priority = {"Best": 0, "Last": 1, "Checkpoint": 2}
@@ -1694,17 +1873,50 @@ def api_yolov8_custom_weights():
 
 @app.route('/api/dinov3_weights', methods=['GET'])
 def api_dinov3_weights():
-    """API endpoint to get DINOv3 model weights"""
+    """API endpoint to get DINOv3 model weights from local directory or Hugging Face Hub"""
     import os
     import glob
     import re
     
     try:
         dinov3_weights = []
-        
-        # Skip pretrained model - only show trained weights
-        # Look for trained weights in production_results
         weights_dir = os.path.join(get_models_dir(), "dinov3")
+        repo_id = "mvplus/spatiotemporal_models"
+        subfolder = "dinov3"
+        
+        # First, try to get weights from Hugging Face Hub
+        hub_files = fetch_weights_from_hub(repo_id, subfolder)
+        for hub_file in hub_files:
+            filename = os.path.basename(hub_file)
+            # Parse DINOv3 model filenames
+            epoch_match = re.search(r'epoch_(\d+)', filename)
+            acc_match = re.search(r'acc_(\d+)_(\d+)%', filename)
+            epoch = int(epoch_match.group(1)) if epoch_match else 0
+            acc_whole = int(acc_match.group(1)) if acc_match else 0
+            acc_decimal = int(acc_match.group(2)) if acc_match and len(acc_match.groups()) > 1 else 0
+            accuracy = float(f"{acc_whole}.{acc_decimal}") if acc_match else 0.0
+            
+            # Determine weight type
+            if "best" in filename.lower() or accuracy >= 97.0:
+                weight_type = "Best"
+            elif "last" in filename.lower() or epoch >= 80:
+                weight_type = "Last"
+            else:
+                weight_type = "Checkpoint"
+            
+            display_name = f"DINOv3 Epoch {epoch} ({accuracy}% accuracy)" if accuracy > 0 else f"DINOv3 Epoch {epoch}"
+            
+            dinov3_weights.append({
+                "filename": filename,
+                "path": f"hub://{repo_id}/{hub_file}",
+                "display_name": display_name,
+                "weight_type": weight_type,
+                "epoch": epoch,
+                "accuracy": accuracy,
+                "source": "hub"
+            })
+        
+        # Also check local files
         
         # Look for .pth files in the weights directory
         if os.path.exists(weights_dir):
@@ -1739,14 +1951,18 @@ def api_dinov3_weights():
                 else:
                     display_name = f"DINOv3 Epoch {epoch}"
                 
-                dinov3_weights.append({
-                    "filename": filename,
-                    "path": weight_file,
-                    "display_name": display_name,
-                    "weight_type": weight_type,
-                    "epoch": epoch,
-                    "accuracy": accuracy
-                })
+                # Check if this weight is already in the list from Hub
+                existing = next((w for w in dinov3_weights if w['filename'] == filename), None)
+                if not existing:
+                    dinov3_weights.append({
+                        "filename": filename,
+                        "path": weight_file,
+                        "display_name": display_name,
+                        "weight_type": weight_type,
+                        "epoch": epoch,
+                        "accuracy": accuracy,
+                        "source": "local"
+                    })
         
         # Sort by weight type (Best first, then Last, then by accuracy/epoch)
         weight_priority = {"Best": 0, "Last": 1, "Checkpoint": 2}
@@ -1797,6 +2013,14 @@ def api_detect_dinov3():
         
         if not weight_path:
             return jsonify({'error': 'No model weight selected'}), 400
+        
+        # Handle Hub paths - download on demand
+        if weight_path.startswith('hub://'):
+            downloaded_path = download_model_from_hub(weight_path)
+            if downloaded_path:
+                weight_path = downloaded_path
+            else:
+                return jsonify({'error': f'Failed to download model from Hub: {weight_path}'}), 400
         
         # Load image
         file.stream.seek(0)
@@ -2068,6 +2292,22 @@ def api_detect_yolov8_custom():
         
         if not weight_path:
             return jsonify({'error': 'No model weight selected'}), 400
+        
+        # Handle Hub paths (hub://repo_id/path/to/file)
+        if weight_path.startswith('hub://'):
+            # Extract repo_id and file path
+            parts = weight_path.replace('hub://', '').split('/', 1)
+            if len(parts) == 2:
+                repo_id = parts[0]
+                file_path = parts[1]
+                # Download from Hub
+                downloaded_path = download_model_from_hub(repo_id, file_path)
+                if downloaded_path:
+                    weight_path = downloaded_path
+                else:
+                    return jsonify({'error': f'Failed to download model from Hub: {weight_path}'}), 400
+            else:
+                return jsonify({'error': f'Invalid Hub path format: {weight_path}'}), 400
         
         # Load image - ensure stream is at beginning
         file.stream.seek(0)
@@ -2366,6 +2606,14 @@ def api_detect_yolov3():
         
         if not weight_path:
             return jsonify({'error': 'No model weight selected'}), 400
+        
+        # Handle Hub paths - download on demand
+        if weight_path.startswith('hub://'):
+            downloaded_path = download_model_from_hub(weight_path)
+            if downloaded_path:
+                weight_path = downloaded_path
+            else:
+                return jsonify({'error': f'Failed to download model from Hub: {weight_path}'}), 400
         
         # Load image
         image = Image.open(file.stream).convert('RGB')
@@ -2990,117 +3238,64 @@ def kill_existing_processes_on_port(port):
     except Exception as e:
         print(f"Error checking for existing processes on port {port}: {e}")
 
-def setup_huggingface_resources():
-    """Download models and datasets from Hugging Face Hub if not present"""
-    # Skip download for local testing - only download on Hugging Face Spaces
-    if os.environ.get("SPACE_ID") is None and os.environ.get("HF_TOKEN") is None:
-        print("Local environment detected - skipping Hugging Face resource download")
-        return
-    
+def download_model_from_hub(hub_path):
+    """Download a specific model file from Hugging Face Hub on demand
+    Args:
+        hub_path: Path in format 'hub://repo_id/path/to/file' or just local path
+    Returns:
+        Local file path if successful, None otherwise
+    """
     try:
-        from huggingface_hub import snapshot_download
+        from huggingface_hub import hf_hub_download
+        import os
         
-        # Use helper functions to get correct paths
+        # If not a Hub path, return as-is
+        if not hub_path.startswith('hub://'):
+            return hub_path if os.path.exists(hub_path) else None
+        
+        # Parse Hub path: hub://repo_id/path/to/file
+        parts = hub_path.replace('hub://', '').split('/', 1)
+        if len(parts) != 2:
+            print(f"Invalid Hub path format: {hub_path}")
+            return None
+        
+        repo_id = parts[0]
+        file_path = parts[1]
+        
         models_dir = get_models_dir()
-        datasets_dir = get_datasets_dir()
+        local_file_path = os.path.join(models_dir, file_path)
         
-        print(f"BASE_DIR: {BASE_DIR}")
-        print(f"Models will be downloaded to: {models_dir}")
-        print(f"Datasets will be downloaded to: {datasets_dir}")
+        # If file already exists locally, use it
+        if os.path.exists(local_file_path):
+            print(f"Using cached model: {local_file_path}")
+            return local_file_path
         
-        # Quick check: only download if directory doesn't exist or is truly empty
-        # Use a faster check that doesn't list all files
-        # Also check for specific required files to avoid unnecessary downloads
-        models_exist = False
-        datasets_exist = False
+        # Download from Hub
+        print(f"Downloading {file_path} from {repo_id}...")
+        local_dir = os.path.dirname(local_file_path)
+        os.makedirs(local_dir, exist_ok=True)
         
-        if os.path.exists(models_dir):
-            try:
-                # Check for at least one required model file
-                required_model = os.path.join(models_dir, "spatiotemporal", "training_results_material_classifier_best_99.25%.pth")
-                models_exist = os.path.exists(required_model) or any(os.scandir(models_dir))
-            except:
-                models_exist = False
-        
-        if os.path.exists(datasets_dir):
-            try:
-                # Check for at least one required dataset directory
-                required_dataset = os.path.join(datasets_dir, "testmages_spatiotemporal")
-                datasets_exist = os.path.exists(required_dataset) or any(os.scandir(datasets_dir))
-            except:
-                datasets_exist = False
-        
-        # Download models if not present
-        if not models_exist:
-            print("=" * 60)
-            print("Downloading models from Hugging Face Hub...")
-            print(f"Target directory: {models_dir}")
-            print("This may take several minutes depending on model sizes...")
-            print("=" * 60)
-            try:
-                snapshot_download(
-                    repo_id="mvplus/spatiotemporal_models",
-                    local_dir=models_dir,
-                    repo_type="model",
-                    token=os.environ.get("HF_TOKEN"),  # Use token from Space secrets
-                    local_dir_use_symlinks=False,  # Don't use symlinks for better compatibility
-                    resume_download=True  # Resume if interrupted
-                )
-                print(f"✓ Models downloaded successfully to {models_dir}")
-                # Verify the expected structure
-                spatiotemporal_model = os.path.join(models_dir, "spatiotemporal", "training_results_material_classifier_best_99.25%.pth")
-                if os.path.exists(spatiotemporal_model):
-                    print(f"✓ Spatiotemporal model found at: {spatiotemporal_model}")
-                else:
-                    print(f"⚠ Warning: Expected model not found at {spatiotemporal_model}")
-            except Exception as e:
-                print(f"Error downloading models: {e}")
-        else:
-            print(f"Models directory already exists at {models_dir}, skipping download")
-        
-        # Download datasets if not present
-        if not datasets_exist:
-            print("=" * 60)
-            print("Downloading datasets from Hugging Face Hub...")
-            print(f"Target directory: {datasets_dir}")
-            print("This may take a few minutes...")
-            print("=" * 60)
-            try:
-                snapshot_download(
-                    repo_id="mvplus/spatiotemporal_dataset",
-                    local_dir=datasets_dir,
-                    repo_type="dataset",
-                    token=os.environ.get("HF_TOKEN"),
-                    local_dir_use_symlinks=False,  # Don't use symlinks for better compatibility
-                    resume_download=True  # Resume if interrupted
-                )
-                print(f"✓ Datasets downloaded successfully to {datasets_dir}")
-                # Verify the expected structure
-                spatiotemporal_dataset = os.path.join(datasets_dir, "testmages_spatiotemporal")
-                if os.path.exists(spatiotemporal_dataset):
-                    print(f"✓ Spatiotemporal dataset found at: {spatiotemporal_dataset}")
-                else:
-                    print(f"⚠ Warning: Expected dataset directory not found at {spatiotemporal_dataset}")
-            except Exception as e:
-                print(f"Error downloading datasets: {e}")
-        else:
-            print(f"Datasets directory already exists at {datasets_dir}, skipping download")
-    except ImportError:
-        print("huggingface_hub not available, skipping resource download")
+        downloaded_path = hf_hub_download(
+            repo_id=repo_id,
+            filename=file_path,
+            repo_type="model",
+            local_dir=models_dir,
+            token=os.environ.get("HF_TOKEN"),
+            resume_download=True
+        )
+        print(f"✓ Downloaded to: {downloaded_path}")
+        return downloaded_path
     except Exception as e:
-        print(f"Error setting up Hugging Face resources: {e}")
+        print(f"Error downloading model {hub_path}: {e}")
+        import traceback
+        traceback.print_exc()
+        return None
 
 if __name__ == "__main__":
     print("=" * 60)
     print("Starting SPAD for Vision application...")
     print("=" * 60)
-    
-    # Setup Hugging Face resources on startup (this may take time on first run)
-    print("Setting up Hugging Face resources...")
-    print("Note: First-time setup will download models and datasets (this may take 10-30 minutes)")
-    setup_huggingface_resources()
-    print("=" * 60)
-    print("Hugging Face resources setup complete.")
+    print("Note: Models will be downloaded on-demand when selected from dropdowns")
     print("=" * 60)
     
     # Use port 7889 for local testing, 7860 for Hugging Face Spaces
