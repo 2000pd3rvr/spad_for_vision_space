@@ -78,9 +78,14 @@
                 <a href="/" class="nav-link {% if request.endpoint == 'home' %}active{% endif %}">
                     Home
                 </a>
-                <a href="/demos" class="nav-link {% if request.endpoint and 'demos' in request.endpoint %}active{% endif %}">
-                    Demos
-                </a>
+                <div class="nav-dropdown">
+                    <span class="nav-link nav-dropdown-trigger {% if request.endpoint and 'demos' in request.endpoint %}active{% endif %}" style="cursor: pointer;">
+                        Projects
+                    </span>
+                    <div class="nav-dropdown-content">
+                        <a href="/demos" class="nav-link">Demos</a>
+                    </div>
+                </div>
                 <a href="/about" class="nav-link {% if request.endpoint == 'about' %}active{% endif %}">
                     About
                 </a>
