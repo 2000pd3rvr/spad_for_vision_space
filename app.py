@@ -7,9 +7,9 @@ import secrets
 import sys
 import subprocess
 
-# Add material detection path and import functions (for performance)
+# Add material detection path (import functions lazily to avoid blocking startup)
 sys.path.append('apps.err/material_detection_naturalobjects')
-from material_detection_functions import process_png_file, process_png_bytes, process_sto_file, process_sto_file_index2, preprocess_image, predict_material, image_to_base64, load_material_model
+# Import functions only when needed, not at module level
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", secrets.token_hex(32))
@@ -955,6 +955,13 @@ def api_detect_material_head():
         # Preprocess image based on model type
         # CRITICAL: Material detection head uses ToTensor + Normalize(0.5, 0.5, 0.5) as in eval script
         # For material_detection_head, we can optionally use preprocess_image from material_detection_functions
+        # Lazy import to avoid blocking startup
+        try:
+            from material_detection_functions import preprocess_image, predict_material
+        except ImportError as e:
+            print(f"Warning: Could not import material_detection_functions: {e}")
+            preprocess_image = None
+            predict_material = None
         # but it uses ImageNet normalization, so we'll stick with the eval script normalization
         if is_material_purity or is_flat_surface or is_material_detection_head:
             # All use: ToTensor + Normalize(0.5, 0.5, 0.5) - EXACTLY as in eval script
@@ -1131,6 +1138,8 @@ def api_detect_material_head():
             model_architecture = 'Flat Surface Detection ConvNet'
         elif is_material_detection_head:
             # Use the working approach: use predict_material from material_detection_functions
+            # Lazy import to avoid blocking startup
+            from material_detection_functions import predict_material, preprocess_image
             # But we need to load the ConvNetMaterialDetectionHead model first
             model = ConvNetMaterialDetectionHead()
             # Class names in alphabetical order (as ImageFolder sorts them during training)
@@ -1154,6 +1163,8 @@ def api_detect_material_head():
             model_architecture = 'Material Detection Head ConvNet (12 classes)'
             
             # CRITICAL: Use preprocess_image from material_detection_functions for correct preprocessing
+            # Lazy import to avoid blocking startup
+            from material_detection_functions import preprocess_image
             # But we need to override it to use the correct normalization for ConvNetMaterialDetectionHead
             print(f"DEBUG: Using ConvNetMaterialDetectionHead with material_detection_functions preprocessing")
         else:
