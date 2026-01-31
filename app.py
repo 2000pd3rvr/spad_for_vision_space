@@ -3091,11 +3091,22 @@ def setup_huggingface_resources():
         print(f"Error setting up Hugging Face resources: {e}")
 
 if __name__ == "__main__":
-    # Setup Hugging Face resources on startup
+    print("=" * 60)
+    print("Starting SPAD for Vision application...")
+    print("=" * 60)
+    
+    # Setup Hugging Face resources on startup (this may take time on first run)
+    print("Setting up Hugging Face resources...")
+    print("Note: First-time setup will download models and datasets (this may take 10-30 minutes)")
     setup_huggingface_resources()
+    print("=" * 60)
+    print("Hugging Face resources setup complete.")
+    print("=" * 60)
     
     # Use port 7889 for local testing, 7860 for Hugging Face Spaces
     port = int(os.environ.get("PORT", 7889))
+    print(f"Starting Flask server on port {port}...")
+    print("=" * 60)
     
     # Kill any existing processes on the port before starting (for local testing)
     if os.environ.get("WERKZEUG_RUN_MAIN") != "true":
