@@ -601,8 +601,6 @@ def api_fluid_purity_weights():
         
         # Also check local files
         if os.path.exists(weights_dir):
-        
-        if os.path.exists(weights_dir):
             weight_files = glob.glob(os.path.join(weights_dir, "*.pth"))
             
             for weight_file in weight_files:
@@ -712,8 +710,6 @@ def api_material_detection_head_weights():
             })
         
         # Also check local files
-        if os.path.exists(weights_dir):
-        
         if os.path.exists(weights_dir):
             weight_files = glob.glob(os.path.join(weights_dir, "*.pth"))
             
