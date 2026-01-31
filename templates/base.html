@@ -5,9 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}MV+{% endblock %}</title>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    
+    <!-- Critical inline CSS to prevent white flash -->
+    <style>
+        /* Prevent FOUC (Flash of Unstyled Content) */
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0d1b1b 100%);
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            font-family: 'Times New Roman', serif;
+            min-height: 100vh;
+            opacity: 0;
+            transition: opacity 0.2s ease-in;
+        }
+        body.loaded {
+            opacity: 1;
+        }
+        #app {
+            min-height: 100vh;
+        }
+    </style>
+    
+    <!-- Preload critical CSS -->
+    <link rel="preload" href="{{ url_for('static', filename='css/style.css') }}" as="style">
+    
+    <!-- External stylesheets -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+    
+    <!-- Main stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     {% if request.endpoint and 'version_control' in request.endpoint %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/version_control.css') }}">
