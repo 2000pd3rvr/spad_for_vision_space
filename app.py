@@ -934,6 +934,8 @@ def api_detect_material_head():
             file.stream.seek(0)
             # Use the working predict_material function from material_detection_functions
             try:
+                # Lazy import to avoid blocking startup
+                from material_detection_functions import process_png_bytes
                 # Process the image using the working function
                 processed_image, _ = process_png_bytes(file.stream.read())
                 image = processed_image
