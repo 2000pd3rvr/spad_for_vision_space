@@ -3342,4 +3342,12 @@ if __name__ == "__main__":
     print(f"Startup completed in {startup_time:.2f} seconds")
     print("=" * 60)
     
-    app.run(host="0.0.0.0", port=port, debug=False)
+    # Enable debug mode on Hugging Face Spaces for better visibility
+    # Debug mode shows detailed error messages and auto-reloads on code changes
+    debug_mode = os.environ.get("SPACE_ID") is not None
+    if debug_mode:
+        print("Debug mode: ENABLED (Hugging Face Spaces)")
+    else:
+        print("Debug mode: DISABLED (Local testing)")
+    
+    app.run(host="0.0.0.0", port=port, debug=debug_mode)
