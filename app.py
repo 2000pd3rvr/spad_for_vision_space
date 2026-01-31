@@ -3041,25 +3041,32 @@ def api_detect_yolov3():
         }), 500
 
 # Map app names to their testimages directories (datasets is sibling to BASE_DIR)
-TESTIMAGES_DIRS = {
-    'flat_surface_detection': os.path.join(get_datasets_dir(), 'testmages__flatsurface'),
-    'fluid_purity_demo': os.path.join(get_datasets_dir(), 'testmages__milkpurity'),
-    'dinov3_demo': os.path.join(get_datasets_dir(), 'testmages_dino'),
-    'custom_yolov8_demo': os.path.join(get_datasets_dir(), 'testmages__yolov8'),
-    'spatiotemporal_detection': os.path.join(get_datasets_dir(), 'testmages_spatiotemporal'),
-    'detect_yolov3': os.path.join(get_datasets_dir(), 'testmages__yolov3'),
-    'material_detection_head': os.path.join(get_datasets_dir(), 'val_natural_material_detection')
-}
+# Lazy evaluation of TESTIMAGES_DIRS to avoid issues if directories don't exist at startup
+def get_testimages_dirs():
+    """Get testimages directories dictionary - evaluated lazily to avoid startup issues"""
+    return {
+        'flat_surface_detection': os.path.join(get_datasets_dir(), 'testmages__flatsurface'),
+        'fluid_purity_demo': os.path.join(get_datasets_dir(), 'testmages__milkpurity'),
+        'dinov3_demo': os.path.join(get_datasets_dir(), 'testmages_dino'),
+        'custom_yolov8_demo': os.path.join(get_datasets_dir(), 'testmages__yolov8'),
+        'spatiotemporal_detection': os.path.join(get_datasets_dir(), 'testmages_spatiotemporal'),
+        'detect_yolov3': os.path.join(get_datasets_dir(), 'testmages__yolov3'),
+        'material_detection_head': os.path.join(get_datasets_dir(), 'val_natural_material_detection')
+    }
+
+# Keep for backward compatibility but use function instead
+TESTIMAGES_DIRS = get_testimages_dirs()
 
 @app.route('/api/list_testimages/<app_name>')
 @app.route('/api/list_testimages/<app_name>/<path:subpath>')
 def list_testimages(app_name, subpath=''):
     """List files and directories in the testimages directory for a specific app, with optional subdirectory navigation"""
     try:
-        if app_name not in TESTIMAGES_DIRS:
+        testimages_dirs = get_testimages_dirs()
+        if app_name not in testimages_dirs:
             return jsonify({'error': f'Unknown app: {app_name}'}), 404
         
-        testimages_dir = TESTIMAGES_DIRS[app_name]
+        testimages_dir = testimages_dirs[app_name]
         
         # Build the full path to the directory to list
         if subpath:
