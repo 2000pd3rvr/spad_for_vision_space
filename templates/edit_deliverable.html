@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Deliverable - MV+{% endblock %}
+
+{% block content %}
+<div class="edit-deliverable-container">
+    <div class="edit-deliverable-content">
+        <div class="edit-deliverable-header">
+            <h1>Edit Deliverable</h1>
+            <p>Update your deliverable details</p>
+        </div>
+
+        <div class="edit-deliverable-form-container">
+            <form class="edit-deliverable-form" method="POST">
+                <div class="form-group">
+                    <label for="title">Title *</label>
+                    <input type="text" id="title" name="title" value="{{ deliverable.title }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="4">{{ deliverable.description or '' }}</textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="deliverable_type">Type</label>
+                        <select id="deliverable_type" name="deliverable_type">
+                            <option value="document" {% if deliverable.deliverable_type == 'document' %}selected{% endif %}>Document</option>
+                            <option value="code" {% if deliverable.deliverable_type == 'code' %}selected{% endif %}>Code</option>
+                            <option value="design" {% if deliverable.deliverable_type == 'design' %}selected{% endif %}>Design</option>
+                            <option value="presentation" {% if deliverable.deliverable_type == 'presentation' %}selected{% endif %}>Presentation</option>
+                            <option value="report" {% if deliverable.deliverable_type == 'report' %}selected{% endif %}>Report</option>
+                            <option value="other" {% if deliverable.deliverable_type == 'other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="priority">Priority</label>
+                        <select id="priority" name="priority">
+                            <option value="low" {% if deliverable.priority == 'low' %}selected{% endif %}>Low</option>
+                            <option value="medium" {% if deliverable.priority == 'medium' %}selected{% endif %}>Medium</option>
+                            <option value="high" {% if deliverable.priority == 'high' %}selected{% endif %}>High</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select id="status" name="status">
+                            <option value="pending" {% if deliverable.status == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="in_progress" {% if deliverable.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                            <option value="completed" {% if deliverable.status == 'completed' %}selected{% endif %}>Completed</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="project_id">Project (Optional)</label>
+                        <select id="project_id" name="project_id">
+                            <option value="">No Project</option>
+                            {% for project in projects %}
+                            <option value="{{ project.id }}" {% if deliverable.project_id == project.id %}selected{% endif %}>{{ project.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="due_date">Due Date (Optional)</label>
+                    <input type="date" id="due_date" name="due_date" value="{{ deliverable.due_date or '' }}">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Update Deliverable</button>
+                    <a href="{{ url_for('deliverable_detail', deliverable_id=deliverable.id) }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

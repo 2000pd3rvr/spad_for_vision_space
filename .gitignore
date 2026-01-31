@@ -108,3 +108,9 @@ Thumbs.db
 .DS_Store
 .AppleDouble
 .LSOverride
+
+# Binary static assets (use Xet or upload via UI)
+static/*.gif
+static/*.png
+static/*.jpg
+static/*.jpeg

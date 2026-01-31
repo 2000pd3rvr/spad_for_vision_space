@@ -1,0 +1,918 @@
+/* Version Control App Styles */
+
+.version-control-container {
+    padding: 2rem 20px;
+    height: 100%;
+    overflow: hidden;
+}
+
+.version-control-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.version-control-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.version-control-header h1 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.version-control-header p {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+}
+
+.version-control-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+    flex: 1;
+}
+
+.version-control-card {
+    background: var(--bg-secondary);
+    border-radius: 15px;
+    padding: 2rem;
+    border: 1px solid var(--border-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.version-control-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px var(--shadow-color);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.card-header h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.status-badge.active {
+    background: #10B981;
+    color: white;
+}
+
+.status-badge.coming-soon {
+    background: #F59E0B;
+    color: white;
+}
+
+.card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-content p {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.features ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+}
+
+.features li {
+    padding: 0.5rem 0;
+    color: var(--text-secondary);
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.features li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #ED2939;
+    font-weight: bold;
+}
+
+.card-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: auto;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn-primary {
+    background: #ED2939;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #C41E3A;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background: var(--border-color);
+    transform: translateY(-2px);
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-outline:hover {
+    background: var(--bg-tertiary);
+    transform: translateY(-2px);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.version-control-info {
+    background: var(--bg-secondary);
+    border-radius: 15px;
+    padding: 2rem;
+    border: 1px solid var(--border-color);
+    margin-top: 2rem;
+}
+
+.version-control-info h3 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.version-control-info p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.info-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.info-card {
+    text-align: center;
+    padding: 1rem;
+}
+
+.info-card h4 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.info-card p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* GitLab Dashboard Styles */
+.gitlab-container {
+    padding: 2rem 20px;
+    height: 100%;
+    overflow: hidden;
+}
+
+.gitlab-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.gitlab-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.gitlab-header h1 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.gitlab-header p {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+}
+
+.gitlab-setup {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.setup-card {
+    background: var(--bg-secondary);
+    border-radius: 15px;
+    padding: 2rem;
+    border: 1px solid var(--border-color);
+}
+
+.setup-card h3 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.setup-card p {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+.setup-steps {
+    margin-bottom: 2rem;
+}
+
+.step {
+    display: flex;
+    margin-bottom: 2rem;
+    align-items: flex-start;
+}
+
+.step-number {
+    background: #ED2939;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.step-content h4 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.step-content p {
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.step-content ul {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+}
+
+.step-content li {
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.step-content code {
+    background: var(--bg-tertiary);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    color: #ED2939;
+}
+
+.token-form {
+    margin-top: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #ED2939;
+    box-shadow: 0 0 0 3px rgba(237, 41, 57, 0.1);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    background: var(--bg-secondary);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+}
+
+.user-avatar img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin-right: 1rem;
+}
+
+.user-details h3 {
+    color: var(--text-primary);
+    margin: 0 0 0.25rem 0;
+}
+
+.user-details p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.projects-section h2 {
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+}
+
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.project-card {
+    background: var(--bg-secondary);
+    border-radius: 15px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.project-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px var(--shadow-color);
+}
+
+.project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.project-header h3 {
+    color: var(--text-primary);
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.project-visibility {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.project-visibility.private {
+    background: #F59E0B;
+    color: white;
+}
+
+.project-visibility.public {
+    background: #10B981;
+    color: white;
+}
+
+.project-visibility.internal {
+    background: #3B82F6;
+    color: white;
+}
+
+.project-description {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.project-stats {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.stat {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.stat strong {
+    color: var(--text-primary);
+}
+
+.project-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.no-projects {
+    text-align: center;
+    padding: 3rem;
+    background: var(--bg-secondary);
+    border-radius: 15px;
+    border: 1px solid var(--border-color);
+}
+
+.no-projects p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+/* Project Details Styles */
+.project-container {
+    padding: 2rem 20px;
+    height: 100%;
+    overflow: hidden;
+}
+
+.project-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.project-title h1 {
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
+    font-size: 2rem;
+}
+
+.project-title p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.project-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tab-btn {
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+    color: var(--text-primary);
+}
+
+.tab-btn.active {
+    color: #ED2939;
+    border-bottom-color: #ED2939;
+}
+
+.tab-content {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+.commits-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.commits-header h3 {
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.branch-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.branch-selector label {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.branch-selector select {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.commits-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.commit-item {
+    background: var(--bg-secondary);
+    border-radius: 10px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.commit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.commit-header h4 {
+    color: var(--text-primary);
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.commit-hash {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+}
+
+.commit-message {
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+}
+
+.commit-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.9rem;
+}
+
+.commit-author {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.commit-date {
+    color: var(--text-secondary);
+}
+
+.branches-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.branch-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-secondary);
+    border-radius: 10px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.branch-info h4 {
+    color: var(--text-primary);
+    margin: 0 0 0.25rem 0;
+}
+
+.branch-info p {
+    color: var(--text-secondary);
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.branch-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.branch-status.default {
+    background: #ED2939;
+    color: white;
+}
+
+.branch-status.branch {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+}
+
+.project-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.info-item {
+    background: var(--bg-secondary);
+    border-radius: 10px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.info-item label {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.info-item span {
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.info-item a {
+    color: #ED2939;
+    text-decoration: none;
+}
+
+.info-item a:hover {
+    text-decoration: underline;
+}
+
+.visibility.private {
+    color: #F59E0B;
+}
+
+.visibility.public {
+    color: #10B981;
+}
+
+.visibility.internal {
+    color: #3B82F6;
+}
+
+/* Setup Guide Styles */
+.setup-container {
+    padding: 2rem 20px;
+    height: 100%;
+    overflow: hidden;
+}
+
+.setup-content {
+    max-width: 1000px;
+    margin: 0 auto;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.setup-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.setup-header h1 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.setup-header p {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+}
+
+.setup-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+.setup-section {
+    background: var(--bg-secondary);
+    border-radius: 15px;
+    padding: 2rem;
+    border: 1px solid var(--border-color);
+}
+
+.setup-section h2 {
+    color: var(--text-primary);
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+}
+
+.security-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.security-item h3 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.security-item ul {
+    list-style: none;
+    padding: 0;
+}
+
+.security-item li {
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.security-item li:before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: #ED2939;
+    font-weight: bold;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.feature-item {
+    text-align: center;
+    padding: 1.5rem;
+    background: var(--bg-tertiary);
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+}
+
+.feature-item h3 {
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    font-size: 1.1rem;
+}
+
+.feature-item p {
+    color: var(--text-secondary);
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.troubleshooting {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.issue {
+    background: var(--bg-tertiary);
+    border-radius: 10px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.issue h4 {
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+}
+
+.issue p {
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.5;
+}
+
+.setup-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .version-control-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .projects-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .project-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .project-actions {
+        flex-direction: column;
+    }
+    
+    .commits-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .branch-selector {
+        width: 100%;
+    }
+    
+    .branch-selector select {
+        width: 100%;
+    }
+    
+    .setup-actions {
+        flex-direction: column;
+    }
+    
+    .security-info {
+        grid-template-columns: 1fr;
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+}

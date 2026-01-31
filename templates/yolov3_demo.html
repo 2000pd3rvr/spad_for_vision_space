@@ -1,0 +1,2042 @@
+{% extends "base.html" %}
+
+{% block title %}YOLOv3 Object Detection - MV+{% endblock %}
+
+{% block content %}
+<style>
+    html, body {
+        height: 100%;
+        overflow: auto;
+        margin: 0;
+        padding: 0;
+    }
+
+    .yolov3-container {
+        max-width: 1400px; /* match yolov8 */
+        min-height: 100vh;
+        margin: 0 auto;
+        padding: 20px; /* match yolov8 */
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .yolov3-container .main-content {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 30px !important; /* match yolov8 */
+        margin-bottom: 30px !important; /* match yolov8 */
+        margin-top: 0 !important;
+        padding: 0 !important;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .card {
+        background: rgba(0, 0, 0, 0.8);
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        border: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        min-height: 600px;
+        max-height: calc(100vh - 40px);
+        overflow-y: auto;
+        box-sizing: border-box;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+        border-color: #B91D30;
+    }
+
+    .card h2 {
+        color: #ffffff;
+        margin-bottom: 8px;
+        font-size: 1.4rem;
+        font-weight: normal;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+    .upload-section {
+        margin-bottom: 15px;
+        flex-shrink: 0;
+    }
+
+    .upload-options {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    /* File Browser Modal */
+    .file-browser-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 10000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .file-browser-modal.active {
+        display: flex;
+    }
+
+    .file-browser-content {
+        background: rgba(0, 0, 0, 0.95);
+        border: 2px solid #B91D30;
+        border-radius: 20px;
+        padding: 30px;
+        max-width: 800px;
+        max-height: 80vh;
+        width: 90%;
+        overflow-y: auto;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .file-browser-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #333;
+    }
+
+    .file-browser-header h3 {
+        color: #ffffff;
+        margin: 0;
+        font-size: 1.5rem;
+    }
+
+    .file-browser-close {
+        background: none;
+        border: none;
+        color: #ffffff;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 5px 10px;
+        border-radius: 5px;
+        transition: background 0.3s ease;
+    }
+
+    .file-browser-close:hover {
+        background: rgba(185, 29, 48, 0.3);
+    }
+
+    .file-browser-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .file-browser-item {
+        background: rgba(0, 0, 0, 0.6);
+        border: 2px solid #333;
+        border-radius: 10px;
+        padding: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+
+    .file-browser-item:hover {
+        border-color: #B91D30;
+        background: rgba(185, 29, 48, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .file-browser-item.selected {
+        border-color: #B91D30;
+        background: rgba(185, 29, 48, 0.2);
+    }
+
+    .file-browser-item img {
+        width: 100%;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+
+    .file-browser-item .file-name {
+        color: #ffffff;
+        font-size: 0.85rem;
+        word-break: break-word;
+        margin-bottom: 5px;
+    }
+
+    .file-browser-item .file-size {
+        color: #999;
+        font-size: 0.75rem;
+    }
+
+    .file-browser-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #333;
+    }
+
+    .file-browser-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .file-browser-btn-primary {
+        background: #B91D30;
+        color: white;
+    }
+
+    .file-browser-btn-primary:hover {
+        background: #8a1523;
+    }
+
+    .file-browser-btn-secondary {
+        background: #333;
+        color: white;
+    }
+
+    .file-browser-btn-secondary:hover {
+        background: #555;
+    }
+
+    .file-browser-loading {
+        text-align: center;
+        color: #ffffff;
+        padding: 40px;
+    }
+
+    .file-browser-empty {
+        text-align: center;
+        color: #999;
+        padding: 40px;
+    }
+
+    .upload-btn {
+        flex: 1;
+        padding: 12px;
+        border: 2px dashed #555555;
+        border-radius: 15px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: rgba(0, 0, 0, 0.3);
+        color: #ffffff;
+        font-size: 0.9rem;
+    }
+
+    .upload-btn:hover {
+        background: rgba(185, 29, 48, 0.1);
+        color: white;
+        border-color: #555555;
+    }
+
+    .upload-btn.active {
+        background: rgba(0, 0, 0, 0.3);
+        border-color: #555555;
+    }
+
+    .upload-btn i {
+        margin-right: 8px;
+        font-size: 1rem;
+    }
+
+    .file-input {
+        display: none;
+    }
+
+    /* Allow direct file input access as fallback */
+    .file-input:focus {
+        outline: none;
+    }
+
+    .image-controls {
+        margin-bottom: 15px;
+    }
+
+    .control-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+
+    .control-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .control-item label {
+        margin-bottom: 5px;
+        font-weight: normal;
+        color: #ffffff;
+        font-size: 0.9rem;
+    }
+
+    .control-item input {
+        padding: 12px;
+        border: 2px solid #333333;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        background: rgba(0, 0, 0, 0.6);
+        color: #ffffff;
+        transition: border-color 0.3s ease;
+    }
+
+    .control-item input:focus {
+        outline: none;
+        border-color: #B91D30;
+    }
+
+    /* Detection Results Container - Match Architecture Details Width */
+    #detectionResultsContainer {
+        width: 100%;
+        max-width: none;
+        margin-bottom: 10px;
+        border: none;
+        border-radius: 10px;
+        padding: 10px;
+        background: rgba(0, 0, 0, 0.6);
+        box-sizing: border-box;
+        flex-shrink: 0;
+    }
+
+    .preview-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        flex-shrink: 0;
+    }
+
+    .preview-header h4 {
+        color: #ffffff;
+        margin: 0;
+        font-size: 0.9rem;
+        font-weight: normal;
+    }
+
+    .reset-crop-btn {
+        padding: 6px 12px;
+        background: #B91D30;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        transition: background 0.3s ease;
+    }
+
+    .reset-crop-btn:hover {
+        background: #CC0000;
+    }
+
+    .image-preview-wrapper {
+        position: relative;
+        display: inline-block;
+        border: none;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 10px;
+        max-width: 100%;
+        max-height: 300px;
+    }
+
+    .image-preview-canvas {
+        max-width: 100%;
+        max-height: 300px;
+        cursor: crosshair;
+        display: block;
+        image-rendering: auto;
+        image-rendering: smooth;
+    }
+
+    #resultImage {
+        width: 100%;
+        height: auto;
+        max-height: 300px;
+        border-radius: 8px;
+        object-fit: contain;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .crop-overlay {
+        position: absolute;
+        border: 2px dashed #B91D30;
+        background: rgba(185, 29, 48, 0.1);
+        pointer-events: none;
+        display: none;
+    }
+
+    .crop-instructions {
+        margin-top: 10px;
+        padding: 8px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 6px;
+        font-size: 0.8rem;
+        color: #cccccc;
+        text-align: center;
+    }
+
+    .crop-instructions i {
+        margin-right: 5px;
+        color: #B91D30;
+    }
+
+    .transform-buttons {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+
+    .transform-btn-small {
+        padding: 10px 12px;
+        background: rgba(0, 0, 0, 0.8);
+        border: 2px solid #333333;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.8rem;
+        color: #ffffff;
+        min-width: 40px;
+        min-height: 40px;
+    }
+
+    .transform-btn-small .btn-text {
+        color: #ffffff !important;
+        font-size: 1.2rem !important;
+        display: inline-block !important;
+        font-weight: bold !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+
+
+    .transform-btn-small {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .transform-btn-small:hover {
+        background: rgba(185, 29, 48, 0.3);
+        border-color: #ffffff;
+    }
+
+    .transform-btn-small:hover i {
+        color: #ffffff !important;
+        transform: scale(1.1);
+    }
+
+    .transform-btn-small:active {
+        transform: translateY(1px);
+    }
+
+    /* Compact Controls Styling */
+    .compact-controls {
+        margin-top: 10px;
+        padding: 10px;
+        background: rgba(0, 0, 0, 0.6);
+        border-radius: 15px;
+        border: 2px solid #333333;
+    }
+
+    .control-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+
+    .control-group-compact {
+        display: flex;
+        flex-direction: column;
+        min-width: 60px;
+    }
+
+    .control-group-compact label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #ffffff;
+        margin-bottom: 3px;
+    }
+
+    .control-group-compact input {
+        padding: 6px 8px;
+        border: 1px solid #333333;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        width: 60px;
+        background: rgba(0, 0, 0, 0.6);
+        color: #ffffff;
+        transition: border-color 0.3s ease;
+    }
+
+    .control-group-compact input:focus {
+        outline: none;
+        border-color: #B91D30;
+    }
+
+    .transform-buttons-compact {
+        display: flex !important;
+        gap: 8px;
+        margin-bottom: 10px;
+        justify-content: center;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+    .status-display {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        font-size: 0.8rem;
+        color: #cccccc;
+    }
+
+    .detect-btn {
+        width: 100%;
+        padding: 12px;
+        background: #555555;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+        opacity: 0.9;
+        flex-shrink: 0;
+    }
+
+    .detect-btn:hover {
+        background: #666666;
+        transform: translateY(-2px);
+        opacity: 0.95;
+    }
+
+    .detect-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background: rgba(0, 0, 0, 0.3);
+        color: #888888;
+    }
+
+    .performance-stats {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 3px;
+        margin-bottom: 6px;
+    }
+
+    .stat-card {
+        background: rgba(0, 0, 0, 0.6);
+        padding: 5px 8px;
+        border-radius: 10px;
+        text-align: left;
+        border: none;
+    }
+
+    .stat-value {
+        font-size: 0.8rem;
+        font-weight: normal;
+        color: #cccccc;
+        margin: 0;
+        line-height: 1.1;
+    }
+
+    .stat-label {
+        color: #cccccc;
+        font-size: 0.8rem;
+        font-weight: normal;
+        margin: 0 0 2px 0;
+        line-height: 1.1;
+    }
+
+    .architecture-details {
+        background: rgba(0, 0, 0, 0.6);
+        padding: 10px;
+        border-radius: 20px;
+        border: none;
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        max-height: 100%;
+    }
+
+    .architecture-details h3 {
+        color: #ffffff;
+        margin-bottom: 10px;
+        font-size: 1.2rem;
+        font-weight: normal;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .detail-item {
+        text-align: left;
+    }
+
+    .detail-label {
+        color: #ffffff;
+        font-size: 0.85rem;
+        margin-bottom: 2px;
+        font-weight: normal;
+    }
+
+    .detail-value {
+        color: #ffffff;
+        font-weight: normal;
+        font-size: 0.95rem;
+    }
+
+    .loading {
+        display: none;
+        text-align: center;
+        padding: 10px;
+    }
+
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #B91D30;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 10px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .error-message, .success-message {
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .error-message {
+        background: rgba(220, 53, 69, 0.2);
+        border: 2px solid #dc3545;
+        color: #dc3545;
+    }
+
+    .success-message {
+        background: rgba(40, 167, 69, 0.2);
+        border: 2px solid #28a745;
+        color: #28a745;
+    }
+
+    .batch-navigation {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+        padding: 10px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 8px;
+    }
+
+    .batch-info {
+        flex: 1;
+        color: #ffffff;
+        font-size: 0.9rem;
+    }
+
+    .batch-counter {
+        font-weight: bold;
+        color: #B91D30;
+    }
+
+    .batch-btn {
+        padding: 6px 12px;
+        background: rgba(185, 29, 48, 0.2);
+        color: #ffffff;
+        border: 1px solid #B91D30;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        transition: all 0.3s ease;
+    }
+
+    .batch-btn:hover {
+        background: rgba(185, 29, 48, 0.3);
+    }
+
+    .batch-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    @media (max-width: 768px) {
+        .main-content {
+            grid-template-columns: 1fr;
+        }
+        
+        .control-group {
+            grid-template-columns: 1fr;
+        }
+        
+        .performance-stats {
+            grid-template-columns: 1fr;
+        }
+        
+        .upload-options {
+            flex-direction: column;
+        }
+        
+        .control-row {
+            justify-content: center;
+        }
+        
+        .control-group-compact {
+            min-width: 50px;
+        }
+        
+        .control-group-compact input {
+            width: 50px;
+        }
+        
+        .transform-buttons-compact {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .status-display {
+            flex-direction: column;
+            gap: 5px;
+        }
+    }
+</style>
+
+<div class="yolov3-container">
+    <div id="errorMessage" class="error-message" style="display: none;"></div>
+    <div id="successMessage" class="success-message" style="display: none;"></div>
+
+    <div class="main-content">
+        <div class="card">
+            <h2>Image Upload & Processing</h2>
+            
+            <div class="upload-section">
+                <div class="upload-options">
+                    <div class="upload-btn active" id="singleUploadBtn">
+                        Single Image
+                    </div>
+                    <div class="upload-btn" id="batchUploadBtn">
+                        Batch Upload
+                    </div>
+                </div>
+                
+                <input type="file" id="fileInput" class="file-input" accept="image/*" multiple>
+                <input type="file" id="batchFileInput" class="file-input" accept="image/*" multiple>
+                
+                <!-- Image Preview and Crop Area -->
+                <div class="image-preview-container" id="imagePreviewContainer" style="display: none;">
+                    <div class="preview-header">
+                        <h4>Image Preview & Crop</h4>
+                    </div>
+                    <div class="image-preview-wrapper">
+                        <canvas id="imagePreview" class="image-preview-canvas"></canvas>
+                        <div class="crop-overlay" id="cropOverlay"></div>
+                    </div>
+                    <div class="crop-instructions">
+                        <i class="fas fa-info-circle"></i>
+                        Drag to select crop area. Detection will analyze the selected region.
+                    </div>
+
+                    <!-- Batch Navigation Controls (hidden until batch upload) -->
+                    <div class="batch-navigation" id="batchNavigation" style="display: none;">
+                        <div class="batch-info">
+                            <span class="batch-counter" id="batchCounter">1 of 1</span>
+                        </div>
+                        <button class="batch-btn" id="prevImageBtn" disabled>Previous</button>
+                        <button class="batch-btn" id="nextImageBtn" disabled>Next</button>
+                    </div>
+
+                    <!-- Compact Controls Row -->
+                    <div class="compact-controls">
+                        <div class="transform-buttons-compact">
+                            <button type="button" class="transform-btn-small" onclick="rotateImage(90)" title="Rotate 90°">
+                                <span class="btn-text">↻</span>
+                            </button>
+                            <button type="button" class="transform-btn-small" onclick="rotateImage(-90)" title="Rotate -90°">
+                                <span class="btn-text">↺</span>
+                            </button>
+                            <button type="button" class="transform-btn-small" onclick="flipImage('horizontal')" title="Flip Horizontal">
+                                <span class="btn-text">↔</span>
+                            </button>
+                            <button type="button" class="transform-btn-small" onclick="flipImage('vertical')" title="Flip Vertical">
+                                <span class="btn-text">↕</span>
+                            </button>
+                            <button type="button" class="transform-btn-small reset-btn" onclick="resetCrop()" title="Reset Crop">
+                                <span class="btn-text">✕</span>
+                            </button>
+                        </div>
+                        
+                        <div class="status-display">
+                            <span>Rotation: <span id="rotationAngle">0°</span></span>
+                            <span>Flip: <span id="flipStatus">None</span></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Model Selection -->
+                <div class="control-group">
+                    <div class="control-item">
+                        <label>Select Model Weight:</label>
+                        <select id="modelSelect" disabled>
+                            <option value="">Loading weights...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Detect Button -->
+                <button type="button" class="detect-btn" id="detectBtn" disabled>
+                    <i class="fas fa-search"></i> Detect Objects
+                </button>
+
+                <!-- Loading Indicator -->
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <span>Processing...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Performance & Architecture</h2>
+            
+            <div class="performance-stats">
+                <div class="stat-card">
+                    <div class="stat-label">Inference Time</div>
+                    <div class="stat-value" id="inferenceTime">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Parameters</div>
+                    <div class="stat-value" id="modelSize">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Input Size</div>
+                    <div class="stat-value" id="inputSize">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Batch Size</div>
+                    <div class="stat-value" id="batchSize">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Used Weight</div>
+                    <div class="stat-value" id="usedWeightPath">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Inferred #Classes</div>
+                    <div class="stat-value" id="inferredNumClasses">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Model Type</div>
+                    <div class="stat-value" id="architecture">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Backbone</div>
+                    <div class="stat-value" id="backbone">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Detection Heads</div>
+                    <div class="stat-value" id="detectionHeads">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Anchors</div>
+                    <div class="stat-value" id="anchors">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Fitness Score</div>
+                    <div class="stat-value" id="fitnessScore">--</div>
+                </div>
+            </div>
+
+            <div class="architecture-details">
+
+                <!-- Detection Results (compact style) -->
+                <div class="image-preview-container" id="detectionResultsContainer" style="display: none;">
+                    <div class="preview-header">
+                        <h4><i class="fas fa-search"></i> Detection Results</h4>
+                    </div>
+                    <div class="image-preview-wrapper">
+                        <img id="resultImage" class="image-preview-canvas" alt="Detection Result">
+                    </div>
+                    <div class="prediction-result" id="predictionResult" style="margin-top: 8px; padding: 8px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; flex-shrink: 0;">
+                        <div class="prediction-class" id="predictionClass" style="font-size: 1rem; font-weight: bold; color: #9ae6b4; margin-bottom: 4px;"></div>
+                        <div class="prediction-confidence" id="predictionConfidence" style="font-size: 0.85rem; color: #ffffff; margin-bottom: 6px;"></div>
+                        <div class="top3-predictions" id="top3Predictions" style="font-size: 0.75rem; color: #ffffff;">
+                            <div class="prediction-entry" id="prediction1">1. -</div>
+                            <div class="prediction-entry" id="prediction2">2. -</div>
+                            <div class="prediction-entry" id="prediction3">3. -</div>
+                        </div>
+                        <div class="all-predictions" id="allPredictions" style="display: none; font-size: 0.75rem; color: #ffffff; margin-top: 8px; max-height: 200px; overflow-y: auto;"></div>
+                        <button id="expandPredictionsBtn" style="margin-top: 8px; padding: 4px 8px; background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 4px; color: #ffffff; cursor: pointer; font-size: 0.7rem;" onclick="toggleAllPredictions()">Show All Predictions</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- File Browser Modal -->
+    <div class="file-browser-modal" id="fileBrowserModal">
+        <div class="file-browser-content">
+            <div class="file-browser-header">
+                <h3>Select Test Image</h3>
+                <button class="file-browser-close" id="fileBrowserClose">&times;</button>
+            </div>
+            <div id="fileBrowserList" class="file-browser-list">
+                <div class="file-browser-loading">Loading images...</div>
+            </div>
+            <div class="file-browser-actions">
+                <button class="file-browser-btn file-browser-btn-secondary" id="fileBrowserCancel">Cancel</button>
+                <button class="file-browser-btn file-browser-btn-primary" id="fileBrowserSelect" disabled>Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    // YOLOv3 Detection Demo JavaScript
+    (function() {
+        'use strict';
+        // Prevent any parsing issues
+    
+    let currentUploadMode = 'single';
+    let selectedFile = null;
+    let currentImage = null;
+    let currentRotation = 0;
+    let currentFlip = { horizontal: false, vertical: false };
+    let batchFiles = [];
+    let currentBatchIndex = 0;
+    let isDragging = false;
+    let cropStartX = 0, cropStartY = 0;
+
+    // Initialize when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        setupEventListeners();
+        setupCropHandlers();
+        setupBatchNavigation();
+        
+        // Add event listener for detect button
+        const detectBtn = document.getElementById('detectBtn');
+        if (detectBtn) {
+            detectBtn.addEventListener('click', detectImage);
+        }
+    });
+
+    function setupEventListeners() {
+        const singleUploadBtn = document.getElementById('singleUploadBtn');
+        const batchUploadBtn = document.getElementById('batchUploadBtn');
+        const fileInput = document.getElementById('fileInput');
+        const batchFileInput = document.getElementById('batchFileInput');
+
+        // File Browser Modal
+        const fileBrowserModal = document.getElementById('fileBrowserModal');
+        const fileBrowserClose = document.getElementById('fileBrowserClose');
+        const fileBrowserCancel = document.getElementById('fileBrowserCancel');
+        const fileBrowserSelect = document.getElementById('fileBrowserSelect');
+        const fileBrowserList = document.getElementById('fileBrowserList');
+        let selectedFiles = [];
+        let isBatchMode = false;
+
+        // Upload buttons - open file browser modal
+        singleUploadBtn.addEventListener('click', () => {
+            currentUploadMode = 'single';
+            singleUploadBtn.classList.add('active');
+            batchUploadBtn.classList.remove('active');
+            isBatchMode = false;
+            selectedFiles = [];
+            openFileBrowser();
+        });
+
+        batchUploadBtn.addEventListener('click', () => {
+            currentUploadMode = 'batch';
+            batchUploadBtn.classList.add('active');
+            singleUploadBtn.classList.remove('active');
+            isBatchMode = true;
+            selectedFiles = [];
+            openFileBrowser();
+        });
+
+        // Close modal handlers
+        fileBrowserClose.addEventListener('click', closeFileBrowser);
+        fileBrowserCancel.addEventListener('click', closeFileBrowser);
+        fileBrowserModal.addEventListener('click', (e) => {
+            if (e.target === fileBrowserModal) {
+                closeFileBrowser();
+            }
+        });
+
+        // Select button handler
+        fileBrowserSelect.addEventListener('click', () => {
+            if (selectedFiles.length === 0) return;
+            
+            if (isBatchMode) {
+                // Load multiple files
+                loadFilesFromBrowser(selectedFiles);
+            } else {
+                // Load single file
+                loadFilesFromBrowser([selectedFiles[0]]);
+            }
+            closeFileBrowser();
+        });
+
+        // File browser functions
+        async function openFileBrowser() {
+            fileBrowserModal.classList.add('active');
+            fileBrowserList.innerHTML = '<div class="file-browser-loading">Loading images...</div>';
+            fileBrowserSelect.disabled = true;
+            selectedFiles = [];
+            
+            try {
+                const response = await fetch('/api/list_testimages/detect_yolov3');
+                const data = await response.json();
+                
+                if (data.success && data.files.length > 0) {
+                    fileBrowserList.innerHTML = '';
+                    data.files.forEach(file => {
+                        const fileItem = document.createElement('div');
+                        fileItem.className = 'file-browser-item';
+                        fileItem.dataset.filename = file.name;
+                        
+                        const imageUrl = `/api/get_testimage/detect_yolov3/${encodeURIComponent(file.name)}`;
+                        const fileSize = formatFileSize(file.size);
+                        const fileExt = file.name.split('.').pop().toUpperCase();
+                        
+                        // Create elements to avoid innerHTML parsing issues
+                        const img = document.createElement('img');
+                        img.src = imageUrl;
+                        img.alt = file.name;
+                        img.onerror = function() {
+                            this.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Crect fill=\'%23333\' width=\'100\' height=\'100\'/%3E%3Ctext fill=\'%23999\' x=\'50\' y=\'50\' text-anchor=\'middle\' dy=\'.3em\' font-size=\'12\'%3E' + encodeURIComponent(fileExt) + '%3C/text%3E%3C/svg%3E';
+                        };
+                        
+                        const fileNameDiv = document.createElement('div');
+                        fileNameDiv.className = 'file-name';
+                        fileNameDiv.textContent = file.name;
+                        
+                        const fileSizeDiv = document.createElement('div');
+                        fileSizeDiv.className = 'file-size';
+                        fileSizeDiv.textContent = fileSize;
+                        
+                        fileItem.appendChild(img);
+                        fileItem.appendChild(fileNameDiv);
+                        fileItem.appendChild(fileSizeDiv);
+                        
+                        // Single click - select in batch mode, import directly in single mode
+                        fileItem.addEventListener('click', () => {
+                            if (isBatchMode) {
+                                // Toggle selection for batch mode
+                                if (fileItem.classList.contains('selected')) {
+                                    fileItem.classList.remove('selected');
+                                    selectedFiles = selectedFiles.filter(f => f !== file.name);
+                                } else {
+                                    fileItem.classList.add('selected');
+                                    selectedFiles.push(file.name);
+                                }
+                                fileBrowserSelect.disabled = selectedFiles.length === 0;
+                            } else {
+                                // Single selection mode - import directly on click
+                                document.querySelectorAll('.file-browser-item').forEach(item => {
+                                    item.classList.remove('selected');
+                                });
+                                fileItem.classList.add('selected');
+                                selectedFiles = [file.name];
+                                fileBrowserSelect.disabled = false;
+                                // Auto-import after selection
+                                loadFilesFromBrowser([file.name]);
+                                closeFileBrowser();
+                            }
+                        });
+                        
+                        // Double click - always import directly
+                        fileItem.addEventListener('dblclick', () => {
+                            if (isBatchMode) {
+                                // In batch mode, double-click imports just that file
+                                loadFilesFromBrowser([file.name]);
+                                closeFileBrowser();
+                            } else {
+                                // In single mode, double-click also imports
+                                loadFilesFromBrowser([file.name]);
+                                closeFileBrowser();
+                            }
+                        });
+                        
+                        fileBrowserList.appendChild(fileItem);
+                    });
+                } else {
+                    fileBrowserList.innerHTML = '<div class="file-browser-empty">No test images found in directory</div>';
+                }
+            } catch (error) {
+                console.error('Error loading test images:', error);
+                fileBrowserList.innerHTML = '<div class="file-browser-empty">Error loading images. Please try uploading from your device.</div>';
+            }
+        }
+
+        function closeFileBrowser() {
+            fileBrowserModal.classList.remove('active');
+            selectedFiles = [];
+            fileBrowserSelect.disabled = true;
+        }
+
+        async function loadFilesFromBrowser(filenames) {
+            try {
+                if (isBatchMode) {
+                    // Load multiple files
+                    const files = [];
+                    for (const filename of filenames) {
+                        const response = await fetch(`/api/get_testimage/detect_yolov3/${encodeURIComponent(filename)}`);
+                        if (!response.ok) {
+                            throw new Error(`Failed to load ${filename}: ${response.statusText}`);
+                        }
+                        const blob = await response.blob();
+                        // Determine MIME type from file extension
+                        const ext = filename.split('.').pop();
+                        const mimeTypes = {
+                            'jpg': 'image/jpeg', 'JPG': 'image/jpeg',
+                            'jpeg': 'image/jpeg', 'JPEG': 'image/jpeg',
+                            'png': 'image/png', 'PNG': 'image/png',
+                            'gif': 'image/gif', 'GIF': 'image/gif',
+                            'webp': 'image/webp', 'WEBP': 'image/webp',
+                            'bmp': 'image/bmp', 'BMP': 'image/bmp',
+                            'tiff': 'image/tiff', 'TIFF': 'image/tiff',
+                            'tif': 'image/tiff', 'TIF': 'image/tiff',
+                            'heic': 'image/heic', 'HEIC': 'image/heic',
+                            'sto': 'application/octet-stream', 'STO': 'application/octet-stream'
+                        };
+                        const mimeType = mimeTypes[ext] || mimeTypes[ext.toLowerCase()] || blob.type || 'image/jpeg';
+                        const file = new File([blob], filename, { type: mimeType, lastModified: Date.now() });
+                        files.push(file);
+                    }
+                    const dataTransfer = new DataTransfer();
+                    files.forEach(file => dataTransfer.items.add(file));
+                    // Clear the input first, then set files
+                    batchFileInput.value = '';
+                    batchFileInput.files = dataTransfer.files;
+                    // Trigger change event to process the files and display preview
+                    const changeEvent = new Event('change', { bubbles: true });
+                    batchFileInput.dispatchEvent(changeEvent);
+                } else {
+                    // Load single file
+                    const filename = filenames[0];
+                    const response = await fetch(`/api/get_testimage/detect_yolov3/${encodeURIComponent(filename)}`);
+                    if (!response.ok) {
+                        throw new Error(`Failed to load ${filename}: ${response.statusText}`);
+                    }
+                    const blob = await response.blob();
+                    // Determine MIME type from file extension
+                    const ext = filename.split('.').pop();
+                    const mimeTypes = {
+                        'jpg': 'image/jpeg', 'JPG': 'image/jpeg',
+                        'jpeg': 'image/jpeg', 'JPEG': 'image/jpeg',
+                        'png': 'image/png', 'PNG': 'image/png',
+                        'gif': 'image/gif', 'GIF': 'image/gif',
+                        'webp': 'image/webp', 'WEBP': 'image/webp',
+                        'bmp': 'image/bmp', 'BMP': 'image/bmp',
+                        'tiff': 'image/tiff', 'TIFF': 'image/tiff',
+                        'tif': 'image/tiff', 'TIF': 'image/tiff',
+                        'heic': 'image/heic', 'HEIC': 'image/heic',
+                        'sto': 'application/octet-stream', 'STO': 'application/octet-stream'
+                    };
+                    const mimeType = mimeTypes[ext] || mimeTypes[ext.toLowerCase()] || blob.type || 'image/jpeg';
+                    const file = new File([blob], filename, { type: mimeType, lastModified: Date.now() });
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    // Clear the input first, then set files
+                    fileInput.value = '';
+                    fileInput.files = dataTransfer.files;
+                    // Trigger change event to process the file and display preview
+                    const changeEvent = new Event('change', { bubbles: true });
+                    fileInput.dispatchEvent(changeEvent);
+                }
+            } catch (error) {
+                console.error('Error loading file from browser:', error);
+                alert(`Error loading file: ${error.message}. Please try again.`);
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        // File input change handlers - these work for both file browser modal and direct file selection
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files.length > 0) {
+                handleFileSelect(e);
+            }
+        });
+        
+        batchFileInput.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files.length > 0) {
+                handleBatchFileSelect(e);
+            }
+        });
+    }
+
+    function handleFileSelect(e) {
+        const file = e.target.files[0];
+        if (file) {
+            selectedFile = file;
+            displayImagePreview(file);
+        }
+    }
+
+    function handleBatchFileSelect(e) {
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+            batchFiles = files;
+            currentBatchIndex = 0;
+            selectedFile = files[0];
+            displayImagePreview(files[0]);
+            showBatchNavigation();
+        }
+    }
+
+    function displayImagePreview(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.getElementById('imagePreview');
+                const ctx = canvas.getContext('2d');
+                
+                const maxWidth = 400;
+                const maxHeight = 300;
+                let { width, height } = img;
+                
+                // Calculate display dimensions
+                let displayWidth = width;
+                let displayHeight = height;
+                
+                if (width > maxWidth || height > maxHeight) {
+                    const ratio = Math.min(maxWidth / width, maxHeight / height);
+                    displayWidth = width * ratio;
+                    displayHeight = height * ratio;
+                }
+                
+                // Set canvas size to display dimensions
+                canvas.width = displayWidth;
+                canvas.height = displayHeight;
+                
+                // Enable image smoothing for better quality
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                
+                currentImage = img;
+                
+                // Show image preview container
+                document.getElementById('imagePreviewContainer').style.display = 'block';
+                enableModelSelection();
+                
+                // Initialize crop values to full image dimensions but don't show overlay
+                // Store crop values in variables since input fields were removed
+                window.cropX = 0;
+                window.cropY = 0;
+                window.cropW = displayWidth;
+                window.cropH = displayHeight;
+                
+                // Hide crop overlay initially - only show when user drags
+                const overlay = document.getElementById('cropOverlay');
+                if (overlay) {
+                    overlay.style.display = 'none';
+                }
+                
+                // Draw image with current transforms
+                redrawImageWithTransforms();
+                
+                const detectionResultsContainer = document.getElementById('detectionResultsContainer');
+                detectionResultsContainer.style.display = 'none';
+                
+                // Check if detect button should be enabled
+                const modelSelect = document.getElementById('modelSelect');
+                const detectBtn = document.getElementById('detectBtn');
+                if (modelSelect.value && selectedFile) {
+                    detectBtn.disabled = false;
+                    console.log('Detect button enabled - image uploaded and model selected');
+                }
+                
+                console.log('Image loaded:', {
+                    original: { width: img.width, height: img.height },
+                    display: { width: displayWidth, height: displayHeight },
+                    filename: file.name
+                });
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function enableModelSelection() {
+        const modelSelect = document.getElementById('modelSelect');
+        modelSelect.disabled = false;
+        loadModelWeights();
+        
+        // Add event listener for model selection
+        modelSelect.addEventListener('change', function() {
+            const detectBtn = document.getElementById('detectBtn');
+            if (this.value && selectedFile) {
+                detectBtn.disabled = false;
+                console.log('Detect button enabled - model selected:', this.value);
+            } else {
+                detectBtn.disabled = true;
+                console.log('Detect button disabled - no model or file selected');
+            }
+        });
+    }
+
+    async function loadModelWeights() {
+        try {
+            const response = await fetch('/api/yolov3_weights');
+            const data = await response.json();
+            
+            const modelSelect = document.getElementById('modelSelect');
+            modelSelect.innerHTML = '';
+            
+            if (data.success && data.weights) {
+                data.weights.forEach(weight => {
+                    const option = document.createElement('option');
+                    option.value = weight.path;
+                    option.textContent = weight.display_name;
+                    modelSelect.appendChild(option);
+                });
+            } else {
+                modelSelect.innerHTML = '<option value="">No weights available</option>';
+            }
+        } catch (error) {
+            console.error('Error loading model weights:', error);
+        }
+    }
+
+    function setupCropHandlers() {
+        const canvas = document.getElementById('imagePreview');
+        canvas.addEventListener('mousedown', startCrop);
+        canvas.addEventListener('mousemove', updateCrop);
+        canvas.addEventListener('mouseup', endCrop);
+        canvas.addEventListener('mouseleave', endCrop);
+    }
+
+    function startCrop(e) {
+        isDragging = true;
+        const canvas = document.getElementById('imagePreview');
+        const rect = canvas.getBoundingClientRect();
+        
+        // Calculate scale factor between displayed size and actual canvas size
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        
+        // Convert mouse coordinates to canvas coordinates
+        cropStartX = (e.clientX - rect.left) * scaleX;
+        cropStartY = (e.clientY - rect.top) * scaleY;
+        
+        // Overlay uses CSS pixels, so use original mouse coordinates
+        updateCropOverlay(e.clientX - rect.left, e.clientY - rect.top, 0, 0);
+    }
+
+    function updateCrop(e) {
+        if (!isDragging) return;
+        
+        const canvas = document.getElementById('imagePreview');
+        const rect = canvas.getBoundingClientRect();
+        
+        // Calculate scale factor between displayed size and actual canvas size
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        
+        // Convert mouse coordinates to canvas coordinates
+        const currentX = (e.clientX - rect.left) * scaleX;
+        const currentY = (e.clientY - rect.top) * scaleY;
+        
+        const cropX = Math.min(cropStartX, currentX);
+        const cropY = Math.min(cropStartY, currentY);
+        const cropW = Math.abs(currentX - cropStartX);
+        const cropH = Math.abs(currentY - cropStartY);
+        
+        // Overlay uses CSS pixels, so convert back
+        updateCropOverlay(cropX / scaleX, cropY / scaleY, cropW / scaleX, cropH / scaleY);
+        
+        // Update global crop variables (in canvas pixel coordinates)
+        window.cropX = Math.round(cropX);
+        window.cropY = Math.round(cropY);
+        window.cropW = Math.round(cropW);
+        window.cropH = Math.round(cropH);
+    }
+
+    function endCrop() {
+        isDragging = false;
+        updateCropPreview();
+    }
+
+    function updateCropOverlay(x, y, w, h) {
+        const overlay = document.getElementById('cropOverlay');
+        if (!overlay) return;
+        
+        // x, y, w, h are in CSS pixels (displayed size) for overlay positioning
+        const canvas = document.getElementById('imagePreview');
+        const rect = canvas.getBoundingClientRect();
+        
+        // Check if there's an actual crop selection (not default full image)
+        // Compare against displayed size for overlay
+        const isActualCrop = (x > 0 || y > 0 || w < rect.width || h < rect.height) && w > 0 && h > 0;
+        
+        if (isActualCrop) {
+            overlay.style.left = x + 'px';
+            overlay.style.top = y + 'px';
+            overlay.style.width = w + 'px';
+            overlay.style.height = h + 'px';
+            overlay.style.display = 'block';
+            overlay.style.border = '2px solid #B91D30';
+            overlay.style.backgroundColor = 'rgba(185, 29, 48, 0.1)';
+        } else {
+            overlay.style.display = 'none';
+        }
+    }
+
+    function updateCropPreview() {
+        if (!currentImage) return;
+        
+        const canvas = document.getElementById('imagePreview');
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        
+        const cropX = window.cropX || 0;
+        const cropY = window.cropY || 0;
+        const cropW = window.cropW;
+        const cropH = window.cropH;
+        
+        // Convert canvas coordinates to CSS pixels for overlay
+        updateCropOverlay(cropX / scaleX, cropY / scaleY, cropW / scaleX, cropH / scaleY);
+    }
+
+
+    function isCropActive() {
+        const cropX = window.cropX || 0;
+        const cropY = window.cropY || 0;
+        const cropW = window.cropW;
+        const cropH = window.cropH;
+        const canvas = document.getElementById('imagePreview');
+        
+        // Only consider crop active if:
+        // 1. User has moved from default position (X > 0 or Y > 0), OR
+        // 2. User has reduced size from full image dimensions
+        return (cropX > 0 || cropY > 0 || 
+                cropW < canvas.width || cropH < canvas.height);
+    }
+
+    function resetCrop() {
+        if (!currentImage) return;
+        
+        // Reset transforms
+        currentRotation = 0;
+        currentFlip = { horizontal: false, vertical: false };
+        
+        // Update status display
+        document.getElementById('rotationAngle').textContent = '0°';
+        document.getElementById('flipStatus').textContent = 'None';
+        
+        const canvas = document.getElementById('imagePreview');
+        window.cropX = 0;
+        window.cropY = 0;
+        window.cropW = canvas.width;
+        window.cropH = canvas.height;
+        
+        // Hide overlay when resetting to full image
+        const overlay = document.getElementById('cropOverlay');
+        if (overlay) {
+            overlay.style.display = 'none';
+        }
+        
+        // Redraw image without transforms
+        redrawImageWithTransforms();
+        updateCropPreview();
+    }
+
+    function rotateImage(degrees) {
+        currentRotation = (currentRotation + degrees) % 360;
+        if (currentRotation < 0) currentRotation += 360;
+        
+        document.getElementById('rotationAngle').textContent = currentRotation + '°';
+        
+        if (currentImage) {
+            redrawImageWithTransforms();
+            updateCropPreview();
+        }
+    }
+
+    function flipImage(direction) {
+        if (direction === 'horizontal') {
+            currentFlip.horizontal = !currentFlip.horizontal;
+        } else if (direction === 'vertical') {
+            currentFlip.vertical = !currentFlip.vertical;
+        }
+        
+        const flipStatus = [];
+        if (currentFlip.horizontal) flipStatus.push('H');
+        if (currentFlip.vertical) flipStatus.push('V');
+        document.getElementById('flipStatus').textContent = flipStatus.length > 0 ? flipStatus.join(', ') : 'None';
+        
+        if (currentImage) {
+            redrawImageWithTransforms();
+            updateCropPreview();
+        }
+    }
+
+    function redrawImageWithTransforms() {
+        if (!currentImage) return;
+        
+        const canvas = document.getElementById('imagePreview');
+        const ctx = canvas.getContext('2d');
+        
+        const maxWidth = 400;
+        const maxHeight = 300;
+        let { width, height } = currentImage;
+        
+        // Calculate display dimensions
+        let displayWidth = width;
+        let displayHeight = height;
+        
+        if (width > maxWidth || height > maxHeight) {
+            const ratio = Math.min(maxWidth / width, maxHeight / height);
+            displayWidth = width * ratio;
+            displayHeight = height * ratio;
+        }
+        
+        // Set canvas size to display dimensions
+        canvas.width = displayWidth;
+        canvas.height = displayHeight;
+        
+        // Enable image smoothing for better quality
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, displayWidth, displayHeight);
+        
+        // Save context state
+        ctx.save();
+        
+        // Move to center of canvas
+        ctx.translate(displayWidth / 2, displayHeight / 2);
+        
+        // Apply rotation
+        if (currentRotation !== 0) {
+            ctx.rotate((currentRotation * Math.PI) / 180);
+        }
+        
+        // Apply flips
+        let scaleX = 1;
+        let scaleY = 1;
+        if (currentFlip.horizontal) scaleX = -1;
+        if (currentFlip.vertical) scaleY = -1;
+        ctx.scale(scaleX, scaleY);
+        
+        // Draw image centered
+        ctx.drawImage(currentImage, -displayWidth / 2, -displayHeight / 2, displayWidth, displayHeight);
+        
+        // Restore context state
+        ctx.restore();
+        
+        // Update crop values to match new display dimensions
+        if (!isCropActive()) {
+            window.cropX = 0;
+            window.cropY = 0;
+            window.cropW = displayWidth;
+            window.cropH = displayHeight;
+        }
+        
+        console.log('Image redrawn with transforms:', {
+            rotation: currentRotation,
+            flip: currentFlip,
+            displaySize: { width: displayWidth, height: displayHeight }
+        });
+    }
+
+
+    function getOriginalImageData() {
+        // Return the original image data URL
+        return new Promise((resolve) => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = currentImage.width;
+            canvas.height = currentImage.height;
+            
+            // Draw original image without any transformations
+            ctx.drawImage(currentImage, 0, 0);
+            
+            resolve(canvas.toDataURL('image/jpeg', 0.9));
+        });
+    }
+
+    function setupBatchNavigation() {
+        const prevBtn = document.getElementById('prevImageBtn');
+        const nextBtn = document.getElementById('nextImageBtn');
+        
+        prevBtn.addEventListener('click', () => {
+            if (currentBatchIndex > 0) {
+                currentBatchIndex--;
+                selectedFile = batchFiles[currentBatchIndex];
+                displayImagePreview(selectedFile);
+                updateBatchCounter();
+                updateBatchButtons();
+            }
+        });
+        
+        nextBtn.addEventListener('click', () => {
+            if (currentBatchIndex < batchFiles.length - 1) {
+                currentBatchIndex++;
+                selectedFile = batchFiles[currentBatchIndex];
+                displayImagePreview(selectedFile);
+                updateBatchCounter();
+                updateBatchButtons();
+            }
+        });
+    }
+
+    function showBatchNavigation() {
+        document.getElementById('batchNavigation').style.display = 'flex';
+        updateBatchCounter();
+        updateBatchButtons();
+    }
+
+    function updateBatchCounter() {
+        document.getElementById('batchCounter').textContent = `${currentBatchIndex + 1} of ${batchFiles.length}`;
+    }
+
+    function updateBatchButtons() {
+        const prevBtn = document.getElementById('prevImageBtn');
+        const nextBtn = document.getElementById('nextImageBtn');
+        
+        prevBtn.disabled = currentBatchIndex === 0;
+        nextBtn.disabled = currentBatchIndex === batchFiles.length - 1;
+    }
+
+    function resetAllStatValues() {
+        // Reset all stat-value elements to '--'
+        const statValues = document.querySelectorAll('.stat-value');
+        statValues.forEach(stat => {
+            stat.textContent = '--';
+        });
+    }
+
+    async function detectImage() {
+        if (!selectedFile || !document.getElementById('modelSelect').value) {
+            showMessage('Please select an image and model weight', 'error');
+            return;
+        }
+
+        // Reset all stat-values at the start
+        resetAllStatValues();
+
+        const detectBtn = document.getElementById('detectBtn');
+        const loading = document.getElementById('loading');
+        const detectionResultsContainer = document.getElementById('detectionResultsContainer');
+
+        detectBtn.disabled = true;
+        loading.style.display = 'block';
+        detectionResultsContainer.style.display = 'block';
+        hideMessages();
+
+        try {
+            // First, update the result image with current image from image-preview-wrapper
+            const imageCanvas = document.getElementById('imagePreview');
+            const resultImage = document.getElementById('resultImage');
+            
+            let currentImageData;
+            
+            // Check if crop is active and apply it
+            if (isCropActive()) {
+                console.log('DEBUG: Crop is active, applying crop to canvas');
+                
+                // Get crop coordinates
+                const cropX = window.cropX || 0;
+                const cropY = window.cropY || 0;
+                const cropW = window.cropW;
+                const cropH = window.cropH;
+                
+                console.log(`DEBUG: Crop coordinates: x=${cropX}, y=${cropY}, w=${cropW}, h=${cropH}`);
+                
+                // Create a temporary canvas for cropping
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                // Set temp canvas size to crop dimensions
+                tempCanvas.width = cropW;
+                tempCanvas.height = cropH;
+                
+                // Draw the cropped portion from the main canvas
+                tempCtx.drawImage(imageCanvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+                
+                // Get the cropped image data
+                currentImageData = tempCanvas.toDataURL('image/jpeg', 0.9);
+                
+                console.log(`DEBUG: Created cropped image: ${cropW}x${cropH}`);
+            } else {
+                console.log('DEBUG: No crop active, using full canvas image');
+                // Get the current image data from canvas (includes all transformations)
+                currentImageData = imageCanvas.toDataURL('image/jpeg', 0.9);
+            }
+            
+            // Update the result image to show what will be analyzed
+            resultImage.src = currentImageData;
+            resultImage.style.display = 'block';
+            
+            console.log('DEBUG: Updated resultImage with current canvas image');
+            
+            // Convert data URL to blob for FormData
+            const imageResponse = await fetch(currentImageData);
+            const blob = await imageResponse.blob();
+            
+            const formData = new FormData();
+            // Always send the exact current preview image (with edits/applied transformations)
+            formData.append('file', blob, 'current_image.jpg');
+            formData.append('weight_path', document.getElementById('modelSelect').value);
+            // Backend skips transforms since frontend already applied them; send neutral params
+            formData.append('crop_x', 0);
+            formData.append('crop_y', 0);
+            formData.append('crop_w', imageCanvas.width);
+            formData.append('crop_h', imageCanvas.height);
+            formData.append('rotation', 0);
+            formData.append('flip_horizontal', false);
+            formData.append('flip_vertical', false);
+            console.log('DEBUG: Sending current preview image with edits/transformations applied');
+
+            const response = await fetch('/api/detect_yolov3', {
+                method: 'POST',
+                body: formData
+            });
+
+            // Check if response is ok
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}: ${response.statusText}` }));
+                console.error('API Error:', response.status, errorData);
+                showMessage(errorData.error || `Detection failed: HTTP ${response.status}`, 'error');
+                return;
+            }
+
+            const data = await response.json();
+            console.log('DEBUG: API Response received:', {
+                success: data.success,
+                detectionsCount: data.detections ? data.detections.length : 0,
+                hasImage: !!data.image
+            });
+            
+            if (data.success) {
+                displayResults(data);
+            } else {
+                console.error('API returned success=false:', data);
+                showMessage(data.error || 'Detection failed', 'error');
+            }
+        } catch (error) {
+            console.error('Detection error:', error);
+            showMessage('Detection failed: ' + error.message, 'error');
+        } finally {
+            detectBtn.disabled = false;
+            loading.style.display = 'none';
+        }
+    }
+
+    function displayResults(data) {
+        // Ensure detection results container is visible
+        const detectionResultsContainer = document.getElementById('detectionResultsContainer');
+        if (detectionResultsContainer) {
+            detectionResultsContainer.style.display = 'block';
+        }
+        
+        document.getElementById('inferenceTime').textContent = `${data.inference_time.toFixed(1)}ms`;
+        document.getElementById('architecture').textContent = data.architecture || '--';
+        document.getElementById('modelSize').textContent = data.model_size || '--';
+        document.getElementById('inputSize').textContent = data.input_size || '--';
+        document.getElementById('batchSize').textContent = data.batch_size || '--';
+        document.getElementById('backbone').textContent = data.backbone || '--';
+        document.getElementById('detectionHeads').textContent = data.detection_heads || '--';
+        document.getElementById('anchors').textContent = data.anchors || '--';
+        document.getElementById('fitnessScore').textContent = data.fitness_score || '--';
+        if (data.used_weight_path) {
+            // Extract only the filename from the full path
+            const filename = data.used_weight_path.split('/').pop() || data.used_weight_path;
+            document.getElementById('usedWeightPath').textContent = filename;
+        }
+        if (typeof data.inferred_num_classes !== 'undefined') {
+            document.getElementById('inferredNumClasses').textContent = data.inferred_num_classes;
+        }
+
+        const resultImage = document.getElementById('resultImage');
+        resultImage.src = data.image;
+        
+        resultImage.onload = function() {
+            console.log('Result image loaded successfully');
+            console.log('Detection result image:', {
+                hasCrop: isCropActive(),
+                imageSrc: data.image.substring(0, 50) + '...',
+                shouldShowCrop: isCropActive() ? 'Only cropped patch' : 'Full image'
+            });
+        };
+        
+        resultImage.onerror = function() {
+            console.error('Failed to load result image');
+        };
+
+        const predictionResult = document.getElementById('predictionResult');
+        const predictionClass = document.getElementById('predictionClass');
+        const predictionConfidence = document.getElementById('predictionConfidence');
+
+        // Handle object detection results
+        // Always use top3_predictions[0] for the main green prediction display
+        // This ensures the green value matches the first item in the top 3 list
+        if (data.top3_predictions && data.top3_predictions.length > 0) {
+            // Show the first prediction from top3_predictions (highest confidence)
+            const firstPrediction = data.top3_predictions[0];
+            predictionClass.textContent = `${firstPrediction.class} - Confidence: ${(firstPrediction.probability * 100).toFixed(2)}%`;
+            predictionConfidence.textContent = ''; // Clear the separate confidence display
+            
+            // Show detection count with bounding box info if detections exist
+            if (data.detections && data.detections.length > 0) {
+                const detectionCount = document.createElement('div');
+                detectionCount.textContent = `Found ${data.detections.length} object(s) with bounding boxes`;
+                detectionCount.style.fontSize = '0.9rem';
+                detectionCount.style.color = '#cccccc';
+                detectionCount.style.marginTop = '5px';
+                
+                // Clear previous detection count
+                const existingCount = predictionResult.querySelector('.detection-count');
+                if (existingCount) {
+                    existingCount.remove();
+                }
+                detectionCount.className = 'detection-count';
+                predictionResult.appendChild(detectionCount);
+                
+                // Log all detections for debugging
+                console.log('DEBUG: All detections:', data.detections);
+            } else {
+                // No detections found, but we have top3_predictions
+                const detectionCount = document.createElement('div');
+                detectionCount.textContent = 'Found no object(s) with bounding boxes';
+                detectionCount.style.fontSize = '0.9rem';
+                detectionCount.style.color = '#cccccc';
+                detectionCount.style.marginTop = '5px';
+                
+                // Clear previous detection count
+                const existingCount = predictionResult.querySelector('.detection-count');
+                if (existingCount) {
+                    existingCount.remove();
+                }
+                detectionCount.className = 'detection-count';
+                predictionResult.appendChild(detectionCount);
+            }
+        } else {
+            // No top3_predictions available, fallback to detections if available
+            if (data.detections && data.detections.length > 0) {
+                const firstDetection = data.detections[0];
+                predictionClass.textContent = `${firstDetection.class} - Confidence: ${(firstDetection.confidence * 100).toFixed(2)}%`;
+                predictionConfidence.textContent = ''; // Clear the separate confidence display
+                
+                // Show detection count with bounding box info
+                const detectionCount = document.createElement('div');
+                detectionCount.textContent = `Found ${data.detections.length} object(s) with bounding boxes`;
+                detectionCount.style.fontSize = '0.9rem';
+                detectionCount.style.color = '#cccccc';
+                detectionCount.style.marginTop = '5px';
+                
+                // Clear previous detection count
+                const existingCount = predictionResult.querySelector('.detection-count');
+                if (existingCount) {
+                    existingCount.remove();
+                }
+                detectionCount.className = 'detection-count';
+                predictionResult.appendChild(detectionCount);
+            } else {
+                // No detections and no predictions
+                predictionClass.textContent = 'No objects detected';
+                predictionConfidence.textContent = 'Confidence: 0.00%';
+                
+                // Show detection count for no objects
+                const detectionCount = document.createElement('div');
+                detectionCount.textContent = 'Found no object(s)';
+                detectionCount.style.fontSize = '0.9rem';
+                detectionCount.style.color = '#cccccc';
+                detectionCount.style.marginTop = '5px';
+                
+                // Clear previous detection count
+                const existingCount = predictionResult.querySelector('.detection-count');
+                if (existingCount) {
+                    existingCount.remove();
+                }
+                detectionCount.className = 'detection-count';
+                predictionResult.appendChild(detectionCount);
+            }
+        }
+        
+        predictionResult.style.display = 'block';
+        
+        // Scroll to show predictions
+        setTimeout(() => {
+            const container = document.getElementById('detectionResultsContainer');
+            if (container) {
+                container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                // Also scroll the card if needed
+                const card = container.closest('.card');
+                if (card) {
+                    const predictionEl = document.getElementById('predictionResult');
+                    if (predictionEl) {
+                        predictionEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                }
+            }
+        }, 100);
+
+        // Display top 3 predictions - ALWAYS show exactly 3 from ALL classes
+        const prediction1 = document.getElementById('prediction1');
+        const prediction2 = document.getElementById('prediction2');
+        const prediction3 = document.getElementById('prediction3');
+        
+        console.log('DEBUG: prediction1 element:', prediction1);
+        console.log('DEBUG: prediction2 element:', prediction2);
+        console.log('DEBUG: prediction3 element:', prediction3);
+        console.log('DEBUG: top3_predictions data:', data.top3_predictions);
+        console.log('DEBUG: detections length:', data.detections ? data.detections.length : 0);
+        
+        // Always show top3_predictions regardless of detections
+        if (data.top3_predictions && data.top3_predictions.length >= 1 && data.top3_predictions[0].class !== 'none') {
+            prediction1.textContent = `1. ${data.top3_predictions[0].class}: ${(data.top3_predictions[0].probability * 100).toFixed(2)}%`;
+            console.log('DEBUG: Set prediction1 to:', prediction1.textContent);
+        } else {
+            prediction1.textContent = '1. -';
+            console.log('DEBUG: Set prediction1 to dash');
+        }
+        
+        if (data.top3_predictions && data.top3_predictions.length >= 2 && data.top3_predictions[1].class !== 'none') {
+            prediction2.textContent = `2. ${data.top3_predictions[1].class}: ${(data.top3_predictions[1].probability * 100).toFixed(2)}%`;
+            console.log('DEBUG: Set prediction2 to:', prediction2.textContent);
+        } else {
+            prediction2.textContent = '2. -';
+            console.log('DEBUG: Set prediction2 to dash');
+        }
+        
+        if (data.top3_predictions && data.top3_predictions.length >= 3 && data.top3_predictions[2].class !== 'none') {
+            prediction3.textContent = `3. ${data.top3_predictions[2].class}: ${(data.top3_predictions[2].probability * 100).toFixed(2)}%`;
+            console.log('DEBUG: Set prediction3 to:', prediction3.textContent);
+        } else {
+            prediction3.textContent = '3. -';
+            console.log('DEBUG: Set prediction3 to dash');
+        }
+        
+        // Store all_predictions for expand/collapse functionality
+        if (data.all_predictions && data.all_predictions.length > 0) {
+            window.allPredictionsData = data.all_predictions;
+            updateAllPredictionsDisplay();
+        } else {
+            window.allPredictionsData = [];
+            const expandBtn = document.getElementById('expandPredictionsBtn');
+            if (expandBtn) {
+                expandBtn.style.display = 'none';
+            }
+        }
+    }
+    
+    function toggleAllPredictions() {
+        const allPredictionsDiv = document.getElementById('allPredictions');
+        const expandBtn = document.getElementById('expandPredictionsBtn');
+        
+        if (allPredictionsDiv && expandBtn) {
+            if (allPredictionsDiv.style.display === 'none') {
+                allPredictionsDiv.style.display = 'block';
+                expandBtn.textContent = 'Hide All Predictions';
+            } else {
+                allPredictionsDiv.style.display = 'none';
+                expandBtn.textContent = 'Show All Predictions';
+            }
+        }
+    }
+    
+    function updateAllPredictionsDisplay() {
+        const allPredictionsDiv = document.getElementById('allPredictions');
+        const expandBtn = document.getElementById('expandPredictionsBtn');
+        
+        if (!allPredictionsDiv || !window.allPredictionsData) return;
+        
+        // Clear existing content
+        allPredictionsDiv.innerHTML = '';
+        
+        // Display all predictions
+        window.allPredictionsData.forEach((pred, index) => {
+            const predEntry = document.createElement('div');
+            predEntry.className = 'prediction-entry';
+            predEntry.style.marginBottom = '4px';
+            predEntry.textContent = `${index + 1}. ${pred.class}: ${(pred.probability * 100).toFixed(2)}%`;
+            allPredictionsDiv.appendChild(predEntry);
+        });
+        
+        // Show/hide button based on number of predictions
+        if (expandBtn) {
+            if (window.allPredictionsData.length > 3) {
+                expandBtn.style.display = 'block';
+            } else {
+                expandBtn.style.display = 'none';
+            }
+        }
+    }
+
+    function showMessage(message, type) {
+        hideMessages();
+        const messageDiv = document.getElementById(type === 'error' ? 'errorMessage' : 'successMessage');
+        messageDiv.textContent = message;
+        messageDiv.style.display = 'block';
+        
+        setTimeout(() => {
+            messageDiv.style.display = 'none';
+        }, 5000);
+    }
+
+    function hideMessages() {
+        document.getElementById('errorMessage').style.display = 'none';
+        document.getElementById('successMessage').style.display = 'none';
+    }
+    
+    // Expose functions to global scope for onclick handlers
+    window.toggleAllPredictions = toggleAllPredictions;
+    window.rotateImage = rotateImage;
+    window.flipImage = flipImage;
+    window.resetCrop = resetCrop;
+    })(); // End of IIFE wrapper
+
+</script>
+{% endblock %}
