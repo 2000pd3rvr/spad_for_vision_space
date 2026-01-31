@@ -6,17 +6,22 @@
     <title>{% block title %}MV+{% endblock %}</title>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
     
-    <!-- Critical inline CSS to prevent white flash -->
+    <!-- Critical inline CSS to prevent white flash - MUST be first -->
     <style>
-        /* Prevent FOUC (Flash of Unstyled Content) - Aggressive approach */
+        /* Prevent FOUC (Flash of Unstyled Content) - Maximum aggressive approach */
+        html, body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0d1b1b 100%) !important;
+            background-color: #0a0a0a !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
         html {
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0d1b1b 100%);
+            overflow-x: hidden;
         }
         body {
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0d1b1b 100%);
             color: #ffffff;
-            margin: 0;
-            padding: 0;
             font-family: 'Times New Roman', serif;
             min-height: 100vh;
             visibility: hidden;
@@ -25,15 +30,24 @@
         body.loaded {
             visibility: visible;
             opacity: 1;
-            transition: opacity 0.15s ease-in;
+            transition: opacity 0.1s ease-in;
         }
         #app {
             min-height: 100vh;
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0d1b1b 100%);
+            background-color: #0a0a0a;
         }
         /* Ensure navbar has background immediately */
         .navbar {
             background: rgba(0, 0, 0, 0.95) !important;
+            background-color: rgba(0, 0, 0, 0.95) !important;
+        }
+        /* Hide all content until loaded */
+        body:not(.loaded) * {
+            visibility: hidden;
+        }
+        body.loaded * {
+            visibility: visible;
         }
     </style>
     
@@ -110,59 +124,52 @@
 
     </div>
     <script>
-        // Aggressive FOUC prevention - hide content until CSS is fully loaded
+        // Maximum aggressive FOUC prevention
         (function() {
-            // Wait for all stylesheets to load
-            var stylesheets = document.querySelectorAll('link[rel="stylesheet"]');
-            var loadedCount = 0;
-            var totalSheets = stylesheets.length;
+            function showContent() {
+                // Use requestAnimationFrame for smooth transition
+                if (window.requestAnimationFrame) {
+                    requestAnimationFrame(function() {
+                        document.body.classList.add('loaded');
+                    });
+                } else {
+                    document.body.classList.add('loaded');
+                }
+            }
             
-            function checkAllLoaded() {
-                loadedCount++;
-                if (loadedCount >= totalSheets || document.readyState === 'complete') {
+            // Show immediately if page is already loaded (back/forward navigation)
+            if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                showContent();
+            } else {
+                // Wait for DOM ready
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', showContent);
+                } else {
                     showContent();
                 }
             }
             
-            function showContent() {
-                // Use requestAnimationFrame to ensure smooth transition
-                requestAnimationFrame(function() {
-                    document.body.classList.add('loaded');
-                });
-            }
+            // Also wait for window load as backup
+            window.addEventListener('load', function() {
+                if (!document.body.classList.contains('loaded')) {
+                    showContent();
+                }
+            });
             
-            // Check if stylesheets are already loaded
-            if (totalSheets === 0) {
-                showContent();
-            } else {
-                // Monitor each stylesheet
-                stylesheets.forEach(function(sheet) {
-                    if (sheet.sheet || sheet.styleSheet) {
-                        // Already loaded
-                        checkAllLoaded();
-                    } else {
-                        sheet.onload = checkAllLoaded;
-                        sheet.onerror = checkAllLoaded; // Continue even if one fails
-                    }
-                });
-            }
-            
-            // Fallback: show content after max delay
+            // Fallback: show after short delay (prevents indefinite hiding)
             setTimeout(function() {
                 if (!document.body.classList.contains('loaded')) {
                     showContent();
                 }
-            }, 300);
-            
-            // Also show on DOM ready as backup
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', function() {
-                    setTimeout(showContent, 50);
-                });
-            } else {
-                setTimeout(showContent, 50);
-            }
+            }, 200);
         })();
+        
+        // Prevent white flash during navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ensure background is set immediately
+            document.documentElement.style.backgroundColor = '#0a0a0a';
+            document.body.style.backgroundColor = '#0a0a0a';
+        });
     </script>
     <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
     {% block scripts %}{% endblock %}
