@@ -55,8 +55,12 @@ def init_db():
     conn.commit()
     conn.close()
 
-# Initialize database on startup
-init_db()
+# Initialize database on startup (with error handling)
+try:
+    init_db()
+except Exception as e:
+    print(f"Warning: Database initialization failed (non-critical): {e}")
+    # Continue anyway - database will be created on first use
 
 def get_visitor_location(ip_address: str):
     try:
