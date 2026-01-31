@@ -3322,9 +3322,17 @@ if __name__ == "__main__":
     print("Note: Models will be downloaded on-demand when selected from dropdowns")
     print("=" * 60)
     
-    # Use port 7889 for local testing, 7860 for Hugging Face Spaces
-    port = int(os.environ.get("PORT", 7889))
+    # Use port 7860 for Hugging Face Spaces (default), 7889 for local testing
+    # Hugging Face Spaces sets PORT=7860, but we check SPACE_ID to be sure
+    if os.environ.get("SPACE_ID"):
+        # On Hugging Face Spaces, always use 7860
+        port = 7860
+    else:
+        # Local testing, use PORT env var or default to 7889
+        port = int(os.environ.get("PORT", 7889))
     print(f"Starting Flask server on port {port}...")
+    print(f"SPACE_ID: {os.environ.get('SPACE_ID', 'Not set')}")
+    print(f"PORT env var: {os.environ.get('PORT', 'Not set')}")
     
     # Kill any existing processes on the port before starting (for local testing)
     if os.environ.get("WERKZEUG_RUN_MAIN") != "true":
