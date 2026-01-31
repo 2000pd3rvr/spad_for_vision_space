@@ -99,6 +99,24 @@
     </footer>
 
     </div>
+    <script>
+        // Show content once CSS is loaded to prevent white flash
+        (function() {
+            // Mark body as loaded once DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    document.body.classList.add('loaded');
+                });
+            } else {
+                document.body.classList.add('loaded');
+            }
+            
+            // Fallback: show content after a short delay if CSS hasn't loaded
+            setTimeout(function() {
+                document.body.classList.add('loaded');
+            }, 100);
+        })();
+    </script>
     <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
     {% block scripts %}{% endblock %}
 </body>
