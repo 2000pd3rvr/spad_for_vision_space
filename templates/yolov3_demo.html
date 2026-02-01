@@ -1876,10 +1876,20 @@
             console.log('DEBUG: API Response received:', {
                 success: data.success,
                 detectionsCount: data.detections ? data.detections.length : 0,
+                top3PredictionsCount: data.top3_predictions ? data.top3_predictions.length : 0,
+                top3Predictions: data.top3_predictions,
+                allPredictionsCount: data.all_predictions ? data.all_predictions.length : 0,
                 hasImage: !!data.image
             });
             
             if (data.success) {
+                // Log detailed prediction data
+                if (data.top3_predictions) {
+                    console.log('DEBUG: top3_predictions:', JSON.stringify(data.top3_predictions, null, 2));
+                }
+                if (data.all_predictions) {
+                    console.log('DEBUG: all_predictions (first 5):', JSON.stringify(data.all_predictions.slice(0, 5), null, 2));
+                }
                 displayResults(data);
             } else {
                 console.error('API returned success=false:', data);
@@ -1942,11 +1952,23 @@
         // Handle object detection results
         // Always use top3_predictions[0] for the main green prediction display
         // This ensures the green value matches the first item in the top 3 list
+        console.log('DEBUG: displayResults - top3_predictions:', data.top3_predictions);
+        console.log('DEBUG: displayResults - all_predictions:', data.all_predictions);
+        console.log('DEBUG: displayResults - detections:', data.detections);
+        
         if (data.top3_predictions && data.top3_predictions.length > 0) {
             // Show the first prediction from top3_predictions (highest confidence)
             const firstPrediction = data.top3_predictions[0];
-            predictionClass.textContent = `${firstPrediction.class} - Confidence: ${(firstPrediction.probability * 100).toFixed(2)}%`;
-            predictionConfidence.textContent = ''; // Clear the separate confidence display
+            console.log('DEBUG: First prediction:', firstPrediction);
+            if (firstPrediction && firstPrediction.class && firstPrediction.probability !== undefined) {
+                predictionClass.textContent = `${firstPrediction.class} - Confidence: ${(firstPrediction.probability * 100).toFixed(2)}%`;
+                predictionConfidence.textContent = ''; // Clear the separate confidence display
+                console.log('DEBUG: Set predictionClass to:', predictionClass.textContent);
+            } else {
+                console.error('DEBUG: Invalid firstPrediction:', firstPrediction);
+                predictionClass.textContent = 'No prediction available';
+                predictionConfidence.textContent = '';
+            }
             
             // Show detection count with bounding box info if detections exist
             if (data.detections && data.detections.length > 0) {
