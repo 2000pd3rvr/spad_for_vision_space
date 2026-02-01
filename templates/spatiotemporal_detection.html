@@ -2544,19 +2544,12 @@ function updateStoImageDimensions() {
         // Enable hpWhiteboardContainer and hpGifImage when detect button is clicked
         const hpWhiteboardContainer = document.getElementById('hpWhiteboardContainer');
         const hpGifImage = document.getElementById('hpGifImage');
-        const whiteboardImage = document.getElementById('whiteboardImage');
         const whiteboardCaption = document.getElementById('whiteboardCaption');
         if (hpWhiteboardContainer) {
             hpWhiteboardContainer.style.display = 'flex';
-            hpWhiteboardContainer.style.position = 'relative';
-            hpWhiteboardContainer.style.alignItems = 'flex-start';
-            hpWhiteboardContainer.style.gap = '10px';
         }
         if (hpGifImage) {
             hpGifImage.style.display = 'block';
-        }
-        if (whiteboardImage) {
-            whiteboardImage.style.display = 'block';
         }
         if (whiteboardCaption) {
             whiteboardCaption.style.display = 'block';
