@@ -748,15 +748,15 @@ def api_fluid_purity_weights():
                 # Check if this weight is already in the list from Hub
                 existing = next((w for w in weights if w['filename'] == filename), None)
                 if not existing:
-                if not existing:
+                    weights.append({
                         "filename": filename,
-                    "path": weight_file,  # Use local path
-                    "display_name": display_name,
-                    "accuracy": accuracy,
-                    "epoch": epoch,
+                        "path": weight_file,  # Use local path
+                        "display_name": display_name,
+                        "accuracy": accuracy,
+                        "epoch": epoch,
                         "weight_type": weight_type,
                         "source": "local"
-                })
+                    })
             
             # Sort by accuracy (highest first), then by epoch
             weights.sort(key=lambda x: (x['accuracy'], x['epoch']), reverse=True)
@@ -858,15 +858,15 @@ def api_material_detection_head_weights():
                 # Check if this weight is already in the list from Hub
                 existing = next((w for w in weights if w['filename'] == filename), None)
                 if not existing:
-                if not existing:
+                    weights.append({
                         "filename": filename,
-                    "path": weight_file,  # Use local path
-                    "display_name": display_name,
-                    "accuracy": accuracy,
-                    "epoch": epoch,
+                        "path": weight_file,  # Use local path
+                        "display_name": display_name,
+                        "accuracy": accuracy,
+                        "epoch": epoch,
                         "weight_type": weight_type,
                         "source": "local"
-                })
+                    })
             
             # Sort by accuracy (highest first), then by epoch
             weights.sort(key=lambda x: (x['accuracy'], x['epoch']), reverse=True)
@@ -1865,12 +1865,12 @@ def api_yolov3_weights():
                 # Check if this weight is already in the list from Hub
                 existing = next((w for w in yolov3_weights if w['filename'] == filename), None)
                 if not existing:
-                if not existing:
-                    "path": weight_file,
-                    "display_name": display_name,
+                    yolov3_weights.append({
+                        "path": weight_file,
+                        "display_name": display_name,
                         "weight_type": weight_type,
                         "source": "local"
-                })
+                    })
         
         # Sort by weight type (Best first), then by filename
         yolov3_weights.sort(key=lambda x: (x['weight_type'] == 'Best', x['filename']), reverse=True)
@@ -1974,12 +1974,12 @@ def api_yolov8_custom_weights():
                 # Check if this weight is already in the list from Hub
                 existing = next((w for w in yolov8_weights if w['filename'] == filename), None)
                 if not existing:
-                if not existing:
-                    "path": weight_file,
-                    "display_name": display_name,
+                    yolov8_weights.append({
+                        "path": weight_file,
+                        "display_name": display_name,
                         "weight_type": weight_type,
                         "source": "local"
-                })
+                    })
         
         # Sort by weight type (Best first, then Last, then others)
         weight_priority = {"Best": 0, "Last": 1, "Checkpoint": 2}
@@ -2086,14 +2086,14 @@ def api_dinov3_weights():
                 # Check if this weight is already in the list from Hub
                 existing = next((w for w in dinov3_weights if w['filename'] == filename), None)
                 if not existing:
-                if not existing:
-                    "path": weight_file,
-                    "display_name": display_name,
-                    "weight_type": weight_type,
-                    "epoch": epoch,
+                    dinov3_weights.append({
+                        "path": weight_file,
+                        "display_name": display_name,
+                        "weight_type": weight_type,
+                        "epoch": epoch,
                         "accuracy": accuracy,
                         "source": "local"
-                })
+                    })
         
         # Sort by weight type (Best first, then Last, then by accuracy/epoch)
         weight_priority = {"Best": 0, "Last": 1, "Checkpoint": 2}
