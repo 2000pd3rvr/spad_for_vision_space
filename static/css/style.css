@@ -190,40 +190,49 @@ body {
 }
 
 /* Main Content */
-/* Development Banner */
+/* Development Banner - HIGHLY VISIBLE */
 .dev-banner {
-    position: fixed;
-    top: 70px; /* Below navbar */
-    left: 0;
-    right: 0;
-    width: 100%;
-    background: linear-gradient(90deg, #B91D30 0%, #8B1523 100%);
-    color: #ffffff;
-    padding: 12px 0;
-    text-align: center;
-    z-index: 999;
-    box-shadow: 0 2px 10px rgba(185, 29, 48, 0.5);
-    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    position: fixed !important;
+    top: 70px !important; /* Below navbar */
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    background: linear-gradient(90deg, #B91D30 0%, #8B1523 100%) !important;
+    background-color: #B91D30 !important;
+    color: #ffffff !important;
+    padding: 16px 0 !important;
+    text-align: center !important;
+    z-index: 1001 !important; /* Above navbar */
+    box-shadow: 0 4px 20px rgba(185, 29, 48, 0.8) !important;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3) !important;
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
+    margin: 0 !important;
 }
 
 .dev-banner-content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 15px !important;
+    font-size: 1.2rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 2px !important;
+    text-transform: uppercase !important;
     color: #ffffff !important;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5) !important;
+}
+
+.dev-banner-content span {
+    color: #ffffff !important;
+    font-weight: 800 !important;
 }
 
 .dev-banner-content i {
-    animation: pulse 2s ease-in-out infinite;
-    font-size: 1.1rem;
+    animation: pulse 2s ease-in-out infinite !important;
+    font-size: 1.3rem !important;
+    color: #ffffff !important;
 }
 
 @keyframes pulse {
@@ -238,8 +247,8 @@ body {
 }
 
 .main-content {
-    margin-top: 106px; /* Navbar (70px) + Banner (~36px) */
-    min-height: calc(100vh - 106px);
+    margin-top: 118px !important; /* Navbar (70px) + Banner (~48px) */
+    min-height: calc(100vh - 118px) !important;
     padding: 0.5rem 0;
     overflow-y: auto;
     display: flex;
