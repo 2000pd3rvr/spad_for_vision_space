@@ -68,7 +68,7 @@ def init_db():
 
 # Initialize database on startup (with error handling)
 try:
-    init_db()
+init_db()
 except Exception as e:
     print(f"Warning: Database initialization failed (non-critical): {e}")
     # Continue anyway - database will be created on first use
@@ -2268,7 +2268,7 @@ def api_detect_dinov3():
                         class_names = DEFAULT_CLASS_NAMES_ALPHABETICAL[:num_classes]
                         debug_print(f"DEBUG: Using alphabetical default class names for DINOv3: {class_names}")
                     else:
-                        class_names = [f'class_{i}' for i in range(num_classes)]
+                    class_names = [f'class_{i}' for i in range(num_classes)]
                         debug_print(f"DEBUG: Warning - using generic class names: {class_names}")
             
             # Ensure class_names length matches num_classes
@@ -2458,7 +2458,7 @@ def api_detect_yolov8_custom():
             # Load the YOLOv8 model using Ultralytics
             # Handle potential DFLoss attribute errors from version mismatches
             try:
-                model = YOLO(weight_path)
+            model = YOLO(weight_path)
                 debug_print(f"DEBUG: YOLOv8 model loaded successfully")
             except (AttributeError, ImportError, RuntimeError) as model_load_error:
                 error_msg = str(model_load_error)
@@ -3612,7 +3612,7 @@ def download_model_from_hub(hub_path):
         )
         print(f"✓ Downloaded to: {downloaded_path}")
         return downloaded_path
-    except Exception as e:
+        except Exception as e:
         print(f"Error downloading model {hub_path}: {e}")
         import traceback
         traceback.print_exc()
