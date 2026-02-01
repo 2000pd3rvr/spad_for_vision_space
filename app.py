@@ -2431,19 +2431,12 @@ def api_detect_yolov8_custom():
         
         # Handle Hub paths (hub://repo_id/path/to/file)
         if weight_path.startswith('hub://'):
-            # Extract repo_id and file path
-            parts = weight_path.replace('hub://', '').split('/', 1)
-            if len(parts) == 2:
-                repo_id = parts[0]
-                file_path = parts[1]
-                # Download from Hub
-                downloaded_path = download_model_from_hub(repo_id, file_path)
-                if downloaded_path:
-                    weight_path = downloaded_path
-                else:
-                    return jsonify({'error': f'Failed to download model from Hub: {weight_path}'}), 400
+            # Download from Hub - pass the full hub path
+            downloaded_path = download_model_from_hub(weight_path)
+            if downloaded_path:
+                weight_path = downloaded_path
             else:
-                return jsonify({'error': f'Invalid Hub path format: {weight_path}'}), 400
+                return jsonify({'error': f'Failed to download model from Hub: {weight_path}'}), 400
         
         # Load image - ensure stream is at beginning
         file.stream.seek(0)
