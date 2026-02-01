@@ -68,7 +68,7 @@ def init_db():
 
 # Initialize database on startup (with error handling)
 try:
-    init_db()
+init_db()
 except Exception as e:
     print(f"Warning: Database initialization failed (non-critical): {e}")
     # Continue anyway - database will be created on first use
@@ -748,7 +748,7 @@ def api_fluid_purity_weights():
                 # Check if this weight is already in the list from Hub
                 existing = next((w for w in weights if w['filename'] == filename), None)
                 if not existing:
-                    weights.append({
+                weights.append({
                     "filename": filename,
                     "path": weight_file,  # Use local path
                     "display_name": display_name,
@@ -858,7 +858,7 @@ def api_material_detection_head_weights():
                 # Check if this weight is already in the list from Hub
                 existing = next((w for w in weights if w['filename'] == filename), None)
                 if not existing:
-                    weights.append({
+                weights.append({
                     "filename": filename,
                     "path": weight_file,  # Use local path
                     "display_name": display_name,
@@ -1865,7 +1865,7 @@ def api_yolov3_weights():
                 # Check if this weight is already in the list from Hub
                 existing = next((w for w in yolov3_weights if w['filename'] == filename), None)
                 if not existing:
-                    yolov3_weights.append({
+                yolov3_weights.append({
                     "filename": filename,
                     "path": weight_file,
                     "display_name": display_name,
@@ -1975,7 +1975,7 @@ def api_yolov8_custom_weights():
                 # Check if this weight is already in the list from Hub
                 existing = next((w for w in yolov8_weights if w['filename'] == filename), None)
                 if not existing:
-                    yolov8_weights.append({
+                yolov8_weights.append({
                     "filename": filename,
                     "path": weight_file,
                     "display_name": display_name,
@@ -2088,7 +2088,7 @@ def api_dinov3_weights():
                 # Check if this weight is already in the list from Hub
                 existing = next((w for w in dinov3_weights if w['filename'] == filename), None)
                 if not existing:
-                    dinov3_weights.append({
+                dinov3_weights.append({
                     "filename": filename,
                     "path": weight_file,
                     "display_name": display_name,
@@ -2268,7 +2268,7 @@ def api_detect_dinov3():
                         class_names = DEFAULT_CLASS_NAMES_ALPHABETICAL[:num_classes]
                         debug_print(f"DEBUG: Using alphabetical default class names for DINOv3: {class_names}")
                     else:
-                        class_names = [f'class_{i}' for i in range(num_classes)]
+                    class_names = [f'class_{i}' for i in range(num_classes)]
                         debug_print(f"DEBUG: Warning - using generic class names: {class_names}")
             
             # Ensure class_names length matches num_classes
@@ -2456,8 +2456,37 @@ def api_detect_yolov8_custom():
         
         try:
             # Load the YOLOv8 model using Ultralytics
+            # Handle potential DFLoss attribute errors from version mismatches
+            try:
             model = YOLO(weight_path)
-            print(f"DEBUG: YOLOv8 model loaded successfully")
+                debug_print(f"DEBUG: YOLOv8 model loaded successfully")
+            except (AttributeError, ImportError) as model_load_error:
+                error_msg = str(model_load_error)
+                if 'DFLoss' in error_msg or 'loss' in error_msg.lower():
+                    # Try loading with weights_only to bypass loss function loading
+                    import torch
+                    debug_print(f"DEBUG: DFLoss error detected, trying alternative loading method: {error_msg}")
+                    try:
+                        # Load checkpoint and extract just the model weights
+                        checkpoint = torch.load(weight_path, map_location='cpu', weights_only=False)
+                        # Create a new YOLO model and load state dict
+                        # First, try to determine model size from checkpoint
+                        if 'model' in checkpoint:
+                            model = checkpoint['model']
+                        elif 'state_dict' in checkpoint:
+                            # Create a base YOLOv8 model and load state dict
+                            model = YOLO('yolov8n.pt')  # Use nano as base
+                            model.model.load_state_dict(checkpoint['state_dict'], strict=False)
+                        else:
+                            # Last resort: try loading with ultralytics but catch the error
+                            raise model_load_error
+                        debug_print(f"DEBUG: YOLOv8 model loaded using alternative method")
+                    except Exception as alt_error:
+                        debug_print(f"DEBUG: Alternative loading also failed: {alt_error}")
+                        # Try one more time with a fresh YOLO instance
+                        model = YOLO(weight_path)
+                else:
+                    raise model_load_error
             
             # Get model metadata
             num_classes = len(model.names)
@@ -3577,7 +3606,7 @@ def download_model_from_hub(hub_path):
         )
         print(f"✓ Downloaded to: {downloaded_path}")
         return downloaded_path
-    except Exception as e:
+        except Exception as e:
         print(f"Error downloading model {hub_path}: {e}")
         import traceback
         traceback.print_exc()

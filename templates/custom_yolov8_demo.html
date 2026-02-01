@@ -1251,6 +1251,9 @@
                 document.getElementById('imagePreviewContainer').style.display = 'block';
                 enableModelSelection();
                 
+                // Hide all crop and transform controls after image selection (like YOLOv3)
+                hideCropTools();
+                
                 // Initialize crop values to full image dimensions but don't show overlay
                 // Store crop values in variables since input fields were removed
                 window.cropX = 0;
@@ -1291,10 +1294,52 @@
         reader.readAsDataURL(file);
     }
 
+    function hideCropTools() {
+        // Hide all crop and transform controls (like YOLOv3)
+        const imageControls = document.getElementById('imageControls');
+        if (imageControls) {
+            imageControls.style.display = 'none';
+            imageControls.style.visibility = 'hidden';
+            imageControls.style.opacity = '0';
+            imageControls.style.height = '0';
+            imageControls.style.overflow = 'hidden';
+        }
+        
+        const compactControls = document.querySelector('.compact-controls');
+        if (compactControls) {
+            compactControls.style.display = 'none';
+            compactControls.style.visibility = 'hidden';
+            compactControls.style.opacity = '0';
+            compactControls.style.height = '0';
+            compactControls.style.overflow = 'hidden';
+        }
+        
+        const transformButtons = document.querySelector('.transform-buttons-compact');
+        if (transformButtons) {
+            transformButtons.style.display = 'none';
+            transformButtons.style.visibility = 'hidden';
+            transformButtons.style.opacity = '0';
+            transformButtons.style.height = '0';
+            transformButtons.style.overflow = 'hidden';
+        }
+        
+        const cropInstructions = document.querySelector('.crop-instructions');
+        if (cropInstructions) {
+            cropInstructions.style.display = 'none';
+            cropInstructions.style.visibility = 'hidden';
+            cropInstructions.style.opacity = '0';
+            cropInstructions.style.height = '0';
+            cropInstructions.style.overflow = 'hidden';
+        }
+    }
+    
     function enableModelSelection() {
         const modelSelect = document.getElementById('modelSelect');
         modelSelect.disabled = false;
         loadModelWeights();
+        
+        // Hide crop tools when model selection is enabled
+        hideCropTools();
         
         // Add event listener for model selection
         modelSelect.addEventListener('change', async function() {
