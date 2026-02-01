@@ -749,11 +749,11 @@ def api_fluid_purity_weights():
                 existing = next((w for w in weights if w['filename'] == filename), None)
                 if not existing:
                     weights.append({
-                    "filename": filename,
-                    "path": weight_file,  # Use local path
-                    "display_name": display_name,
-                    "accuracy": accuracy,
-                    "epoch": epoch,
+                        "filename": filename,
+                        "path": weight_file,  # Use local path
+                        "display_name": display_name,
+                        "accuracy": accuracy,
+                        "epoch": epoch,
                         "weight_type": weight_type,
                         "source": "local"
                 })
@@ -859,11 +859,11 @@ def api_material_detection_head_weights():
                 existing = next((w for w in weights if w['filename'] == filename), None)
                 if not existing:
                     weights.append({
-                    "filename": filename,
-                    "path": weight_file,  # Use local path
-                    "display_name": display_name,
-                    "accuracy": accuracy,
-                    "epoch": epoch,
+                        "filename": filename,
+                        "path": weight_file,  # Use local path
+                        "display_name": display_name,
+                        "accuracy": accuracy,
+                        "epoch": epoch,
                         "weight_type": weight_type,
                         "source": "local"
                 })
@@ -1866,9 +1866,9 @@ def api_yolov3_weights():
                 existing = next((w for w in yolov3_weights if w['filename'] == filename), None)
                 if not existing:
                     weights.append({
-                    "filename": filename,
-                    "path": weight_file,
-                    "display_name": display_name,
+                        "filename": filename,
+                        "path": weight_file,
+                        "display_name": display_name,
                         "weight_type": weight_type,
                         "source": "local"
                 })
@@ -1976,9 +1976,9 @@ def api_yolov8_custom_weights():
                 existing = next((w for w in yolov8_weights if w['filename'] == filename), None)
                 if not existing:
                     weights.append({
-                    "filename": filename,
-                    "path": weight_file,
-                    "display_name": display_name,
+                        "filename": filename,
+                        "path": weight_file,
+                        "display_name": display_name,
                         "weight_type": weight_type,
                         "source": "local"
                 })
@@ -2089,11 +2089,11 @@ def api_dinov3_weights():
                 existing = next((w for w in dinov3_weights if w['filename'] == filename), None)
                 if not existing:
                     weights.append({
-                    "filename": filename,
-                    "path": weight_file,
-                    "display_name": display_name,
-                    "weight_type": weight_type,
-                    "epoch": epoch,
+                        "filename": filename,
+                        "path": weight_file,
+                        "display_name": display_name,
+                        "weight_type": weight_type,
+                        "epoch": epoch,
                         "accuracy": accuracy,
                         "source": "local"
                 })
@@ -2268,7 +2268,7 @@ def api_detect_dinov3():
                         class_names = DEFAULT_CLASS_NAMES_ALPHABETICAL[:num_classes]
                         debug_print(f"DEBUG: Using alphabetical default class names for DINOv3: {class_names}")
                     else:
-                    class_names = [f'class_{i}' for i in range(num_classes)]
+                        class_names = [f'class_{i}' for i in range(num_classes)]
                         debug_print(f"DEBUG: Warning - using generic class names: {class_names}")
             
             # Ensure class_names length matches num_classes
