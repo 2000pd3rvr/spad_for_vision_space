@@ -68,7 +68,7 @@ def init_db():
 
 # Initialize database on startup (with error handling)
 try:
-init_db()
+    init_db()
 except Exception as e:
     print(f"Warning: Database initialization failed (non-critical): {e}")
     # Continue anyway - database will be created on first use
@@ -651,7 +651,7 @@ def api_flat_surface_detection_weights():
             # Sort by accuracy (highest first), then by epoch
             weights.sort(key=lambda x: (x['accuracy'], x['epoch']), reverse=True)
         else:
-            debug_print(f"DEBUG: Weights directory not found: {weights_dir}")
+            print(f"DEBUG: Weights directory not found: {weights_dir}")
         
         return jsonify({
             'success': True,
@@ -761,7 +761,7 @@ def api_fluid_purity_weights():
             # Sort by accuracy (highest first), then by epoch
             weights.sort(key=lambda x: (x['accuracy'], x['epoch']), reverse=True)
         else:
-            debug_print(f"DEBUG: Weights directory not found: {weights_dir}")
+            print(f"DEBUG: Weights directory not found: {weights_dir}")
         
         return jsonify({
             'success': True,
@@ -871,7 +871,7 @@ def api_material_detection_head_weights():
             # Sort by accuracy (highest first), then by epoch
             weights.sort(key=lambda x: (x['accuracy'], x['epoch']), reverse=True)
         else:
-            debug_print(f"DEBUG: Weights directory not found: {weights_dir}")
+            print(f"DEBUG: Weights directory not found: {weights_dir}")
         
         return jsonify({
             'success': True,
@@ -956,20 +956,20 @@ def api_detect_material_head():
         if not weight_path:
             return jsonify({'error': 'No model weight selected'}), 400
         
-        debug_debug_print(f"DEBUG: Received weight_path: '{weight_path}'")
-        debug_debug_print(f"DEBUG: weight_path is absolute: {os.path.isabs(weight_path) if weight_path else False}")
-        debug_debug_print(f"DEBUG: weight_path exists: {os.path.exists(weight_path) if weight_path else False}")
+        debug_print(f"DEBUG: Received weight_path: '{weight_path}'")
+        debug_print(f"DEBUG: weight_path is absolute: {os.path.isabs(weight_path) if weight_path else False}")
+        debug_print(f"DEBUG: weight_path exists: {os.path.exists(weight_path) if weight_path else False}")
         
         # Determine model type from weight path
         is_material_purity = ('material_purity' in weight_path.lower() or 'fluid_purity' in weight_path.lower() or 'purity' in weight_path.lower())
         is_flat_surface = ('flat_surface' in weight_path.lower() or 'flatsurface' in weight_path.lower())
         is_material_detection_head = ('material_detection_head' in weight_path.lower() or 'naturalobjects' in weight_path.lower())
         
-        debug_debug_print(f"DEBUG: Model type detection:")
-        debug_debug_print(f"DEBUG:   is_material_purity: {is_material_purity}")
-        debug_debug_print(f"DEBUG:   is_flat_surface: {is_flat_surface}")
-        debug_debug_print(f"DEBUG:   is_material_detection_head: {is_material_detection_head}")
-        debug_debug_print(f"DEBUG:   weight_path: {weight_path}")
+        debug_print(f"DEBUG: Model type detection:")
+        debug_print(f"DEBUG:   is_material_purity: {is_material_purity}")
+        debug_print(f"DEBUG:   is_flat_surface: {is_flat_surface}")
+        debug_print(f"DEBUG:   is_material_detection_head: {is_material_detection_head}")
+        debug_print(f"DEBUG:   weight_path: {weight_path}")
         
         # Check if weight_path is a local file path or Hugging Face Hub path
         local_model_path = None
@@ -977,17 +977,17 @@ def api_detect_material_head():
         # First, check if it's an absolute local path
         if os.path.isabs(weight_path) and os.path.exists(weight_path):
             # Absolute local file path
-            debug_print(f"DEBUG: Using absolute local weight file: {weight_path}")
+            print(f"DEBUG: Using absolute local weight file: {weight_path}")
             local_model_path = weight_path
         # Check if it exists as-is (relative path)
         elif os.path.exists(weight_path):
-            debug_print(f"DEBUG: Using local weight file (found as-is): {weight_path}")
+            print(f"DEBUG: Using local weight file (found as-is): {weight_path}")
             local_model_path = weight_path
         # Try relative to BASE_DIR
         else:
             relative_path = os.path.join(BASE_DIR, weight_path)
             if os.path.exists(relative_path):
-                debug_print(f"DEBUG: Using relative local weight file: {relative_path}")
+                print(f"DEBUG: Using relative local weight file: {relative_path}")
                 local_model_path = relative_path
         
         # If not found as local path, check if it's a Hugging Face Hub path
@@ -1011,7 +1011,7 @@ def api_detect_material_head():
         is_sto_file = filename_lower.endswith('.sto')
         
         # Load image
-        debug_print(f"DEBUG: File type check - is_sto_file: {is_sto_file}, filename: {file.filename}")
+        print(f"DEBUG: File type check - is_sto_file: {is_sto_file}, filename: {file.filename}")
         if is_sto_file:
             # Handle STO file - extract index 1 (16x16 material detection image)
             # STO structure: Index 0=metadata, Index 1=16x16 material image, Index 2=OD metadata, Index 3=640x640 OD image
@@ -1029,10 +1029,10 @@ def api_detect_material_head():
                     sto_item = sto_data[1]
                     if isinstance(sto_item, bytes):
                         image = Image.open(BytesIO(sto_item)).convert('RGB')
-                        debug_print(f"DEBUG: Extracted image from STO index 1 (bytes), size: {image.size}, mode: {image.mode}")
+                        print(f"DEBUG: Extracted image from STO index 1 (bytes), size: {image.size}, mode: {image.mode}")
                     elif hasattr(sto_item, 'mode'):
                         image = sto_item.convert('RGB')
-                        debug_print(f"DEBUG: Extracted image from STO index 1 (PIL), size: {image.size}, mode: {image.mode}")
+                        print(f"DEBUG: Extracted image from STO index 1 (PIL), size: {image.size}, mode: {image.mode}")
                         # Additional debug: Check if image is mostly black/empty (might indicate wrong index)
                         import numpy as np
                         img_array = np.array(image)
@@ -1054,20 +1054,20 @@ def api_detect_material_head():
                 # Process the image using the working function
                 processed_image, _ = process_png_bytes(file.stream.read())
                 image = processed_image
-                debug_print(f"DEBUG: Processed image using material_detection_functions, size: {image.size}, mode: {image.mode}")
+                print(f"DEBUG: Processed image using material_detection_functions, size: {image.size}, mode: {image.mode}")
                 
                 # Debug: Check image pixel values
                 import numpy as np
                 img_array = np.array(image)
-                debug_print(f"DEBUG: Image array shape: {img_array.shape}")
-                debug_print(f"DEBUG: Image array min/max: {img_array.min()}/{img_array.max()}")
-                debug_print(f"DEBUG: Image array mean: {img_array.mean():.2f}, std: {img_array.std():.2f}")
-                debug_print(f"DEBUG: Image array sample (first 3x3 pixels): {img_array[:3, :3] if len(img_array.shape) == 2 else img_array[:3, :3, :]}")
+                print(f"DEBUG: Image array shape: {img_array.shape}")
+                print(f"DEBUG: Image array min/max: {img_array.min()}/{img_array.max()}")
+                print(f"DEBUG: Image array mean: {img_array.mean():.2f}, std: {img_array.std():.2f}")
+                print(f"DEBUG: Image array sample (first 3x3 pixels): {img_array[:3, :3] if len(img_array.shape) == 2 else img_array[:3, :3, :]}")
             except Exception as e:
-                debug_print(f"DEBUG: Error using process_png_bytes, falling back to direct loading: {e}")
+                print(f"DEBUG: Error using process_png_bytes, falling back to direct loading: {e}")
                 file.stream.seek(0)
                 image = Image.open(file.stream).convert('RGB')
-                debug_print(f"DEBUG: Loaded regular image directly, size: {image.size}, mode: {image.mode}")
+                print(f"DEBUG: Loaded regular image directly, size: {image.size}, mode: {image.mode}")
         
         # Preprocess image based on model type
         # CRITICAL: Material detection head uses ToTensor + Normalize(0.5, 0.5, 0.5) as in eval script
@@ -1096,19 +1096,19 @@ def api_detect_material_head():
                 image = image.resize((16, 16), Image.Resampling.LANCZOS)
             
             # Apply transform - returns [C, H, W] tensor
-            debug_print(f"DEBUG: Before transform - image size: {image.size}, mode: {image.mode}")
+            print(f"DEBUG: Before transform - image size: {image.size}, mode: {image.mode}")
             
             # CRITICAL: Check if image has actual pixel variation
             import numpy as np
             img_array_before = np.array(image)
-            debug_print(f"DEBUG: Image array before transform - shape: {img_array_before.shape}, min: {img_array_before.min()}, max: {img_array_before.max()}, mean: {img_array_before.mean():.2f}, std: {img_array_before.std():.2f}")
+            print(f"DEBUG: Image array before transform - shape: {img_array_before.shape}, min: {img_array_before.min()}, max: {img_array_before.max()}, mean: {img_array_before.mean():.2f}, std: {img_array_before.std():.2f}")
             if img_array_before.std() < 1.0:
                 print(f"⚠️  WARNING: Image has very low std ({img_array_before.std():.2f}), might be nearly uniform!")
             
             image_tensor = transform(image)
-            debug_print(f"DEBUG: After transform - tensor shape: {image_tensor.shape}, dtype: {image_tensor.dtype}")
-            debug_print(f"DEBUG: After transform - tensor range: [{image_tensor.min():.4f}, {image_tensor.max():.4f}]")
-            debug_print(f"DEBUG: After transform - tensor mean: {image_tensor.mean():.4f}, std: {image_tensor.std():.4f}")
+            print(f"DEBUG: After transform - tensor shape: {image_tensor.shape}, dtype: {image_tensor.dtype}")
+            print(f"DEBUG: After transform - tensor range: [{image_tensor.min():.4f}, {image_tensor.max():.4f}]")
+            print(f"DEBUG: After transform - tensor mean: {image_tensor.mean():.4f}, std: {image_tensor.std():.4f}")
             
             # CRITICAL: Check if tensor is nearly uniform (would cause all predictions to be similar)
             if image_tensor.std() < 0.01:
@@ -1118,7 +1118,7 @@ def api_detect_material_head():
             if len(image_tensor.shape) == 3:
                 # Add batch dimension: [C, H, W] -> [1, C, H, W]
                 image_tensor = image_tensor.unsqueeze(0)
-                debug_print(f"DEBUG: Added batch dimension, shape: {image_tensor.shape}")
+                print(f"DEBUG: Added batch dimension, shape: {image_tensor.shape}")
             elif len(image_tensor.shape) == 4:
                 # Already has batch dimension, but verify it's [1, C, H, W]
                 if image_tensor.shape[0] != 1:
@@ -1126,7 +1126,7 @@ def api_detect_material_head():
                     while len(image_tensor.shape) > 3:
                         image_tensor = image_tensor.squeeze(0)
                     image_tensor = image_tensor.unsqueeze(0)
-                debug_print(f"DEBUG: Already had batch dimension, shape: {image_tensor.shape}")
+                print(f"DEBUG: Already had batch dimension, shape: {image_tensor.shape}")
             else:
                 raise ValueError(f"Unexpected image tensor shape after transform: {image_tensor.shape}")
             
@@ -1140,7 +1140,7 @@ def api_detect_material_head():
                     image_tensor = image_tensor.unsqueeze(0)
                 if image_tensor.shape != torch.Size([1, 3, 16, 16]):
                     raise ValueError(f"Cannot fix image tensor shape: {image_tensor.shape}, expected [1, 3, 16, 16]")
-            debug_print(f"DEBUG: Final tensor shape verified: {image_tensor.shape}")
+            print(f"DEBUG: Final tensor shape verified: {image_tensor.shape}")
         else:
             # Default preprocessing
             transform = transforms.Compose([
@@ -1283,61 +1283,61 @@ def api_detect_material_head():
             # Lazy import to avoid blocking startup
             from material_detection_functions import preprocess_image
             # But we need to override it to use the correct normalization for ConvNetMaterialDetectionHead
-            debug_print(f"DEBUG: Using ConvNetMaterialDetectionHead with material_detection_functions preprocessing")
+            print(f"DEBUG: Using ConvNetMaterialDetectionHead with material_detection_functions preprocessing")
         else:
             return jsonify({'error': f'Unknown model type. Weight path: {weight_path}'}), 400
         
         # Load weights - handle different checkpoint formats
-        debug_print(f"DEBUG: Loading model from checkpoint: {local_model_path}")
-        debug_print(f"DEBUG: Model type: {model_architecture}")
-        debug_print(f"DEBUG: Expected num_classes: {len(class_names)}")
+        print(f"DEBUG: Loading model from checkpoint: {local_model_path}")
+        print(f"DEBUG: Model type: {model_architecture}")
+        print(f"DEBUG: Expected num_classes: {len(class_names)}")
         
         if isinstance(checkpoint, dict):
             if 'msd' in checkpoint:
                 # Our trained models use 'msd' key
-                debug_print(f"DEBUG: Loading from 'msd' key")
+                print(f"DEBUG: Loading from 'msd' key")
                 model.load_state_dict(checkpoint['msd'], strict=True)
-                debug_print(f"DEBUG: Model loaded successfully from 'msd'")
+                print(f"DEBUG: Model loaded successfully from 'msd'")
             elif 'state_dict' in checkpoint:
-                debug_print(f"DEBUG: Loading from 'state_dict' key")
+                print(f"DEBUG: Loading from 'state_dict' key")
                 model.load_state_dict(checkpoint['state_dict'], strict=True)
-                debug_print(f"DEBUG: Model loaded successfully from 'state_dict'")
+                print(f"DEBUG: Model loaded successfully from 'state_dict'")
             elif 'model_state_dict' in checkpoint:
-                debug_print(f"DEBUG: Loading from 'model_state_dict' key")
+                print(f"DEBUG: Loading from 'model_state_dict' key")
                 model.load_state_dict(checkpoint['model_state_dict'], strict=True)
-                debug_print(f"DEBUG: Model loaded successfully from 'model_state_dict'")
+                print(f"DEBUG: Model loaded successfully from 'model_state_dict'")
             else:
                 # Try loading as state_dict directly
                 try:
-                    debug_print(f"DEBUG: Trying to load checkpoint dict directly as state_dict")
+                    print(f"DEBUG: Trying to load checkpoint dict directly as state_dict")
                     model.load_state_dict(checkpoint, strict=True)
-                    debug_print(f"DEBUG: Model loaded successfully from checkpoint dict")
+                    print(f"DEBUG: Model loaded successfully from checkpoint dict")
                 except Exception as e:
                     print(f"Warning: Could not load as state_dict: {e}")
                     # If checkpoint is the model itself (unlikely but possible)
                     if hasattr(checkpoint, 'forward'):
                         model = checkpoint
-                        debug_print(f"DEBUG: Using checkpoint as model directly")
+                        print(f"DEBUG: Using checkpoint as model directly")
                     else:
                         raise ValueError(f"Unknown checkpoint format: {type(checkpoint)}")
         else:
             # Checkpoint might be the model itself (unlikely for our models)
             if hasattr(checkpoint, 'forward'):
                 model = checkpoint
-                debug_print(f"DEBUG: Using checkpoint as model directly")
+                print(f"DEBUG: Using checkpoint as model directly")
             else:
                 # Try to load as state_dict
                 try:
-                    debug_print(f"DEBUG: Trying to load checkpoint as state_dict")
+                    print(f"DEBUG: Trying to load checkpoint as state_dict")
                     model.load_state_dict(checkpoint, strict=True)
-                    debug_print(f"DEBUG: Model loaded successfully from checkpoint")
+                    print(f"DEBUG: Model loaded successfully from checkpoint")
                 except Exception as e:
-                    debug_print(f"DEBUG: Failed to load checkpoint: {e}")
+                    print(f"DEBUG: Failed to load checkpoint: {e}")
                     raise ValueError(f"Unknown checkpoint format: {type(checkpoint)}")
         
         # Verify model output shape
         if hasattr(model, 'fc4'):
-            debug_print(f"DEBUG: Model fc4 output features: {model.fc4.out_features}")
+            print(f"DEBUG: Model fc4 output features: {model.fc4.out_features}")
             if model.fc4.out_features != len(class_names):
                 print(f"WARNING: Model output features ({model.fc4.out_features}) != num classes ({len(class_names)})")
         
@@ -1361,31 +1361,31 @@ def api_detect_material_head():
                     module.eval()
         
         # Debug: Print input tensor info
-        debug_print(f"DEBUG: ========== FINAL TENSOR SHAPE CHECK ==========")
-        debug_print(f"DEBUG: Input tensor shape: {image_tensor.shape}")
-        debug_print(f"DEBUG: Input tensor ndim: {len(image_tensor.shape)}")
-        debug_print(f"DEBUG: Expected shape: [1, 3, 16, 16]")
+        print(f"DEBUG: ========== FINAL TENSOR SHAPE CHECK ==========")
+        print(f"DEBUG: Input tensor shape: {image_tensor.shape}")
+        print(f"DEBUG: Input tensor ndim: {len(image_tensor.shape)}")
+        print(f"DEBUG: Expected shape: [1, 3, 16, 16]")
         if image_tensor.shape != torch.Size([1, 3, 16, 16]):
-            debug_print(f"DEBUG: WARNING - Tensor shape {image_tensor.shape} != expected [1, 3, 16, 16]")
-        debug_print(f"DEBUG: Input tensor range: [{image_tensor.min():.4f}, {image_tensor.max():.4f}]")
-        debug_print(f"DEBUG: Input tensor mean: {image_tensor.mean():.4f}, std: {image_tensor.std():.4f}")
-        debug_print(f"DEBUG: Input tensor device: {image_tensor.device}")
-        debug_print(f"DEBUG: Model device: {next(model.parameters()).device if list(model.parameters()) else 'N/A'}")
-        debug_print(f"DEBUG: ==============================================")
+            print(f"DEBUG: WARNING - Tensor shape {image_tensor.shape} != expected [1, 3, 16, 16]")
+        print(f"DEBUG: Input tensor range: [{image_tensor.min():.4f}, {image_tensor.max():.4f}]")
+        print(f"DEBUG: Input tensor mean: {image_tensor.mean():.4f}, std: {image_tensor.std():.4f}")
+        print(f"DEBUG: Input tensor device: {image_tensor.device}")
+        print(f"DEBUG: Model device: {next(model.parameters()).device if list(model.parameters()) else 'N/A'}")
+        print(f"DEBUG: ==============================================")
         
         # Run inference
         with torch.no_grad():
-            debug_print(f"DEBUG: About to run inference with model type: {type(model)}")
+            print(f"DEBUG: About to run inference with model type: {type(model)}")
             
             # CRITICAL: Compute hash of input tensor to verify it's different for different images
             import hashlib
             tensor_bytes = image_tensor.cpu().numpy().tobytes()
             tensor_hash = hashlib.md5(tensor_bytes).hexdigest()
-            debug_print(f"DEBUG: Input tensor hash (MD5): {tensor_hash}")
-            debug_print(f"DEBUG: Input tensor sample (first 10 values): {image_tensor[0, 0, :3, :3].cpu().numpy().flatten()[:10]}")
+            print(f"DEBUG: Input tensor hash (MD5): {tensor_hash}")
+            print(f"DEBUG: Input tensor sample (first 10 values): {image_tensor[0, 0, :3, :3].cpu().numpy().flatten()[:10]}")
             
             # Verify model is actually in eval mode
-            debug_print(f"DEBUG: Model training mode: {model.training}")
+            print(f"DEBUG: Model training mode: {model.training}")
             if model.training:
                 print("ERROR: Model is in training mode! Setting to eval mode...")
                 model.eval()
@@ -1394,7 +1394,7 @@ def api_detect_material_head():
             
             # Compute hash of predictions to verify they're different
             pred_hash = hashlib.md5(predictions.cpu().numpy().tobytes()).hexdigest()
-            debug_print(f"DEBUG: Predictions hash (MD5): {pred_hash}")
+            print(f"DEBUG: Predictions hash (MD5): {pred_hash}")
             
             # CRITICAL: Check if predictions are all zeros or all the same
             import numpy as np
@@ -1404,17 +1404,17 @@ def api_detect_material_head():
             elif np.allclose(pred_np, pred_np[0]):
                 print(f"⚠️  ERROR: All predictions are the same value: {pred_np[0]}")
             else:
-                debug_print(f"DEBUG: Predictions vary (min: {pred_np.min():.4f}, max: {pred_np.max():.4f}, std: {pred_np.std():.4f})")
+                print(f"DEBUG: Predictions vary (min: {pred_np.min():.4f}, max: {pred_np.max():.4f}, std: {pred_np.std():.4f})")
         
         # Debug: Print raw predictions
-        debug_print(f"DEBUG: ========== MODEL INFERENCE OUTPUT ==========")
-        debug_print(f"DEBUG: Raw predictions shape: {predictions.shape}")
-        debug_print(f"DEBUG: Raw predictions (logits): {predictions.cpu().numpy()}")
-        debug_print(f"DEBUG: Raw predictions min: {predictions.min():.4f}, max: {predictions.max():.4f}")
-        debug_print(f"DEBUG: Model type: {type(model)}")
-        debug_print(f"DEBUG: Using class_names: {class_names}")
-        debug_print(f"DEBUG: Number of classes: {len(class_names)}")
-        debug_print(f"DEBUG: ============================================")
+        print(f"DEBUG: ========== MODEL INFERENCE OUTPUT ==========")
+        print(f"DEBUG: Raw predictions shape: {predictions.shape}")
+        print(f"DEBUG: Raw predictions (logits): {predictions.cpu().numpy()}")
+        print(f"DEBUG: Raw predictions min: {predictions.min():.4f}, max: {predictions.max():.4f}")
+        print(f"DEBUG: Model type: {type(model)}")
+        print(f"DEBUG: Using class_names: {class_names}")
+        print(f"DEBUG: Number of classes: {len(class_names)}")
+        print(f"DEBUG: ============================================")
         
         # Process predictions
         if is_material_purity:
@@ -1462,17 +1462,17 @@ def api_detect_material_head():
                 confidence = probabilities[predicted_class].item()
             
             # Debug: Print probabilities
-            debug_print(f"DEBUG: ========== MATERIAL DETECTION HEAD INFERENCE ==========")
-            debug_print(f"DEBUG: Raw predictions (logits): {predictions.cpu().numpy()}")
-            debug_print(f"DEBUG: Probabilities after softmax: {probabilities.tolist()}")
-            debug_print(f"DEBUG: Predicted class index: {predicted_class}")
-            debug_print(f"DEBUG: Class names: {class_names}")
-            debug_print(f"DEBUG: Class names length: {len(class_names)}")
-            debug_print(f"DEBUG: Predicted class name: {class_names[predicted_class] if predicted_class < len(class_names) else 'OUT_OF_RANGE'}")
-            debug_print(f"DEBUG: Confidence: {confidence:.6f}")
-            debug_print(f"DEBUG: All class probabilities: {probabilities.tolist()}")
-            debug_print(f"DEBUG: Expected class order (ImageFolder alphabetical): {class_names}")
-            debug_print(f"DEBUG: CRITICAL - Class index {predicted_class} maps to class name: {class_names[predicted_class] if predicted_class < len(class_names) else 'OUT_OF_RANGE'}")
+            print(f"DEBUG: ========== MATERIAL DETECTION HEAD INFERENCE ==========")
+            print(f"DEBUG: Raw predictions (logits): {predictions.cpu().numpy()}")
+            print(f"DEBUG: Probabilities after softmax: {probabilities.tolist()}")
+            print(f"DEBUG: Predicted class index: {predicted_class}")
+            print(f"DEBUG: Class names: {class_names}")
+            print(f"DEBUG: Class names length: {len(class_names)}")
+            print(f"DEBUG: Predicted class name: {class_names[predicted_class] if predicted_class < len(class_names) else 'OUT_OF_RANGE'}")
+            print(f"DEBUG: Confidence: {confidence:.6f}")
+            print(f"DEBUG: All class probabilities: {probabilities.tolist()}")
+            print(f"DEBUG: Expected class order (ImageFolder alphabetical): {class_names}")
+            print(f"DEBUG: CRITICAL - Class index {predicted_class} maps to class name: {class_names[predicted_class] if predicted_class < len(class_names) else 'OUT_OF_RANGE'}")
             
             # Check if all probabilities are the same (would indicate a problem)
             prob_values = probabilities.tolist()
@@ -1484,19 +1484,19 @@ def api_detect_material_head():
             # Check if predicted class is always 0 (3dmodel) - this might indicate an issue
             if predicted_class == 0:
                 print(f"⚠️  WARNING: Predicted class is index 0 (3dmodel). This might be incorrect!")
-                debug_print(f"DEBUG: Probability for index 0 (3dmodel): {probabilities[0]:.6f}")
-                debug_print(f"DEBUG: Probability for index 1 (LEDscreen): {probabilities[1]:.6f}")
-                debug_print(f"DEBUG: Max probability index: {torch.argmax(probabilities).item()}")
-                debug_print(f"DEBUG: All probabilities: {[f'{i}:{p:.6f}' for i, p in enumerate(prob_values)]}")
-                debug_print(f"DEBUG: If this is an LED image, it should be predicted as 'LEDscreen' (index 1), not '3dmodel' (index 0)")
-                debug_print(f"DEBUG: Check if the STO file has the correct image at index 1 (16x16 material detection image)")
+                print(f"DEBUG: Probability for index 0 (3dmodel): {probabilities[0]:.6f}")
+                print(f"DEBUG: Probability for index 1 (LEDscreen): {probabilities[1]:.6f}")
+                print(f"DEBUG: Max probability index: {torch.argmax(probabilities).item()}")
+                print(f"DEBUG: All probabilities: {[f'{i}:{p:.6f}' for i, p in enumerate(prob_values)]}")
+                print(f"DEBUG: If this is an LED image, it should be predicted as 'LEDscreen' (index 1), not '3dmodel' (index 0)")
+                print(f"DEBUG: Check if the STO file has the correct image at index 1 (16x16 material detection image)")
             
-            debug_print(f"DEBUG: ======================================================")
+            print(f"DEBUG: ======================================================")
             
             # Get top 3 predictions (as in eval script: top_p, top_class = prob.topk(1, dim=1))
             top3_probs, top3_indices = torch.topk(probabilities, min(3, len(class_names)))
-            debug_print(f"DEBUG: Top 3 indices: {top3_indices.tolist()}")
-            debug_print(f"DEBUG: Top 3 probabilities: {top3_probs.tolist()}")
+            print(f"DEBUG: Top 3 indices: {top3_indices.tolist()}")
+            print(f"DEBUG: Top 3 probabilities: {top3_probs.tolist()}")
             
             # Function to format class name for display (consolidate to materials only)
             def format_class_name(class_name):
@@ -1534,7 +1534,7 @@ def api_detect_material_head():
                     'display_class': display_class,  # Formatted for display
                     'probability': prob
                 })
-                debug_print(f"DEBUG: Top {i+1}: class_idx={class_idx}, class_name={class_name}, prob={prob:.4f}")
+                print(f"DEBUG: Top {i+1}: class_idx={class_idx}, class_name={class_name}, prob={prob:.4f}")
         
         inference_time = (time.time() - start_time) * 1000
         
@@ -2145,7 +2145,7 @@ def api_detect_dinov3():
         
         # Get selected weight
         weight_path = request.form.get('weight_path', '')
-        debug_print(f"DEBUG: Received weight_path: '{weight_path}'")
+        print(f"DEBUG: Received weight_path: '{weight_path}'")
         
         if not weight_path:
             return jsonify({'error': 'No model weight selected'}), 400
@@ -2162,14 +2162,14 @@ def api_detect_dinov3():
         file.stream.seek(0)
         image = Image.open(file.stream).convert('RGB')
         
-        debug_print(f"DEBUG: Original image size: {image.size}")
+        print(f"DEBUG: Original image size: {image.size}")
         
         # Check if weight file exists
         if not os.path.exists(weight_path):
-            debug_print(f"DEBUG: Weight file does not exist: {weight_path}")
+            print(f"DEBUG: Weight file does not exist: {weight_path}")
             return jsonify({'error': f'Model weight file not found: {weight_path}'}), 400
         
-        debug_print(f"DEBUG: Weight file exists, size: {os.path.getsize(weight_path)} bytes")
+        print(f"DEBUG: Weight file exists, size: {os.path.getsize(weight_path)} bytes")
         
         # Start timing
         start_time = time.time()
@@ -2182,7 +2182,7 @@ def api_detect_dinov3():
             try:
                 from train_dinov3 import DINOv3Model
             except ImportError as import_error:
-                debug_print(f"DEBUG: Failed to import DINOv3Model: {import_error}")
+                print(f"DEBUG: Failed to import DINOv3Model: {import_error}")
                 # Define DINOv3Model inline if import fails
                 class DINOv3Model(nn.Module):
                     """DINOv3 model with Vision Transformer backbone"""
@@ -2209,7 +2209,7 @@ def api_detect_dinov3():
             
             # Load checkpoint
             ckpt = torch.load(weight_path, map_location='cpu')
-            debug_print(f"DEBUG: Checkpoint keys: {list(ckpt.keys())}")
+            print(f"DEBUG: Checkpoint keys: {list(ckpt.keys())}")
             
             # Infer num_classes from model state dict
             if 'model_state_dict' in ckpt:
@@ -2218,7 +2218,7 @@ def api_detect_dinov3():
                 for key in msd.keys():
                     if 'heads' in key and 'weight' in key:
                         num_classes = msd[key].shape[0]
-                        debug_print(f"DEBUG: Inferred num_classes from {key}: {num_classes}")
+                        print(f"DEBUG: Inferred num_classes from {key}: {num_classes}")
                         break
                 else:
                     raise ValueError("Could not infer num_classes from model state dict")
@@ -2242,7 +2242,7 @@ def api_detect_dinov3():
                         class_name = filename.split('__')[0]
                         class_set.add(class_name)
                     class_names = sorted(list(class_set))
-                    debug_print(f"DEBUG: Loaded class names from data directory: {class_names}")
+                    print(f"DEBUG: Loaded class names from data directory: {class_names}")
                 
                 # If still no class names, use mapping based on sorted alphabetical order
                 # DINOv3 training uses sorted(class_set) which gives alphabetical order
@@ -2266,14 +2266,14 @@ def api_detect_dinov3():
                     # Use default names if we have the right number, otherwise use generic
                     if num_classes <= len(DEFAULT_CLASS_NAMES_ALPHABETICAL):
                         class_names = DEFAULT_CLASS_NAMES_ALPHABETICAL[:num_classes]
-                        debug_print(f"DEBUG: Using alphabetical default class names for DINOv3: {class_names}")
+                        print(f"DEBUG: Using alphabetical default class names for DINOv3: {class_names}")
                     else:
                     class_names = [f'class_{i}' for i in range(num_classes)]
-                    debug_print(f"DEBUG: Warning - using generic class names: {class_names}")
+                    print(f"DEBUG: Warning - using generic class names: {class_names}")
             
             # Ensure class_names length matches num_classes
             if len(class_names) != num_classes:
-                debug_print(f"DEBUG: Warning - class_names length ({len(class_names)}) != num_classes ({num_classes}), adjusting...")
+                print(f"DEBUG: Warning - class_names length ({len(class_names)}) != num_classes ({num_classes}), adjusting...")
                 if len(class_names) < num_classes:
                     # Add generic names for missing classes
                     for i in range(len(class_names), num_classes):
@@ -2282,7 +2282,7 @@ def api_detect_dinov3():
                     # Truncate if too many
                     class_names = class_names[:num_classes]
             
-            debug_print(f"DEBUG: DINOv3 - num_classes: {num_classes}, class_names: {class_names}")
+            print(f"DEBUG: DINOv3 - num_classes: {num_classes}, class_names: {class_names}")
             
             # Create model instance
             model = DINOv3Model(num_classes=num_classes)
@@ -2302,7 +2302,7 @@ def api_detect_dinov3():
                     raise ValueError(f"Unknown checkpoint format. Keys: {list(ckpt.keys())}")
             
             model.eval()
-            debug_print(f"DEBUG: DINOv3 model loaded successfully")
+            print(f"DEBUG: DINOv3 model loaded successfully")
             
             # Preprocess image - DINOv3 uses standard ImageNet normalization
             img_transform = transforms.Compose([
@@ -2316,7 +2316,7 @@ def api_detect_dinov3():
             with torch.no_grad():
                 logits = model(img_tensor)
             
-            debug_print(f"DEBUG: Inference complete, logits shape: {logits.shape}")
+            print(f"DEBUG: Inference complete, logits shape: {logits.shape}")
             
             # Apply softmax to get probabilities
             import torch.nn.functional as F
@@ -2383,7 +2383,7 @@ def api_detect_dinov3():
             })
             
         except Exception as model_error:
-            debug_print(f"DEBUG: Model loading/inference failed: {model_error}")
+            print(f"DEBUG: Model loading/inference failed: {model_error}")
             import traceback
             traceback_str = traceback.format_exc()
             print(f"FULL TRACEBACK:\n{traceback_str}")
@@ -2424,7 +2424,7 @@ def api_detect_yolov8_custom():
         
         # Get selected weight
         weight_path = request.form.get('weight_path', '')
-        debug_print(f"DEBUG: Received weight_path: '{weight_path}'")
+        print(f"DEBUG: Received weight_path: '{weight_path}'")
         
         if not weight_path:
             return jsonify({'error': 'No model weight selected'}), 400
@@ -2449,14 +2449,14 @@ def api_detect_yolov8_custom():
         file.stream.seek(0)
         image = Image.open(file.stream).convert('RGB')
         
-        debug_print(f"DEBUG: Original image size: {image.size}")
+        print(f"DEBUG: Original image size: {image.size}")
         
         # Check if weight file exists
         if not os.path.exists(weight_path):
-            debug_print(f"DEBUG: Weight file does not exist: {weight_path}")
+            print(f"DEBUG: Weight file does not exist: {weight_path}")
             return jsonify({'error': f'Model weight file not found: {weight_path}'}), 400
         
-        debug_print(f"DEBUG: Weight file exists, size: {os.path.getsize(weight_path)} bytes")
+        print(f"DEBUG: Weight file exists, size: {os.path.getsize(weight_path)} bytes")
         
         # Start timing
         start_time = time.time()
@@ -2464,7 +2464,7 @@ def api_detect_yolov8_custom():
         try:
             # Load the YOLOv8 model using Ultralytics
             model = YOLO(weight_path)
-            debug_print(f"DEBUG: YOLOv8 model loaded successfully")
+            print(f"DEBUG: YOLOv8 model loaded successfully")
             
             # Get model metadata
             num_classes = len(model.names)
@@ -2479,7 +2479,7 @@ def api_detect_yolov8_custom():
             
             # Class names from the model
             class_names = model.names
-            debug_print(f"DEBUG: Model class names: {class_names}")
+            print(f"DEBUG: Model class names: {class_names}")
             
             # Initialize all class confidences to 0
             for class_id, class_name in class_names.items():
@@ -2489,7 +2489,7 @@ def api_detect_yolov8_custom():
             for result in results:
                 if result.boxes is not None:
                     boxes = result.boxes
-                    debug_print(f"DEBUG: YOLOv8 found {len(boxes)} detections from model")
+                    print(f"DEBUG: YOLOv8 found {len(boxes)} detections from model")
                     for i in range(len(boxes)):
                         # Get bounding box coordinates
                         box = boxes.xyxy[i].cpu().numpy()  # [x1, y1, x2, y2]
@@ -2524,7 +2524,7 @@ def api_detect_yolov8_custom():
                     class_aggregated[class_name] = 0.0
                 class_aggregated[class_name] = max(class_aggregated[class_name], conf)
             
-            debug_print(f"DEBUG: Raw aggregated class confidences (before normalization): {class_aggregated}")
+            print(f"DEBUG: Raw aggregated class confidences (before normalization): {class_aggregated}")
             
             # Now normalize the aggregated class confidences to sum to 100%
             # This distributes the probability across detected classes
@@ -2544,12 +2544,12 @@ def api_detect_yolov8_custom():
             # Verify sum is exactly 1.0 (100%)
             total_norm_conf = sum(class_aggregated.values())
             if abs(total_norm_conf - 1.0) > 0.01 and len(class_aggregated) > 0:
-                debug_print(f"DEBUG: WARNING - Normalized class confidences sum to {total_norm_conf:.4f}, not 1.0. Re-normalizing...")
+                print(f"DEBUG: WARNING - Normalized class confidences sum to {total_norm_conf:.4f}, not 1.0. Re-normalizing...")
                 if total_norm_conf > 0:
                     for class_name in class_aggregated:
                         class_aggregated[class_name] = float(class_aggregated[class_name] / total_norm_conf)
             
-            debug_print(f"DEBUG: Normalized aggregated class confidences (sum={sum(class_aggregated.values()):.4f}): {class_aggregated}")
+            print(f"DEBUG: Normalized aggregated class confidences (sum={sum(class_aggregated.values()):.4f}): {class_aggregated}")
             
             # Get ALL predictions from normalized class confidences
             all_predictions = []
@@ -2579,8 +2579,8 @@ def api_detect_yolov8_custom():
             
             all_predictions_debug = [(p['class'], f"{p['probability']*100:.2f}%") for p in all_predictions[:5]]
             top3_debug = [(p['class'], f"{p['probability']*100:.2f}%") for p in top3_predictions]
-            debug_print(f"DEBUG: All predictions (sum={sum(p['probability'] for p in all_predictions):.4f}): {all_predictions_debug}")
-            debug_print(f"DEBUG: Top 3 predictions: {top3_debug}")
+            print(f"DEBUG: All predictions (sum={sum(p['probability'] for p in all_predictions):.4f}): {all_predictions_debug}")
+            print(f"DEBUG: Top 3 predictions: {top3_debug}")
             
             # Ensure first detection matches first prediction
             if len(detections) > 0 and len(all_predictions) > 0:
@@ -2617,7 +2617,7 @@ def api_detect_yolov8_custom():
                     except:
                         font = ImageFont.load_default()
             except Exception as draw_error:
-                debug_print(f"DEBUG: Error creating draw context: {draw_error}")
+                print(f"DEBUG: Error creating draw context: {draw_error}")
                 result_image = image.copy()  # Use original image if drawing fails
                 draw = None
             
@@ -2664,7 +2664,7 @@ def api_detect_yolov8_custom():
                 result_image.save(img_buffer, format='JPEG', quality=95)
                 img_base64 = base64.b64encode(img_buffer.getvalue()).decode()
             except Exception as img_error:
-                debug_print(f"DEBUG: Error encoding image: {img_error}")
+                print(f"DEBUG: Error encoding image: {img_error}")
                 import traceback
                 traceback.print_exc()
                 # Fallback: use original image
@@ -2697,7 +2697,7 @@ def api_detect_yolov8_custom():
             })
             
         except Exception as model_error:
-            debug_print(f"DEBUG: Model loading/inference failed: {model_error}")
+            print(f"DEBUG: Model loading/inference failed: {model_error}")
             import traceback
             traceback_str = traceback.format_exc()
             print(f"FULL TRACEBACK:\n{traceback_str}")
@@ -2738,7 +2738,7 @@ def api_detect_yolov3():
         
         # Get selected weight
         weight_path = request.form.get('weight_path', '')
-        debug_print(f"DEBUG: Received weight_path: '{weight_path}'")
+        print(f"DEBUG: Received weight_path: '{weight_path}'")
         
         if not weight_path:
             return jsonify({'error': 'No model weight selected'}), 400
@@ -2754,14 +2754,14 @@ def api_detect_yolov3():
         # Load image
         image = Image.open(file.stream).convert('RGB')
         
-        debug_print(f"DEBUG: Original image size: {image.size}")
+        print(f"DEBUG: Original image size: {image.size}")
         
         # Check if weight file exists
         if not os.path.exists(weight_path):
-            debug_print(f"DEBUG: Weight file does not exist: {weight_path}")
+            print(f"DEBUG: Weight file does not exist: {weight_path}")
             return jsonify({'error': f'Model weight file not found: {weight_path}'}), 400
         
-        debug_print(f"DEBUG: Weight file exists, size: {os.path.getsize(weight_path)} bytes")
+        print(f"DEBUG: Weight file exists, size: {os.path.getsize(weight_path)} bytes")
         
         # Start timing
         start_time = time.time()
@@ -2777,7 +2777,7 @@ def api_detect_yolov3():
             try:
                 from train_fast_yolov3 import UltraFastYOLOv3Model
             except ImportError as import_error:
-                debug_print(f"DEBUG: Failed to import UltraFastYOLOv3Model: {import_error}")
+                print(f"DEBUG: Failed to import UltraFastYOLOv3Model: {import_error}")
                 return jsonify({
                     'success': False,
                     'error': f'Failed to import model: {import_error}'
@@ -2835,28 +2835,28 @@ def api_detect_yolov3():
                 # First try normal torch.load
                 ckpt = torch.load(weight_path, map_location='cpu', weights_only=False)
             except (ModuleNotFoundError, ImportError, AttributeError) as e:
-                debug_print(f"DEBUG: Warning - checkpoint import error (may be from old module path): {e}")
+                print(f"DEBUG: Warning - checkpoint import error (may be from old module path): {e}")
                 # Try loading with custom unpickler
                 try:
                     with open(weight_path, 'rb') as f:
                         unpickler = SafeUnpickler(f)
                         ckpt = unpickler.load()
                 except Exception as pickle_error:
-                    debug_print(f"DEBUG: Safe unpickler also failed: {pickle_error}")
+                    print(f"DEBUG: Safe unpickler also failed: {pickle_error}")
                     # Last resort: try loading with weights_only=True (if supported)
                     try:
                         ckpt = torch.load(weight_path, map_location='cpu', weights_only=True)
                     except:
                         raise ValueError(f"Failed to load checkpoint: {e}. Pickle error: {pickle_error}")
-            debug_print(f"DEBUG: Custom checkpoint keys: {list(ckpt.keys())}")
+            print(f"DEBUG: Custom checkpoint keys: {list(ckpt.keys())}")
             
             # Try to extract fitness score from checkpoint or filename
             if 'fitness' in ckpt:
                 fitness_score = float(ckpt.get('fitness', 0.0))
-                debug_print(f"DEBUG: Found fitness in checkpoint: {fitness_score}")
+                print(f"DEBUG: Found fitness in checkpoint: {fitness_score}")
             elif 'best_fitness' in ckpt:
                 fitness_score = float(ckpt.get('best_fitness', 0.0))
-                debug_print(f"DEBUG: Found best_fitness in checkpoint: {fitness_score}")
+                print(f"DEBUG: Found best_fitness in checkpoint: {fitness_score}")
             else:
                 # Try to extract from filename
                 import re
@@ -2864,14 +2864,14 @@ def api_detect_yolov3():
                 fitness_match = re.search(r'fitness_([\d\.]+)', filename)
                 if fitness_match:
                     fitness_score = float(fitness_match.group(1))
-                    debug_print(f"DEBUG: Extracted fitness from filename: {fitness_score}")
+                    print(f"DEBUG: Extracted fitness from filename: {fitness_score}")
             
             # Get number of classes and class names from checkpoint
             class_names = ckpt.get('class_names', ['object'] * 80)
             if isinstance(class_names, str):
                 class_names = [class_names]
             num_classes = len(class_names)
-            debug_print(f"DEBUG: Custom YOLOv3 - num_classes: {num_classes}, class_names: {class_names}")
+            print(f"DEBUG: Custom YOLOv3 - num_classes: {num_classes}, class_names: {class_names}")
             
             # Create model instance
             model = UltraFastYOLOv3Model(num_classes=num_classes)
@@ -2881,7 +2881,7 @@ def api_detect_yolov3():
                 raise KeyError(f"Checkpoint does not contain 'model_state_dict' key. Available keys: {list(ckpt.keys())}")
             model.load_state_dict(ckpt['model_state_dict'])
             model.eval()
-            debug_print(f"DEBUG: Custom YOLOv3 model loaded successfully")
+            print(f"DEBUG: Custom YOLOv3 model loaded successfully")
             
             # Preprocess image
             img_transform = transforms.Compose([
@@ -2896,7 +2896,7 @@ def api_detect_yolov3():
                 output = model(img_tensor)  # [1, 3, 5+num_classes, 7, 7]
             
             results = {'output': output, 'model': model, 'class_names': class_names}
-            debug_print(f"DEBUG: Inference complete, output shape: {output.shape}")
+            print(f"DEBUG: Inference complete, output shape: {output.shape}")
             
             # Process detection results from custom YOLOv3 output
             detections = []
@@ -2915,7 +2915,7 @@ def api_detect_yolov3():
             elif hasattr(output, 'numpy'):
                 output = output.numpy()
             
-            debug_print(f"DEBUG: Output numpy shape: {output.shape}")
+            print(f"DEBUG: Output numpy shape: {output.shape}")
             
             # Validate output shape
             if len(output.shape) != 5:
@@ -3097,7 +3097,7 @@ def api_detect_yolov3():
                 first_pred_class = all_predictions[0]['class']
                 first_pred_conf = all_predictions[0]['probability']
                 
-                debug_print(f"DEBUG: First prediction (highest confidence from all_class_confidences): {first_pred_class} = {first_pred_conf*100:.2f}%")
+                print(f"DEBUG: First prediction (highest confidence from all_class_confidences): {first_pred_class} = {first_pred_conf*100:.2f}%")
                 
                 # Find the detection with the first prediction class
                 matching_detection = None
@@ -3111,25 +3111,25 @@ def api_detect_yolov3():
                     if detections[0].get('class') != first_pred_class:
                         detections.remove(matching_detection)
                         detections.insert(0, matching_detection)
-                        debug_print(f"DEBUG: Moved detection with class '{first_pred_class}' to first position")
+                        print(f"DEBUG: Moved detection with class '{first_pred_class}' to first position")
                     
                     # Update detection confidence to match first prediction's confidence
                     detections[0]['confidence'] = float(first_pred_conf)
-                    debug_print(f"DEBUG: Updated first detection confidence to match first prediction: {first_pred_class} = {first_pred_conf*100:.2f}%")
+                    print(f"DEBUG: Updated first detection confidence to match first prediction: {first_pred_class} = {first_pred_conf*100:.2f}%")
                 else:
                     # No detection found for first prediction class, update first detection
-                    debug_print(f"DEBUG: No detection found for first prediction class '{first_pred_class}', updating first detection")
+                    print(f"DEBUG: No detection found for first prediction class '{first_pred_class}', updating first detection")
                     if len(detections) > 0:
                         detections[0]['class'] = first_pred_class
                         detections[0]['confidence'] = float(first_pred_conf)
-                        debug_print(f"DEBUG: Updated first detection to class '{first_pred_class}' with confidence {first_pred_conf*100:.2f}%")
+                        print(f"DEBUG: Updated first detection to class '{first_pred_class}' with confidence {first_pred_conf*100:.2f}%")
             
-            debug_print(f"DEBUG: Final detections count: {len(detections)}")
-            debug_print(f"DEBUG: Top 3 predictions: {top3_predictions}")
+            print(f"DEBUG: Final detections count: {len(detections)}")
+            print(f"DEBUG: Top 3 predictions: {top3_predictions}")
             if len(detections) > 0:
-                debug_print(f"DEBUG: First detection: {detections[0].get('class')} = {detections[0].get('confidence')*100:.2f}%")
+                print(f"DEBUG: First detection: {detections[0].get('class')} = {detections[0].get('confidence')*100:.2f}%")
             if len(all_predictions) > 0:
-                debug_print(f"DEBUG: First prediction: {all_predictions[0]['class']} = {all_predictions[0]['probability']*100:.2f}%")
+                print(f"DEBUG: First prediction: {all_predictions[0]['class']} = {all_predictions[0]['probability']*100:.2f}%")
             
             # Draw bounding boxes
             from PIL import ImageDraw, ImageFont
@@ -3211,7 +3211,7 @@ def api_detect_yolov3():
             })
             
         except Exception as model_error:
-            debug_print(f"DEBUG: Model loading/inference failed: {model_error}")
+            print(f"DEBUG: Model loading/inference failed: {model_error}")
             import traceback
             traceback_str = traceback.format_exc()
             print(f"FULL TRACEBACK:\n{traceback_str}")
@@ -3559,7 +3559,7 @@ def download_model_from_hub(hub_path):
         repo_id = path_without_prefix[:last_slash_idx]
         file_path = path_without_prefix[last_slash_idx + 1:]
         
-        debug_print(f"DEBUG: Parsed Hub path - repo_id: {repo_id}, file_path: {file_path}")
+        print(f"DEBUG: Parsed Hub path - repo_id: {repo_id}, file_path: {file_path}")
         
         models_dir = get_models_dir()
         local_file_path = os.path.join(models_dir, file_path)
