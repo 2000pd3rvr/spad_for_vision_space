@@ -9,6 +9,11 @@
     <!-- Critical inline CSS to prevent white flash - MUST be first -->
     <style>
         /* Prevent FOUC (Flash of Unstyled Content) - Maximum aggressive approach */
+        html {
+            background: #0a0a0a !important;
+            background-color: #0a0a0a !important;
+            overflow-x: hidden;
+        }
         html, body {
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0d1b1b 100%) !important;
             background-color: #0a0a0a !important;
@@ -17,37 +22,27 @@
             width: 100% !important;
             height: 100% !important;
         }
-        html {
-            overflow-x: hidden;
-        }
         body {
             color: #ffffff;
             font-family: 'Times New Roman', serif;
             min-height: 100vh;
-            visibility: hidden;
-            opacity: 0;
-        }
-        body.loaded {
-            visibility: visible;
-            opacity: 1;
-            transition: opacity 0.1s ease-in;
+            opacity: 1 !important;
+            visibility: visible !important;
         }
         #app {
             min-height: 100vh;
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0d1b1b 100%);
             background-color: #0a0a0a;
+            opacity: 1;
         }
         /* Ensure navbar has background immediately */
         .navbar {
             background: rgba(0, 0, 0, 0.95) !important;
             background-color: rgba(0, 0, 0, 0.95) !important;
         }
-        /* Hide all content until loaded */
-        body:not(.loaded) * {
-            visibility: hidden;
-        }
-        body.loaded * {
-            visibility: visible;
+        /* Ensure main content has background */
+        .main-content {
+            background: transparent;
         }
     </style>
     
@@ -127,52 +122,57 @@
 
     </div>
     <script>
-        // Maximum aggressive FOUC prevention
+        // Prevent white flash during page transitions
         (function() {
-            function showContent() {
-                // Use requestAnimationFrame for smooth transition
-                if (window.requestAnimationFrame) {
-                    requestAnimationFrame(function() {
-                        document.body.classList.add('loaded');
-                    });
-                } else {
-                    document.body.classList.add('loaded');
+            // Set background immediately, even before DOM is ready
+            if (document.documentElement) {
+                document.documentElement.style.backgroundColor = '#0a0a0a';
+            }
+            if (document.body) {
+                document.body.style.backgroundColor = '#0a0a0a';
+            }
+            
+            // Ensure background is maintained during navigation
+            function setBackground() {
+                document.documentElement.style.backgroundColor = '#0a0a0a';
+                document.body.style.backgroundColor = '#0a0a0a';
+                const app = document.getElementById('app');
+                if (app) {
+                    app.style.backgroundColor = '#0a0a0a';
                 }
             }
             
-            // Show immediately if page is already loaded (back/forward navigation)
-            if (document.readyState === 'complete' || document.readyState === 'interactive') {
-                showContent();
+            // Set immediately
+            setBackground();
+            
+            // Set on DOM ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', setBackground);
             } else {
-                // Wait for DOM ready
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', showContent);
-                } else {
-                    showContent();
-                }
+                setBackground();
             }
             
-            // Also wait for window load as backup
-            window.addEventListener('load', function() {
-                if (!document.body.classList.contains('loaded')) {
-                    showContent();
+            // Set on page load
+            window.addEventListener('load', setBackground);
+            
+            // Set on page show (for back/forward navigation)
+            window.addEventListener('pageshow', function(event) {
+                setBackground();
+                // Force repaint to prevent flash
+                if (event.persisted) {
+                    document.body.style.display = 'none';
+                    document.body.offsetHeight; // Trigger reflow
+                    document.body.style.display = '';
                 }
             });
             
-            // Fallback: show after short delay (prevents indefinite hiding)
-            setTimeout(function() {
-                if (!document.body.classList.contains('loaded')) {
-                    showContent();
+            // Set on page visibility change
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    setBackground();
                 }
-            }, 200);
+            });
         })();
-        
-        // Prevent white flash during navigation
-        document.addEventListener('DOMContentLoaded', function() {
-            // Ensure background is set immediately
-            document.documentElement.style.backgroundColor = '#0a0a0a';
-            document.body.style.backgroundColor = '#0a0a0a';
-        });
     </script>
     <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
     {% block scripts %}{% endblock %}
