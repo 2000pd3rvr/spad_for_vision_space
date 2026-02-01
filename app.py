@@ -68,7 +68,7 @@ def init_db():
 
 # Initialize database on startup (with error handling)
 try:
-    init_db()
+init_db()
 except Exception as e:
     print(f"Warning: Database initialization failed (non-critical): {e}")
     # Continue anyway - database will be created on first use
@@ -748,8 +748,8 @@ def api_fluid_purity_weights():
                 # Check if this weight is already in the list from Hub
                 existing = next((w for w in weights if w['filename'] == filename), None)
                 if not existing:
-                weights.append({
-                    "filename": filename,
+                    weights.append({
+                        "filename": filename,
                     "path": weight_file,  # Use local path
                     "display_name": display_name,
                     "accuracy": accuracy,
@@ -858,8 +858,8 @@ def api_material_detection_head_weights():
                 # Check if this weight is already in the list from Hub
                 existing = next((w for w in weights if w['filename'] == filename), None)
                 if not existing:
-                weights.append({
-                    "filename": filename,
+                    weights.append({
+                        "filename": filename,
                     "path": weight_file,  # Use local path
                     "display_name": display_name,
                     "accuracy": accuracy,
