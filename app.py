@@ -2777,29 +2777,42 @@ def api_detect_yolov3():
             import pickle
             
             # Create comprehensive dummy module structure to satisfy old checkpoint imports
+            # Make it compatible with Werkzeug reloader by ensuring __name__ is a string
             class DummyModule:
                 """Dummy module that can handle any attribute access"""
+                __name__ = 'models'  # Set __name__ to prevent reloader issues
+                __file__ = None
                 def __getattr__(self, name):
                     # Return a dummy class for any attribute access
                     class DummyClass:
+                        __name__ = name  # Set __name__ to string to prevent reloader errors
+                        __file__ = None
                         def __init__(self, *args, **kwargs):
                             pass
                         def __call__(self, *args, **kwargs):
                             return self
                         def __getattr__(self, name):
-                            return DummyClass()
-                    return DummyClass
+                            new_class = type(name, (DummyClass,), {'__name__': name, '__file__': None})
+                            return new_class()
+                    return DummyClass()
             
             # Create models module and all common submodules
+            # Set __name__ and __file__ to prevent Werkzeug reloader issues
             if 'models' not in sys.modules:
-                sys.modules['models'] = DummyModule()
+                dummy_models = DummyModule()
+                dummy_models.__name__ = 'models'
+                dummy_models.__file__ = None
+                sys.modules['models'] = dummy_models
             
             # Create all possible models submodules that might be referenced
             models_submodules = ['yolo', 'common', 'experimental', 'utils', 'loss', 'head', 'backbone']
             for submod in models_submodules:
                 module_name = f'models.{submod}'
                 if module_name not in sys.modules:
-                    sys.modules[module_name] = DummyModule()
+                    dummy_submod = DummyModule()
+                    dummy_submod.__name__ = module_name
+                    dummy_submod.__file__ = None
+                    sys.modules[module_name] = dummy_submod
             
             # Custom unpickler that handles persistent IDs
             class SafeUnpickler(pickle.Unpickler):
