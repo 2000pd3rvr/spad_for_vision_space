@@ -2079,21 +2079,31 @@ function updateStoImageDimensions() {
         // Show model selection div after image is uploaded
         const imageControls = document.getElementById('imageControls');
         if (imageControls) {
+            // Remove inline style and use CSS class
+            imageControls.removeAttribute('style');
             imageControls.style.display = 'block';
             imageControls.style.visibility = 'visible';
             imageControls.style.opacity = '1';
             imageControls.style.height = 'auto';
             imageControls.style.overflow = 'visible';
+            console.log('Model selection div shown:', imageControls.style.display);
         }
         
         // Enable spatial and material head selects after image upload
         const spatialHeadSelect = document.getElementById('spatialHeadSelect');
         const materialHeadSelect = document.getElementById('materialHeadSelect');
-        if (spatialHeadSelect) spatialHeadSelect.disabled = false;
-        if (materialHeadSelect) materialHeadSelect.disabled = false;
+        if (spatialHeadSelect) {
+            spatialHeadSelect.disabled = false;
+            console.log('Spatial head select enabled');
+        }
+        if (materialHeadSelect) {
+            materialHeadSelect.disabled = false;
+            console.log('Material head select enabled');
+        }
         
         // Update detect button state (will be disabled until models/weights selected)
         updateDetectButtonState();
+        console.log('Detect button state updated');
     }
 
     async function loadModelWeights() {
