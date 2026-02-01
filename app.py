@@ -3469,14 +3469,20 @@ def get_testimage(app_name, filename):
         return jsonify({'error': str(e)}), 500
 
 def kill_existing_processes_on_port(port):
-    """Kill any existing processes running on the specified port (excluding current process)."""
+    """Kill any existing processes running on the specified port (excluding current process).
+    Only works on local systems, not on Hugging Face Spaces."""
+    # Skip on Hugging Face Spaces to avoid errors
+    if os.environ.get("SPACE_ID"):
+        return
+    
     try:
         current_pid = str(os.getpid())
         # Find processes using the port (works on macOS/Linux)
         result = subprocess.run(
             ['lsof', '-ti', f':{port}'],
             capture_output=True,
-            text=True
+            text=True,
+            timeout=5  # Add timeout to prevent hanging
         )
         if result.stdout.strip():
             pids = result.stdout.strip().split('\n')
@@ -3484,7 +3490,7 @@ def kill_existing_processes_on_port(port):
             for pid in pids:
                 if pid and pid != current_pid:
                     try:
-                        subprocess.run(['kill', '-9', pid], check=False)
+                        subprocess.run(['kill', '-9', pid], check=False, timeout=2)
                         print(f"Killed process {pid} on port {port}")
                         killed_any = True
                     except Exception as e:
@@ -3493,20 +3499,12 @@ def kill_existing_processes_on_port(port):
                 print(f"No other processes found on port {port} (current PID: {current_pid})")
         else:
             print(f"No existing processes found on port {port}")
-    except FileNotFoundError:
-        # lsof might not be available, try alternative method
-        try:
-            # Alternative: use netstat (if available)
-            result = subprocess.run(
-                ['netstat', '-anv', '|', 'grep', f':{port}'],
-                shell=True,
-                capture_output=True,
-                text=True
-            )
-        except Exception as e:
-            print(f"Could not check for existing processes: {e}")
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        # lsof might not be available or command timed out, skip silently
+        pass
     except Exception as e:
-        print(f"Error checking for existing processes on port {port}: {e}")
+        # Log but don't fail - this is non-critical
+        print(f"Warning: Could not check for existing processes on port {port}: {e}")
 
 def download_model_from_hub(hub_path):
     """Download a specific model file from Hugging Face Hub on demand
@@ -3590,9 +3588,14 @@ if __name__ == "__main__":
     print(f"SPACE_ID: {os.environ.get('SPACE_ID', 'Not set')}")
     print(f"PORT env var: {os.environ.get('PORT', 'Not set')}")
     
-    # Kill any existing processes on the port before starting (for local testing)
-    if os.environ.get("WERKZEUG_RUN_MAIN") != "true":
-        kill_existing_processes_on_port(port)
+    # Kill any existing processes on the port before starting (for local testing only)
+    # Skip on Hugging Face Spaces to avoid potential issues
+    if os.environ.get("WERKZEUG_RUN_MAIN") != "true" and not os.environ.get("SPACE_ID"):
+        try:
+            kill_existing_processes_on_port(port)
+        except Exception as e:
+            print(f"Warning: Could not kill existing processes on port {port}: {e}")
+            print("Continuing anyway...")
     
     startup_time = time.time() - startup_start
     print(f"Startup completed in {startup_time:.2f} seconds")
