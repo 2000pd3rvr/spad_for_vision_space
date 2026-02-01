@@ -3,6 +3,8 @@
 {% block title %}SV2 - MV+{% endblock %}
 
 {% block content %}
+<!-- Load base64 images fallback FIRST, before any images try to load -->
+<script src="{{ url_for('static', filename='images_base64.js') }}"></script>
 <style>
     html, body {
         height: 100%;
@@ -3162,5 +3164,4 @@ function updateStoImageDimensions() {
         }
     });
 </script>
-<script src="{{ url_for('static', filename='images_base64.js') }}"></script>
 {% endblock %}
