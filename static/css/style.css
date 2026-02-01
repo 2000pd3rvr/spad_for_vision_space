@@ -35,6 +35,15 @@
     overflow: hidden !important;
 }
 
+/* Ensure #imageControls can be shown for model selection in spatiotemporal detection */
+#imageControls {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+    overflow: visible !important;
+}
+
 
 /* Reset and Base Styles */
 * {
