@@ -3180,6 +3180,49 @@ DATASET_REPO_MAP = {
 
 # Map app names to their testimages directories (datasets is sibling to BASE_DIR)
 # Lazy evaluation of TESTIMAGES_DIRS to avoid issues if directories don't exist at startup
+def download_dataset_from_hub(dataset_repo_id):
+    """Download a dataset from Hugging Face Hub on demand
+    
+    Args:
+        dataset_repo_id: Repository ID (e.g., 'mvplus/testmages_spatiotemporal')
+    
+    Returns:
+        Local directory path if successful, None otherwise
+    """
+    try:
+        from huggingface_hub import snapshot_download
+        import os
+        
+        datasets_dir = get_datasets_dir()
+        dataset_name = dataset_repo_id.split('/')[-1]  # Extract dataset name
+        local_dataset_dir = os.path.join(datasets_dir, dataset_name)
+        
+        # Check if already downloaded
+        if os.path.exists(local_dataset_dir) and os.listdir(local_dataset_dir):
+            print(f"Dataset {dataset_repo_id} already exists locally at {local_dataset_dir}")
+            return local_dataset_dir
+        
+        # Create datasets directory if it doesn't exist
+        os.makedirs(datasets_dir, exist_ok=True)
+        
+        print(f"Downloading dataset {dataset_repo_id} to {local_dataset_dir}...")
+        downloaded_path = snapshot_download(
+            repo_id=dataset_repo_id,
+            repo_type="dataset",
+            local_dir=local_dataset_dir,
+            local_dir_use_symlinks=False,
+            resume_download=True,
+            token=os.environ.get("HF_TOKEN")
+        )
+        
+        print(f"Dataset downloaded successfully to {downloaded_path}")
+        return downloaded_path
+    except Exception as e:
+        print(f"Error downloading dataset {dataset_repo_id}: {e}")
+        import traceback
+        traceback.print_exc()
+        return None
+
 def get_testimages_dirs():
     """Get testimages directories dictionary - evaluated lazily to avoid startup issues"""
     return {
@@ -3205,6 +3248,21 @@ def list_testimages(app_name, subpath=''):
             return jsonify({'error': f'Unknown app: {app_name}'}), 404
         
         testimages_dir = testimages_dirs[app_name]
+        
+        # On Hugging Face Spaces, download dataset if it doesn't exist locally
+        if os.environ.get("SPACE_ID") and not os.path.exists(testimages_dir):
+            dataset_repo_id = DATASET_REPO_MAP.get(app_name)
+            if dataset_repo_id:
+                print(f"Dataset not found locally, attempting to download {dataset_repo_id}...")
+                downloaded_path = download_dataset_from_hub(dataset_repo_id)
+                if downloaded_path:
+                    # Update testimages_dir to use downloaded path
+                    testimages_dir = downloaded_path
+                else:
+                    return jsonify({
+                        'error': f'Dataset not found and could not be downloaded. Please ensure {dataset_repo_id} exists on Hugging Face Hub.',
+                        'repo_id': dataset_repo_id
+                    }), 404
         
         # Build the full path to the directory to list
         if subpath:
