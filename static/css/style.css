@@ -11,6 +11,11 @@
     --gradient-bg: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0d1b1b 100%);
 }
 
+/* Hide image controls (rotate, flip, etc.) for all apps */
+.image-controls {
+    display: none !important;
+}
+
 
 /* Reset and Base Styles */
 * {

@@ -2076,11 +2076,8 @@ function updateStoImageDimensions() {
     }
 
     function enableModelSelection() {
-        // Show image controls (spatial and material head selects) after image upload
-        const imageControls = document.getElementById('imageControls');
-        if (imageControls) {
-            imageControls.style.display = 'block';
-        }
+        // Image controls are hidden via CSS (display: none !important)
+        // No need to show them
         
         // Enable spatial and material head selects after image upload
         const spatialHeadSelect = document.getElementById('spatialHeadSelect');

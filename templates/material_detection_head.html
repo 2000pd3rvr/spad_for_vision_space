@@ -1028,7 +1028,7 @@
             // Show image controls
             const imageControls = document.getElementById('imageControls');
             if (imageControls) {
-                imageControls.style.display = 'block';
+                // Image controls are hidden via CSS
             }
             
             // Enable weight selection dropdown
@@ -1143,9 +1143,7 @@
             currentBatchIndex = 0;
             displayImage(file);
             showImageControls();
-            // Ensure image controls are visible
-            const ic = document.getElementById('imageControls');
-            if (ic) ic.style.display = 'block';
+            // Image controls are hidden via CSS
             // Update detect button state (will be enabled only if weight is also selected)
             updateDetectButtonState();
             hideBatchNavigation();
@@ -1177,8 +1175,7 @@
                         };
                         img.src = data.image;
                         showImageControls();
-                        const ic2 = document.getElementById('imageControls');
-                        if (ic2) ic2.style.display = 'block';
+                        // Image controls are hidden via CSS
                         // Update detect button state (will be enabled only if weight is also selected)
                         updateDetectButtonState();
                         hideBatchNavigation();
@@ -1200,8 +1197,7 @@
         if (!files.length) return;
         // Immediately show controls
         try {
-            const icb0 = document.getElementById('imageControls');
-            if (icb0) icb0.style.display = 'block';
+            // Image controls are hidden via CSS
         } catch (e) {}
         batchFiles = files;
         currentBatchIndex = 0;
@@ -1211,8 +1207,7 @@
             selectedFile = first;
             displayImage(first);
             showImageControls();
-            const ic3 = document.getElementById('imageControls');
-            if (ic3) ic3.style.display = 'block';
+            // Image controls are hidden via CSS
             // Update detect button state (will be enabled only if weight is also selected)
             updateDetectButtonState();
             showBatchNavigation();
@@ -1242,8 +1237,7 @@
                         };
                         img.src = data.image;
                         showImageControls();
-                        const ic4 = document.getElementById('imageControls');
-                        if (ic4) ic4.style.display = 'block';
+                        // Image controls are hidden via CSS
                         // Update detect button state (will be enabled only if weight is also selected)
                         updateDetectButtonState();
                         showBatchNavigation();
@@ -1328,8 +1322,8 @@
     }
 
     function showImageControls() {
-        document.getElementById('imageControls').style.display = 'block';
-        // Ensure weights are loaded when controls are shown
+        // Image controls are hidden via CSS (display: none !important)
+        // No need to show them, but still ensure weights are loaded
         const select = document.getElementById('modelSelect');
         if (select && select.options.length <= 1) {
             // Only reload if dropdown is empty or only has placeholder
