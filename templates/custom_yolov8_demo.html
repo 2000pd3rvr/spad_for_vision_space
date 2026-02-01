@@ -1703,6 +1703,15 @@
         detectBtn.disabled = true;
         loading.style.display = 'block';
         detectionResultsContainer.style.display = 'block';
+        
+        // Ensure Performance & Architecture section is visible when detect is clicked
+        const perfArchSection = document.querySelector('.performance-stats');
+        if (perfArchSection) {
+            perfArchSection.style.display = 'block';
+            perfArchSection.style.visibility = 'visible';
+            perfArchSection.style.opacity = '1';
+        }
+        
         hideMessages();
 
         try {
