@@ -1865,13 +1865,13 @@ def api_yolov3_weights():
                 # Check if this weight is already in the list from Hub
                 existing = next((w for w in yolov3_weights if w['filename'] == filename), None)
                 if not existing:
-                yolov3_weights.append({
-                    "filename": filename,
-                    "path": weight_file,
-                    "display_name": display_name,
+                    yolov3_weights.append({
+                        "filename": filename,
+                        "path": weight_file,
+                        "display_name": display_name,
                         "weight_type": weight_type,
                         "source": "local"
-                })
+                    })
         
         # Sort by weight type (Best first), then by filename
         yolov3_weights.sort(key=lambda x: (x['weight_type'] == 'Best', x['filename']), reverse=True)
