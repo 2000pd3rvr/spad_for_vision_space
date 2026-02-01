@@ -748,7 +748,7 @@ def api_fluid_purity_weights():
                 # Check if this weight is already in the list from Hub
                 existing = next((w for w in weights if w['filename'] == filename), None)
                 if not existing:
-                weights.append({
+                    weights.append({
                     "filename": filename,
                     "path": weight_file,  # Use local path
                     "display_name": display_name,
@@ -858,7 +858,7 @@ def api_material_detection_head_weights():
                 # Check if this weight is already in the list from Hub
                 existing = next((w for w in weights if w['filename'] == filename), None)
                 if not existing:
-                weights.append({
+                    weights.append({
                     "filename": filename,
                     "path": weight_file,  # Use local path
                     "display_name": display_name,
@@ -1865,7 +1865,7 @@ def api_yolov3_weights():
                 # Check if this weight is already in the list from Hub
                 existing = next((w for w in yolov3_weights if w['filename'] == filename), None)
                 if not existing:
-                yolov3_weights.append({
+                    yolov3_weights.append({
                     "filename": filename,
                     "path": weight_file,
                     "display_name": display_name,
@@ -1975,7 +1975,7 @@ def api_yolov8_custom_weights():
                 # Check if this weight is already in the list from Hub
                 existing = next((w for w in yolov8_weights if w['filename'] == filename), None)
                 if not existing:
-                yolov8_weights.append({
+                    yolov8_weights.append({
                     "filename": filename,
                     "path": weight_file,
                     "display_name": display_name,
@@ -2088,7 +2088,7 @@ def api_dinov3_weights():
                 # Check if this weight is already in the list from Hub
                 existing = next((w for w in dinov3_weights if w['filename'] == filename), None)
                 if not existing:
-                dinov3_weights.append({
+                    dinov3_weights.append({
                     "filename": filename,
                     "path": weight_file,
                     "display_name": display_name,
