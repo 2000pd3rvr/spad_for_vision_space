@@ -1247,6 +1247,7 @@ body, html {
 .nav-dropdown {
     position: relative;
     display: inline-block;
+    z-index: 1002 !important; /* Ensure dropdown container is above other elements */
 }
 
 .nav-dropdown-content {
@@ -1257,7 +1258,7 @@ body, html {
     box-shadow: 0 8px 16px var(--shadow-color);
     border-radius: 10px;
     border: 1px solid var(--border-color);
-    z-index: 1000;
+    z-index: 1002 !important; /* Above navbar (1000) and banner (1001) */
     top: 100%;
     left: 0;
     margin-top: 5px;
