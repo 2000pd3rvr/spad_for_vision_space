@@ -591,15 +591,15 @@ def api_flat_surface_detection_weights():
             
             # Use Hub path format for on-demand download
             weights.append({
-                "filename": filename,
-                "path": f"hub://{repo_id}/{hub_file}",  # Hub path for on-demand download
-                "display_name": display_name,
-                "accuracy": accuracy,
-                "epoch": epoch,
-                "weight_type": weight_type,
-                "source": "hub",
-                "repo_url": f"https://huggingface.co/{repo_id}",
-                "repo_id": repo_id
+                    "filename": filename,
+                    "path": f"hub://{repo_id}/{hub_file}",  # Hub path for on-demand download
+                    "display_name": display_name,
+                    "accuracy": accuracy,
+                    "epoch": epoch,
+                    "weight_type": weight_type,
+                    "source": "hub",
+                    "repo_url": f"https://huggingface.co/{repo_id}",
+                    "repo_id": repo_id
             })
         
         # Also check local files
@@ -640,12 +640,12 @@ def api_flat_surface_detection_weights():
                     weight_type = "Checkpoint"
                 
                 weights.append({
-                    "filename": filename,
-                    "path": weight_file,  # Use local path
-                    "display_name": display_name,
-                    "accuracy": accuracy,
-                    "epoch": epoch,
-                    "weight_type": weight_type
+                        "filename": filename,
+                        "path": weight_file,  # Use local path
+                        "display_name": display_name,
+                        "accuracy": accuracy,
+                        "epoch": epoch,
+                        "weight_type": weight_type
                 })
             
             # Sort by accuracy (highest first), then by epoch
@@ -705,13 +705,13 @@ def api_fluid_purity_weights():
                 weight_type = "Checkpoint"
             
             weights.append({
-                "filename": filename,
-                "path": f"hub://{repo_id}/{hub_file}",
-                "display_name": display_name,
-                "accuracy": accuracy,
-                "epoch": epoch,
-                "weight_type": weight_type,
-                "source": "hub"
+                    "filename": filename,
+                    "path": f"hub://{repo_id}/{hub_file}",
+                    "display_name": display_name,
+                    "accuracy": accuracy,
+                    "epoch": epoch,
+                    "weight_type": weight_type,
+                    "source": "hub"
             })
         
         # Also check local files
@@ -748,7 +748,7 @@ def api_fluid_purity_weights():
                 # Check if this weight is already in the list from Hub
                 existing = next((w for w in weights if w['filename'] == filename), None)
                 if not existing:
-                    weights.append({
+                if not existing:
                         "filename": filename,
                     "path": weight_file,  # Use local path
                     "display_name": display_name,
@@ -815,13 +815,13 @@ def api_material_detection_head_weights():
                 weight_type = "Checkpoint"
             
             weights.append({
-                "filename": filename,
-                "path": f"hub://{repo_id}/{hub_file}",
-                "display_name": display_name,
-                "accuracy": accuracy,
-                "epoch": epoch,
-                "weight_type": weight_type,
-                "source": "hub"
+                    "filename": filename,
+                    "path": f"hub://{repo_id}/{hub_file}",
+                    "display_name": display_name,
+                    "accuracy": accuracy,
+                    "epoch": epoch,
+                    "weight_type": weight_type,
+                    "source": "hub"
             })
         
         # Also check local files
@@ -858,7 +858,7 @@ def api_material_detection_head_weights():
                 # Check if this weight is already in the list from Hub
                 existing = next((w for w in weights if w['filename'] == filename), None)
                 if not existing:
-                    weights.append({
+                if not existing:
                         "filename": filename,
                     "path": weight_file,  # Use local path
                     "display_name": display_name,
@@ -1821,13 +1821,13 @@ def api_yolov3_weights():
                 display_name = f"YOLOv3 Checkpoint ({filename.replace('.pt', '')})"
             
             yolov3_weights.append({
-                "filename": filename,
-                "path": f"hub://{repo_id}/{hub_file}",
-                "display_name": display_name,
-                "weight_type": weight_type,
-                "source": "hub",
-                "repo_url": f"https://huggingface.co/{repo_id}",
-                "repo_id": repo_id
+                    "filename": filename,
+                    "path": f"hub://{repo_id}/{hub_file}",
+                    "display_name": display_name,
+                    "weight_type": weight_type,
+                    "source": "hub",
+                    "repo_url": f"https://huggingface.co/{repo_id}",
+                    "repo_id": repo_id
             })
         
         # Also check local files
@@ -1866,7 +1866,6 @@ def api_yolov3_weights():
                 existing = next((w for w in yolov3_weights if w['filename'] == filename), None)
                 if not existing:
                 if not existing:
-                    "filename": filename,
                     "path": weight_file,
                     "display_name": display_name,
                         "weight_type": weight_type,
@@ -1931,13 +1930,13 @@ def api_yolov8_custom_weights():
                 display_name = f"YOLOv8 Checkpoint ({filename.replace('.pt', '')})"
             
             yolov8_weights.append({
-                "filename": filename,
-                "path": f"hub://{repo_id}/{hub_file}",
-                "display_name": display_name,
-                "weight_type": weight_type,
-                "source": "hub",
-                "repo_url": f"https://huggingface.co/{repo_id}",
-                "repo_id": repo_id
+                    "filename": filename,
+                    "path": f"hub://{repo_id}/{hub_file}",
+                    "display_name": display_name,
+                    "weight_type": weight_type,
+                    "source": "hub",
+                    "repo_url": f"https://huggingface.co/{repo_id}",
+                    "repo_id": repo_id
             })
         
         # Also check local files
@@ -1976,7 +1975,6 @@ def api_yolov8_custom_weights():
                 existing = next((w for w in yolov8_weights if w['filename'] == filename), None)
                 if not existing:
                 if not existing:
-                    "filename": filename,
                     "path": weight_file,
                     "display_name": display_name,
                         "weight_type": weight_type,
@@ -2039,15 +2037,15 @@ def api_dinov3_weights():
             display_name = f"DINOv3 Epoch {epoch} ({accuracy}% accuracy)" if accuracy > 0 else f"DINOv3 Epoch {epoch}"
             
             dinov3_weights.append({
-                "filename": filename,
-                "path": f"hub://{repo_id}/{hub_file}",
-                "display_name": display_name,
-                "weight_type": weight_type,
-                "epoch": epoch,
-                "accuracy": accuracy,
-                "source": "hub",
-                "repo_url": f"https://huggingface.co/{repo_id}",
-                "repo_id": repo_id
+                    "filename": filename,
+                    "path": f"hub://{repo_id}/{hub_file}",
+                    "display_name": display_name,
+                    "weight_type": weight_type,
+                    "epoch": epoch,
+                    "accuracy": accuracy,
+                    "source": "hub",
+                    "repo_url": f"https://huggingface.co/{repo_id}",
+                    "repo_id": repo_id
             })
         
         # Also check local files
@@ -2089,7 +2087,6 @@ def api_dinov3_weights():
                 existing = next((w for w in dinov3_weights if w['filename'] == filename), None)
                 if not existing:
                 if not existing:
-                    "filename": filename,
                     "path": weight_file,
                     "display_name": display_name,
                     "weight_type": weight_type,
