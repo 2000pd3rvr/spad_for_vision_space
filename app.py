@@ -2778,8 +2778,17 @@ def api_detect_yolov3():
             if 'models' not in sys.modules:
                 sys.modules['models'] = type(sys)('models')
             if 'models.yolo' not in sys.modules:
+                # Create a dummy module that can handle any attribute access
                 class DummyYOLOModule:
-                    pass
+                    """Dummy module to satisfy old checkpoint imports"""
+                    def __getattr__(self, name):
+                        # Return a dummy class for any attribute access (e.g., Model, YOLO, etc.)
+                        class DummyClass:
+                            def __init__(self, *args, **kwargs):
+                                pass
+                            def __call__(self, *args, **kwargs):
+                                return self
+                        return DummyClass
                 sys.modules['models.yolo'] = DummyYOLOModule()
             
             try:
