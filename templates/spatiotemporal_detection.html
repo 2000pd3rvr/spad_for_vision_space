@@ -281,6 +281,13 @@
         height: auto !important;
         overflow: visible !important;
     }
+    
+    /* Additional class-based override for when JavaScript removes inline style */
+    #imageControls.model-selection-visible {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
 
     .control-group {
         display: grid;
@@ -1011,7 +1018,7 @@
             </div>
 
                 <!-- Model Selection - Hidden until image upload -->
-            <div class="image-controls" id="imageControls" style="display: none;">
+            <div class="image-controls" id="imageControls" style="display: none;" data-initially-hidden="true">
                 <div class="control-group">
                     <div>
                         <div class="control-label">Spatial detection head:</div>
@@ -2097,17 +2104,21 @@ function updateStoImageDimensions() {
         // Show model selection div after image is uploaded
         const imageControls = document.getElementById('imageControls');
         if (imageControls) {
-            // Force show using inline styles with !important equivalent
-            imageControls.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; height: auto !important; overflow: visible !important; margin-bottom: 25px !important;';
-            // Also set individual properties as fallback
+            // Remove the inline style attribute completely to allow CSS to take effect
+            imageControls.removeAttribute('style');
+            // Force show using inline styles (without !important - JavaScript can't set !important)
             imageControls.style.display = 'block';
             imageControls.style.visibility = 'visible';
             imageControls.style.opacity = '1';
             imageControls.style.height = 'auto';
             imageControls.style.overflow = 'visible';
             imageControls.style.marginBottom = '25px';
+            // Add a class to ensure visibility
+            imageControls.classList.add('model-selection-visible');
+            imageControls.classList.remove('model-selection-hidden');
             console.log('Model selection div shown:', imageControls.style.display);
             console.log('Model selection div computed style:', window.getComputedStyle(imageControls).display);
+            console.log('Model selection div is visible:', window.getComputedStyle(imageControls).display !== 'none');
         } else {
             console.error('ERROR: imageControls element not found!');
         }
