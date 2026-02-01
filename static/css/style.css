@@ -1826,6 +1826,7 @@ body, html {
     font-weight: 600;
     color: #B91D30;
     margin-bottom: 0.5rem;
+    text-align: left;
 }
 
 .demo-header p {
