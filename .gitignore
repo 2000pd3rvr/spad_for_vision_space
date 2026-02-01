@@ -108,3 +108,6 @@ Thumbs.db
 .DS_Store
 .AppleDouble
 .LSOverride
+
+# Hidden SEO keywords file (should not be visible)
+.keywords
