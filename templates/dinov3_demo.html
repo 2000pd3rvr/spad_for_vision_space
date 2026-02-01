@@ -1489,14 +1489,7 @@ let currentUploadMode = 'single';
             modelSelect.innerHTML = '';
             
             if (data.success && data.weights) {
-                // Display repo link if available
-                if (data.repo_url) {
-                    const repoLink = document.createElement('div');
-                    repoLink.className = 'repo-link';
-                    repoLink.style.cssText = 'margin-top: 5px; font-size: 0.85em; color: #00CED1;';
-                    repoLink.innerHTML = `<a href="${data.repo_url}" target="_blank" style="color: #00CED1; text-decoration: none;">📦 View on Hugging Face: ${data.repo_id || 'Model Repository'}</a>`;
-                    modelSelect.parentElement.appendChild(repoLink);
-                }
+                // Repo link removed per user request
                 
                 data.weights.forEach(weight => {
                     const option = document.createElement('option');

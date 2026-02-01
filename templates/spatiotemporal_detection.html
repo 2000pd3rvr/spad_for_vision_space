@@ -1680,14 +1680,7 @@ function updateDetectButtonState() {
             }
             selectEl.innerHTML = '<option value="">Select weight...</option>';
             
-            // Display repo link if available
-            if (data.repo_url) {
-                const repoLink = document.createElement('div');
-                repoLink.className = 'repo-link';
-                repoLink.style.cssText = 'margin-top: 5px; font-size: 0.85em; color: #00CED1;';
-                repoLink.innerHTML = `<a href="${data.repo_url}" target="_blank" style="color: #00CED1; text-decoration: none;">📦 View on Hugging Face: ${data.repo_id || 'Model Repository'}</a>`;
-                selectEl.parentElement.appendChild(repoLink);
-            }
+            // Repo link removed per user request (yolov8/dinov3)
             
             weights.forEach(w => {
                 const path = w.path || w.weight_path || w.file || '';
@@ -1727,14 +1720,7 @@ function updateDetectButtonState() {
                 }
                 sel.innerHTML = '<option value="">Select a weight...</option>';
                 
-                // Display repo link if available
-                if (data.repo_url) {
-                    const repoLink = document.createElement('div');
-                    repoLink.className = 'repo-link';
-                    repoLink.style.cssText = 'margin-top: 5px; font-size: 0.85em; color: #00CED1;';
-                    repoLink.innerHTML = `<a href="${data.repo_url}" target="_blank" style="color: #00CED1; text-decoration: none;">📦 View on Hugging Face: ${data.repo_id || 'Model Repository'}</a>`;
-                    sel.parentElement.appendChild(repoLink);
-                }
+                // Repo link removed per user request (yolov8/dinov3)
                 
                 weights.forEach(w => {
                     const opt = document.createElement('option');
