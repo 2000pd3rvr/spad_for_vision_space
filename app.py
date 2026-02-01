@@ -2458,9 +2458,9 @@ def api_detect_yolov8_custom():
             # Load the YOLOv8 model using Ultralytics
             # Handle potential DFLoss attribute errors from version mismatches
             try:
-            model = YOLO(weight_path)
+                model = YOLO(weight_path)
                 debug_print(f"DEBUG: YOLOv8 model loaded successfully")
-            except (AttributeError, ImportError) as model_load_error:
+            except (AttributeError, ImportError, RuntimeError) as model_load_error:
                 error_msg = str(model_load_error)
                 if 'DFLoss' in error_msg or 'loss' in error_msg.lower():
                     # Try loading with weights_only to bypass loss function loading
