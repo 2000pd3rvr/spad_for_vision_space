@@ -1101,9 +1101,9 @@
                 <div style="display: flex; gap: 20px; align-items: flex-start;">
                     <img id="finalInputPreview" class="result-image" alt="Final input preview" style="display:none;" />
                     <div id="hpWhiteboardContainer" style="display: none; position: relative; align-items: flex-start; gap: 0px;">
-                        <img src="/static/hp.gif" alt="HP" id="hpGifImage" style="max-width: 120px; height: auto; margin-top: 4px; margin-right: 0px;" onerror="if(window.HP_GIF_DATA_URI) this.src=window.HP_GIF_DATA_URI;" />
+                        <img src="/static/hp.gif" alt="HP" id="hpGifImage" style="max-width: 120px; height: auto; margin-top: 4px; margin-right: 0px;" onerror="(function(img){if(typeof window!=='undefined'&&window.HP_GIF_DATA_URI){console.log('Loading hp.gif from base64 fallback');img.src=window.HP_GIF_DATA_URI;}else{console.error('HP_GIF_DATA_URI not available');setTimeout(function(){if(window.HP_GIF_DATA_URI)img.src=window.HP_GIF_DATA_URI;},100);}})(this);" />
                         <div style="position: relative;">
-                            <img src="/static/whiteboardi.png" alt="Whiteboard" id="whiteboardImage" style="max-width: 200px; height: auto; margin-left: 0;" onerror="if(window.WHITEBOARD_PNG_DATA_URI) this.src=window.WHITEBOARD_PNG_DATA_URI;" />
+                            <img src="/static/whiteboardi.png" alt="Whiteboard" id="whiteboardImage" style="max-width: 200px; height: auto; margin-left: 0;" onerror="(function(img){if(typeof window!=='undefined'&&window.WHITEBOARD_PNG_DATA_URI){console.log('Loading whiteboardi.png from base64 fallback');img.src=window.WHITEBOARD_PNG_DATA_URI;}else{console.error('WHITEBOARD_PNG_DATA_URI not available');setTimeout(function(){if(window.WHITEBOARD_PNG_DATA_URI)img.src=window.WHITEBOARD_PNG_DATA_URI;},100);}})(this);" />
                             <div id="whiteboardCaption" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 10px; text-align: center; width: 80%; white-space: normal; word-wrap: break-word; display: none;">-</div>
                         </div>
                     </div>
