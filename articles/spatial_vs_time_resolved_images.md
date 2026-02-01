@@ -1,7 +1,5 @@
 # Spatial vs. Time-Resolved Images: Understanding the Difference
 
-**Author:** Deborah Ewurama Akuoko
-
 ## What's the Difference?
 
 When we talk about images in computer vision and sensing, there are two main ways to capture information: spatial resolution and time resolution. Understanding the difference between these two approaches is key to understanding how modern vision systems work.

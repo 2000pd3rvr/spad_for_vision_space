@@ -1,7 +1,5 @@
 # Time-of-Flight Sensors: A Simple Guide
 
-**Author:** Deborah Ewurama Akuoko
-
 ## What is a Time-of-Flight Sensor?
 
 A time-of-flight (ToF) sensor is a device that measures distance by timing how long it takes for light to travel to an object and bounce back. Think of it like a high-tech version of echolocation, but using light instead of sound.
