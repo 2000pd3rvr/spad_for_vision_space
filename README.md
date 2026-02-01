@@ -10,9 +10,13 @@ pinned: false
 
 # SPAD for Vision - Demonstrating Combined Spatial and Structural Features
 
+**Keywords**: spatiotemporal detection, material classification, object detection, computer vision, YOLOv3, YOLOv8, DINOv3, SPAD vision, spatial features, structural features, multi-modal fusion, material detection, vision systems, deep learning, PyTorch, Flask web app, STO files, spatiotemporal object detection, material property classification, custom vision models, domain-specific models, quality control vision, food safety detection, material verification, structural analysis, spatial analysis, combined features, feature fusion, vision research, specialized models, material purity detection, flat surface detection, natural object detection, material composition analysis, computer vision demo, vision demonstration platform
+
 ## Overview
 
-This web application is a **demonstration platform** that showcases the benefits of combining **spatial** (geometric/positional) and **structural** (material/compositional) features for vision tasks. The application emphasizes that relying solely on spatially resolved images has limitations, and demonstrates how incorporating structural information improves detection and classification capabilities.
+This web application is a **demonstration platform** for **spatiotemporal detection** and **material classification** that showcases the benefits of combining **spatial** (geometric/positional) and **structural** (material/compositional) features for computer vision tasks. The application emphasizes that relying solely on spatially resolved images has limitations, and demonstrates how incorporating structural information improves detection and classification capabilities.
+
+**Search Terms**: spatiotemporal object detection, material classification system, combined spatial and structural features, multi-modal computer vision, YOLOv3 custom model, YOLOv8 custom model, DINOv3 custom model, material detection head, material property classification, vision system with material analysis, SPAD-based vision, spatiotemporal vision processing
 
 **Important Note**: This is **NOT** a traditional object detection model trained on massive datasets. Instead, it is a research demonstration that highlights the relevance of multi-modal feature fusion, particularly in scenarios where spatial information alone is insufficient.
 
@@ -71,13 +75,19 @@ These models are **not** trained on massive datasets like ImageNet or COCO. Inst
 - **STO File Support**: Handles Spatiotemporal Object files that contain both spatial and structural information
 - **Real-time Inference**: Fast inference with optimized models
 - **Interactive Demos**: Multiple demonstration interfaces for different aspects of the system
+- **Computer Vision**: Advanced deep learning models for object detection and material classification
+- **Material Analysis**: Structural feature extraction for material property identification
+- **Spatiotemporal Processing**: Combined spatial-temporal analysis for comprehensive scene understanding
 
 ## Technical Details
 
-- **Framework**: Flask
+- **Framework**: Flask (Python web framework)
 - **Python Version**: 3.10
-- **Deployment**: Docker
+- **Deep Learning**: PyTorch-based models (YOLOv3, YOLOv8, DINOv3, custom CNNs)
+- **Deployment**: Docker containerized application
 - **Port**: 7860 (Hugging Face Spaces)
+- **Computer Vision Libraries**: OpenCV, PIL/Pillow, torchvision
+- **Model Formats**: PyTorch (.pth), YOLO (.pt) checkpoints
 
 ## Model and Dataset Sources
 
@@ -122,6 +132,16 @@ The models used in this demonstration are **not** general-purpose object detecti
 - `static/`: CSS, JavaScript, and static assets
 - `apps.err/material_detection_naturalobjects/`: Material detection functions and spatiotemporal processing
 - `Dockerfile`: Container configuration for deployment
+
+## Search & Discovery
+
+This repository and application are optimized for discovery through search terms including:
+- **Primary**: spatiotemporal detection, material classification, object detection, computer vision
+- **Models**: YOLOv3, YOLOv8, DINOv3, custom vision models, PyTorch models
+- **Features**: spatial features, structural features, multi-modal fusion, material properties
+- **Applications**: quality control, food safety, material verification, material analysis
+- **Technology**: SPAD vision, deep learning, computer vision systems, vision research
+- **File Formats**: STO files, spatiotemporal object files, material detection data
 
 ## License
 
