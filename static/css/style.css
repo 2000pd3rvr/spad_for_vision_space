@@ -18,7 +18,7 @@
 .transform-buttons-compact,
 .status-display,
 .crop-instructions,
-.transform-btn-small,
+.transform-btn-small:not(.reset-btn),
 .crop-content,
 .crop-container,
 .cropper-container,
@@ -36,12 +36,23 @@
 }
 
 /* Ensure #imageControls can be shown for model selection in spatiotemporal detection */
+/* This is the model selection div, not crop tools */
 #imageControls {
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
     height: auto !important;
     overflow: visible !important;
+    position: relative !important;
+    z-index: 10 !important;
+}
+
+/* Hide crop-related elements in spatiotemporal detection */
+#cropOverlay,
+.crop-instructions {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
 }
 
 

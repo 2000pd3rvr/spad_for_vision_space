@@ -266,9 +266,18 @@
         padding: 40px;
     }
 
-    .image-controls {
+    /* Model selection div (#imageControls) should be visible, but other image-controls hidden */
+    .image-controls:not(#imageControls) {
         margin-bottom: 25px;
         display: none !important;
+    }
+    
+    /* Ensure model selection is visible */
+    #imageControls {
+        margin-bottom: 25px;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
 
     .control-group {
@@ -2141,19 +2150,18 @@ function updateStoImageDimensions() {
     // Clearing function not needed when only updating on detection
 
     function setupCropHandlers() {
+        // Crop tools are disabled/hidden - skip setting up handlers for performance
+        // This prevents unnecessary event listeners that could slow down the page
         const canvas = document.getElementById('imagePreview');
-        // Prevent default drag behavior
-        canvas.setAttribute('draggable', 'false');
-        canvas.addEventListener('mousedown', startCrop);
-        canvas.addEventListener('mousemove', updateCrop);
-        canvas.addEventListener('mouseup', endCrop);
-        canvas.addEventListener('mouseleave', function(e) {
-            endCrop(e);
-        });
-        // Prevent context menu on right-click
-        canvas.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-        });
+        if (canvas) {
+            // Only prevent default drag behavior, but don't add crop event listeners
+            canvas.setAttribute('draggable', 'false');
+            // Prevent context menu on right-click
+            canvas.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+            });
+        }
+        console.log('Crop handlers disabled for performance');
     }
 
     function startCrop(e) {
@@ -2611,22 +2619,9 @@ function updateStoImageDimensions() {
             const imageCanvas = document.getElementById('imagePreview');
             let spatialImageData;
             
-            // Check if crop is active and apply it
-            if (isCropActive()) {
-                const cropX = window.cropX || 0;
-                const cropY = window.cropY || 0;
-                const cropW = window.cropW;
-                const cropH = window.cropH;
-                
-                const tempCanvas = document.createElement('canvas');
-                const tempCtx = tempCanvas.getContext('2d');
-                tempCanvas.width = cropW;
-                tempCanvas.height = cropH;
-                tempCtx.drawImage(imageCanvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
-                spatialImageData = tempCanvas.toDataURL('image/jpeg', 0.9);
-            } else {
-                spatialImageData = imageCanvas.toDataURL('image/jpeg', 0.9);
-            }
+            // Crop tools are disabled - always use full image for better performance
+            // Skip crop check to avoid unnecessary processing
+            spatialImageData = imageCanvas.toDataURL('image/jpeg', 0.9);
             
             // Convert data URL to blob for spatial detection
             const spatialImageResponse = await fetch(spatialImageData);
