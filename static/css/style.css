@@ -12,7 +12,8 @@
 }
 
 /* Hide image controls (rotate, flip, etc.) for all apps */
-.image-controls,
+/* Exception: #imageControls in spatiotemporal_detection is for model selection, not image controls */
+.image-controls:not(#imageControls),
 .compact-controls,
 .transform-buttons-compact,
 .status-display,

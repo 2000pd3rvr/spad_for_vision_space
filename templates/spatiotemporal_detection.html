@@ -2076,8 +2076,23 @@ function updateStoImageDimensions() {
     }
 
     function enableModelSelection() {
-        // Image controls are hidden via CSS (display: none !important)
-        // No need to show them
+        // Show model selection controls after image upload
+        const imageControls = document.getElementById('imageControls');
+        if (imageControls) {
+            imageControls.style.display = 'block';
+            imageControls.style.visibility = 'visible';
+            imageControls.style.opacity = '1';
+            imageControls.style.height = 'auto';
+            imageControls.style.overflow = 'visible';
+        }
+        
+        // Show detect button
+        const detectBtn = document.getElementById('detectBtn');
+        if (detectBtn) {
+            detectBtn.style.display = 'block';
+            detectBtn.style.visibility = 'visible';
+            detectBtn.style.opacity = '1';
+        }
         
         // Enable spatial and material head selects after image upload
         const spatialHeadSelect = document.getElementById('spatialHeadSelect');
