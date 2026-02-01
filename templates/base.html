@@ -124,18 +124,28 @@
     <script>
         // Suppress SSE-related errors from Hugging Face UI components
         (function() {
+            // Helper function to check if error is SSE-related
+            function isSSERelatedError(message, filename, stack) {
+                const fullText = [message, filename, stack].filter(Boolean).join(' ').toLowerCase();
+                return fullText.includes('sse') || 
+                       fullText.includes('server-sent events') ||
+                       fullText.includes('space status') ||
+                       fullText.includes('error in input stream') ||
+                       fullText.includes('sse stream ended') ||
+                       fullText.includes('spaceheader') ||
+                       fullText.includes('operation was aborted') ||
+                       fullText.includes('domexception') ||
+                       fullText.includes('kube-08e8472') ||
+                       (filename && (filename.includes('SpaceHeader') || filename.includes('index.js')));
+            }
+
             // Override console.error to filter out SSE-related errors
             const originalConsoleError = console.error;
             console.error = function(...args) {
                 const errorMessage = args.join(' ');
+                const stack = new Error().stack || '';
                 // Suppress SSE-related errors from Hugging Face UI
-                if (errorMessage.includes('SSE') || 
-                    errorMessage.includes('Server-Sent Events') ||
-                    errorMessage.includes('Space status') ||
-                    errorMessage.includes('Error in input stream') ||
-                    errorMessage.includes('SSE Stream ended') ||
-                    errorMessage.includes('SpaceHeader') ||
-                    errorMessage.match(/index\.js.*SSE/i)) {
+                if (isSSERelatedError(errorMessage, '', stack)) {
                     // Silently ignore these errors
                     return;
                 }
@@ -145,31 +155,35 @@
 
             // Handle unhandled promise rejections related to SSE
             window.addEventListener('unhandledrejection', function(event) {
-                const errorMessage = event.reason?.message || String(event.reason || '');
-                if (errorMessage.includes('SSE') || 
-                    errorMessage.includes('Server-Sent Events') ||
-                    errorMessage.includes('Space status') ||
-                    errorMessage.includes('Error in input stream') ||
-                    errorMessage.includes('SSE Stream ended')) {
+                const reason = event.reason;
+                const errorMessage = reason?.message || String(reason || '');
+                const stack = reason?.stack || '';
+                if (isSSERelatedError(errorMessage, '', stack)) {
                     event.preventDefault(); // Suppress the error
                     return;
                 }
-            });
+            }, true);
 
             // Handle general errors related to SSE
             window.addEventListener('error', function(event) {
                 const errorMessage = event.message || String(event.error || '');
-                if (errorMessage.includes('SSE') || 
-                    errorMessage.includes('Server-Sent Events') ||
-                    errorMessage.includes('Space status') ||
-                    errorMessage.includes('Error in input stream') ||
-                    errorMessage.includes('SSE Stream ended') ||
-                    event.filename?.includes('SpaceHeader') ||
-                    event.filename?.includes('index.js')) {
+                const filename = event.filename || '';
+                const stack = event.error?.stack || '';
+                if (isSSERelatedError(errorMessage, filename, stack)) {
                     event.preventDefault(); // Suppress the error
                     return false;
                 }
             }, true);
+
+            // Also suppress console.warn for SSE-related messages
+            const originalConsoleWarn = console.warn;
+            console.warn = function(...args) {
+                const errorMessage = args.join(' ');
+                if (isSSERelatedError(errorMessage, '', '')) {
+                    return;
+                }
+                originalConsoleWarn.apply(console, args);
+            };
         })();
 
         // Prevent white flash during page transitions
