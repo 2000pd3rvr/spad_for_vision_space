@@ -283,6 +283,47 @@
         height: 0 !important;
         overflow: hidden !important;
     }
+    
+    /* Hide all crop and transform controls */
+    .compact-controls {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        overflow: hidden !important;
+    }
+    
+    .transform-buttons-compact {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        overflow: hidden !important;
+    }
+    
+    .transform-btn-small {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        overflow: hidden !important;
+    }
+    
+    .status-display {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        overflow: hidden !important;
+    }
+    
+    .crop-instructions {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        overflow: hidden !important;
+    }
 
     .control-group {
         display: grid;
@@ -1327,6 +1368,53 @@
             imageControls.style.height = '0';
             imageControls.style.overflow = 'hidden';
         }
+        
+        // Hide all crop and transform controls
+        const compactControls = document.querySelector('.compact-controls');
+        if (compactControls) {
+            compactControls.style.display = 'none';
+            compactControls.style.visibility = 'hidden';
+            compactControls.style.opacity = '0';
+            compactControls.style.height = '0';
+            compactControls.style.overflow = 'hidden';
+        }
+        
+        const transformButtons = document.querySelector('.transform-buttons-compact');
+        if (transformButtons) {
+            transformButtons.style.display = 'none';
+            transformButtons.style.visibility = 'hidden';
+            transformButtons.style.opacity = '0';
+            transformButtons.style.height = '0';
+            transformButtons.style.overflow = 'hidden';
+        }
+        
+        const statusDisplay = document.querySelector('.status-display');
+        if (statusDisplay) {
+            statusDisplay.style.display = 'none';
+            statusDisplay.style.visibility = 'hidden';
+            statusDisplay.style.opacity = '0';
+            statusDisplay.style.height = '0';
+            statusDisplay.style.overflow = 'hidden';
+        }
+        
+        const cropInstructions = document.querySelector('.crop-instructions');
+        if (cropInstructions) {
+            cropInstructions.style.display = 'none';
+            cropInstructions.style.visibility = 'hidden';
+            cropInstructions.style.opacity = '0';
+            cropInstructions.style.height = '0';
+            cropInstructions.style.overflow = 'hidden';
+        }
+        
+        // Hide all transform buttons
+        const transformBtns = document.querySelectorAll('.transform-btn-small');
+        transformBtns.forEach(btn => {
+            btn.style.display = 'none';
+            btn.style.visibility = 'hidden';
+            btn.style.opacity = '0';
+            btn.style.height = '0';
+            btn.style.overflow = 'hidden';
+        });
         
         const modelSelect = document.getElementById('modelSelect');
         modelSelect.disabled = false;
