@@ -182,13 +182,4 @@ Neither is better than the other - they're complementary. The most powerful visi
 
 As technology advances, we're seeing more and more systems that seamlessly combine spatial and temporal information, opening up new possibilities in everything from smartphones to autonomous vehicles to scientific research.
 
-## References
-
-1. Akuoko, D. E. (2026). "Spatiotemporal Detection and Material Classification Using SPAD-Based Vision Systems." *Doctoral Thesis, University of Edinburgh*.
-
-2. Foix, S., et al. (2011). "Lock-in Time-of-Flight (ToF) Cameras: A Survey." *IEEE Sensors Journal*.
-
-3. Gokturk, S. B., et al. (2004). "A Time-of-Flight Depth Sensor - System Description, Issues and Solutions." *IEEE Computer Society Conference on Computer Vision and Pattern Recognition Workshops*.
-
-4. Niclass, C., et al. (2008). "A 128x128 Single-Photon Image Sensor with Column-Level 10-bit Time-to-Digital Converter Array." *IEEE Journal of Solid-State Circuits*.
 

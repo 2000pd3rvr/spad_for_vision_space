@@ -96,14 +96,3 @@ Time-of-flight sensors are becoming increasingly important because they provide 
 
 Time-of-flight sensors are fascinating devices that use the speed of light to measure distances. They're already making our phones smarter, our games more interactive, and our cars safer. As the technology continues to improve, we'll likely see them in even more places, helping machines understand the world around them in three dimensions.
 
-## References
-
-1. Niclass, C., et al. (2008). "A 128x128 Single-Photon Image Sensor with Column-Level 10-bit Time-to-Digital Converter Array." *IEEE Journal of Solid-State Circuits*.
-
-2. Gokturk, S. B., et al. (2004). "A Time-of-Flight Depth Sensor - System Description, Issues and Solutions." *IEEE Computer Society Conference on Computer Vision and Pattern Recognition Workshops*.
-
-3. Foix, S., et al. (2011). "Lock-in Time-of-Flight (ToF) Cameras: A Survey." *IEEE Sensors Journal*.
-
-4. Akuoko, D. E. (2026). "Spatiotemporal Detection and Material Classification Using SPAD-Based Vision Systems." *Doctoral Thesis, University of Edinburgh*.
-
-5. Hansard, M., et al. (2012). "Time-of-Flight Cameras: Principles, Methods and Applications." *Springer Briefs in Computer Science*.
