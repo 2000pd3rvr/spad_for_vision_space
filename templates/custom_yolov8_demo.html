@@ -1017,9 +1017,21 @@
             
             try {
                 const response = await fetch('/api/list_testimages/custom_yolov8_demo');
+                
+                // Check if response is OK
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
                 
-                if (data.success && data.files.length > 0) {
+                // Check if response has error
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Check if response has success and files
+                if (data.success && data.files && data.files.length > 0) {
                     fileBrowserList.innerHTML = '';
                     data.files.forEach(file => {
                         const fileItem = document.createElement('div');
@@ -1081,12 +1093,17 @@
                         
                         fileBrowserList.appendChild(fileItem);
                     });
+                } else if (data.success && (!data.files || data.files.length === 0)) {
+                    fileBrowserList.innerHTML = '<div class="file-browser-empty">No test images found in directory. Please try uploading from your device.</div>';
                 } else {
-                    fileBrowserList.innerHTML = '<div class="file-browser-empty">No test images found in directory</div>';
+                    // Response format is unexpected
+                    console.error('Unexpected response format:', data);
+                    fileBrowserList.innerHTML = '<div class="file-browser-empty">Unexpected response format. Please try uploading from your device.</div>';
                 }
             } catch (error) {
                 console.error('Error loading test images:', error);
-                fileBrowserList.innerHTML = '<div class="file-browser-empty">Error loading images. Please try uploading from your device.</div>';
+                const errorMessage = error.message || 'Unknown error';
+                fileBrowserList.innerHTML = `<div class="file-browser-empty">Error loading images: ${errorMessage}. Please try uploading from your device.</div>`;
             }
         }
 
