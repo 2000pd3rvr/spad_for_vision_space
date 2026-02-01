@@ -2839,9 +2839,9 @@ function updateStoImageDimensions() {
                 const detectedMaterial = topMaterial.display_class || topMaterial.class;
                 caption = `No objects detected.\n${detectedMaterial} material detected at ${targetDist}cm.\n\nTarget foreground may contain ${targetFg} material at ~${targetFgDist}cm.\n\nTarget background may contain ${targetBg} material at ~${targetBgDist}cm.`;
             } else if (hasSpatialDetections && !hasMaterialDetections) {
-                // Only spatial detected
+                // Only spatial detected - use the highest confidence prediction
                 const topSpatial = spatialData.top3_predictions[0];
-                const detectedObject = topSpatial.class;
+                const detectedObject = topSpatial.display_class || topSpatial.class;
                 caption = `${detectedObject} object detected at ${targetDist}cm.\nNo materials detected.`;
             } else {
                 // Both detected - show full caption
