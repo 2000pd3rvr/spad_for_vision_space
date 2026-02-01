@@ -965,6 +965,15 @@
                 
                 select.innerHTML = '<option value="">Select a model weight...</option>';
                 
+                // Display repo link if available
+                if (data.repo_url) {
+                    const repoLink = document.createElement('div');
+                    repoLink.className = 'repo-link';
+                    repoLink.style.cssText = 'margin-top: 5px; font-size: 0.85em; color: #00CED1;';
+                    repoLink.innerHTML = `<a href="${data.repo_url}" target="_blank" style="color: #00CED1; text-decoration: none;">📦 View on Hugging Face: ${data.repo_id || 'Model Repository'}</a>`;
+                    select.parentElement.appendChild(repoLink);
+                }
+                
                 if (data.success && data.weights && data.weights.length > 0) {
                     console.log(`Found ${data.weights.length} weights`);
                     data.weights.forEach(weight => {
@@ -1560,11 +1569,23 @@
             const response = await fetch(url);
             const data = await response.json();
             
+            // Display dataset repo link if available (only at root level)
+            if (data.repo_url && !subpath) {
+                const repoLinkDiv = document.createElement('div');
+                repoLinkDiv.className = 'dataset-repo-link';
+                repoLinkDiv.style.cssText = 'padding: 10px; margin-bottom: 10px; background: rgba(0, 206, 209, 0.1); border-radius: 5px; border: 1px solid rgba(0, 206, 209, 0.3);';
+                repoLinkDiv.innerHTML = `<a href="${data.repo_url}" target="_blank" style="color: #00CED1; text-decoration: none; font-size: 0.9em;"><i class="fas fa-external-link-alt"></i> View Dataset on Hugging Face: ${data.repo_id || 'Dataset Repository'}</a>`;
+                fileBrowserList.appendChild(repoLinkDiv);
+            }
+            
             if (data.success && (data.directories && data.directories.length > 0 || data.files && data.files.length > 0)) {
                 // Update breadcrumb
                 updateBreadcrumb(data.relative_path || '');
                 
-                fileBrowserList.innerHTML = '';
+                if (!subpath || !data.repo_url) {
+                    // Only clear if we haven't already added repo link
+                    fileBrowserList.innerHTML = '';
+                }
                 
                 // Display directories first
                 if (data.directories && data.directories.length > 0) {
