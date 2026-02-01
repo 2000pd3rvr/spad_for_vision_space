@@ -3584,7 +3584,7 @@ def download_model_from_hub(hub_path):
         )
         print(f"✓ Downloaded to: {downloaded_path}")
         return downloaded_path
-        except Exception as e:
+    except Exception as e:
         print(f"Error downloading model {hub_path}: {e}")
         import traceback
         traceback.print_exc()
