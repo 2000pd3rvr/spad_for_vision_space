@@ -2882,37 +2882,39 @@ def api_detect_yolov3():
             objectness = output[0, :, 4, :, :]  # [3, 7, 7]
             class_scores = output[0, :, 5:, :, :]  # [3, num_classes, 7, 7]
             
-            # Process detections
-            confidence_threshold = 0.01
+            # Process detections with proper thresholds
             scale_x = image.width / 224.0
             scale_y = image.height / 224.0
             cell_width = 224.0 / 7.0
             cell_height = 224.0 / 7.0
             
-            # Aggregate class scores
-            num_anchors = class_scores.shape[0]
-            reshaped_class_scores = class_scores.transpose(1, 0, 2, 3).reshape(len(class_names), -1).T
+            # Apply sigmoid to objectness (raw logits)
+            objectness_sigmoid = 1.0 / (1.0 + np.exp(-objectness))  # [3, 7, 7]
             
-            # Apply softmax
-            max_scores = np.max(reshaped_class_scores, axis=1, keepdims=True)
-            exp_scores = np.exp(reshaped_class_scores - max_scores)
-            class_probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+            # Apply softmax to class scores (raw logits) per anchor and position
+            # class_scores shape: [3, num_classes, 7, 7]
+            # We need to apply softmax across classes for each (anchor, y, x) position
+            class_scores_reshaped = class_scores.transpose(0, 2, 3, 1)  # [3, 7, 7, num_classes]
+            class_scores_flat = class_scores_reshaped.reshape(-1, len(class_names))  # [3*7*7, num_classes]
             
-            # Aggregate probabilities using MAX instead of MEAN
-            # This helps capture detections at any position, not just average them out
-            # For position-sensitive objects like eggplant, max aggregation is better
-            aggregated_class_probs = np.max(class_probs, axis=0)
+            # Apply softmax across classes
+            max_scores = np.max(class_scores_flat, axis=1, keepdims=True)
+            exp_scores = np.exp(class_scores_flat - max_scores)
+            class_probs_flat = exp_scores / (np.sum(exp_scores, axis=1, keepdims=True) + 1e-8)
+            class_probs = class_probs_flat.reshape(3, 7, 7, len(class_names))  # [3, 7, 7, num_classes]
             
-            # Also weight by objectness to give more weight to cells with high objectness
-            flat_objectness_for_weighting = objectness.flatten()
-            objectness_weights = 1.0 / (1.0 + np.exp(-flat_objectness_for_weighting))  # Sigmoid
-            objectness_weights = objectness_weights / (np.sum(objectness_weights) + 1e-8)  # Normalize
+            # Aggregate class probabilities using objectness-weighted mean
+            # Weight by objectness to give more importance to cells with high objectness
+            objectness_flat = objectness_sigmoid.flatten()  # [3*7*7]
+            class_probs_flat_for_agg = class_probs.reshape(-1, len(class_names))  # [3*7*7, num_classes]
             
-            # Weighted aggregation: combine max with objectness-weighted mean
-            weighted_mean = np.average(class_probs, axis=0, weights=objectness_weights)
-            # Use max for primary signal, but blend with weighted mean for robustness
-            aggregated_class_probs = 0.7 * aggregated_class_probs + 0.3 * weighted_mean
+            # Weighted average across all positions, weighted by objectness
+            if np.sum(objectness_flat) > 0:
+                aggregated_class_probs = np.average(class_probs_flat_for_agg, axis=0, weights=objectness_flat)
+            else:
+                aggregated_class_probs = np.mean(class_probs_flat_for_agg, axis=0)
             
+            # Normalize to ensure probabilities sum to 1
             total_prob = np.sum(aggregated_class_probs)
             if total_prob > 0:
                 normalized_class_probs = aggregated_class_probs / total_prob
@@ -2923,14 +2925,12 @@ def api_detect_yolov3():
             for i, class_name in enumerate(class_names):
                 all_class_confidences[class_name] = float(normalized_class_probs[i])
             
-            # Process ALL detections (not just top 10) to catch objects at any position
-            # This helps with position-sensitive detections like eggplant
-            flat_objectness = objectness.flatten()
-            # Process all cells, not just top 10
+            # Process detections with proper confidence threshold
+            flat_objectness = objectness_sigmoid.flatten()
             all_indices = np.argsort(flat_objectness)[::-1]  # Sort all by objectness
             
-            # Lower confidence threshold to catch more detections
-            confidence_threshold = 0.001  # Lowered from 0.01 to catch more detections
+            # Use reasonable confidence threshold to avoid false positives
+            confidence_threshold = 0.25  # Increased from 0.001 to reduce false positives
             
             for idx in all_indices:
                 flat_idx = idx
@@ -2939,21 +2939,22 @@ def api_detect_yolov3():
                 y_idx = pos_in_grid // 7
                 x_idx = pos_in_grid % 7
                 
-                obj_value = objectness[anchor_idx, y_idx, x_idx]
-                confidence = 1.0 / (1.0 + np.exp(-obj_value))
-                confidence = float(confidence)
+                # Get objectness (already sigmoided)
+                confidence = float(objectness_sigmoid[anchor_idx, y_idx, x_idx])
                 
-                anchor_class_probs = class_probs[flat_idx, :]
+                # Get class probabilities for this position
+                anchor_class_probs = class_probs[anchor_idx, y_idx, x_idx, :]  # [num_classes]
                 best_class_idx = int(np.argmax(anchor_class_probs))
                 best_class_prob = float(anchor_class_probs[best_class_idx])
                 
+                # Combined confidence: objectness * class probability
                 combined_confidence = confidence * best_class_prob
                 
-                # Also check if objectness itself is significant (even if class prob is low)
-                # This helps detect objects that might be in unusual positions
-                objectness_threshold = 0.1  # Lower threshold for objectness
+                # Use stricter thresholds to reduce false positives
+                objectness_threshold = 0.3  # Increased from 0.1
                 
-                if (combined_confidence > confidence_threshold or confidence > objectness_threshold) and best_class_idx < len(class_names):
+                # Only keep detections with high combined confidence
+                if combined_confidence > confidence_threshold and confidence > objectness_threshold and best_class_idx < len(class_names):
                     class_name = class_names[best_class_idx]
                     
                     # Calculate bbox
