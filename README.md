@@ -21,20 +21,34 @@ tags:
   - material-analysis
   - quality-control
   - computer-vision-demo
+  - deborah-akuoko
+  - deborah-akuoko-ewurama-minka
+  - edinburgh-university
+  - spad-sensors
+  - single-photon-avalanche-diode
+  - machine-vision
+  - machine-intelligence
 ---
 
 <!-- SEO Keywords (hidden from view but searchable by engines): 
-spatiotemporal detection material classification object detection computer vision YOLOv3 YOLOv8 DINOv3 SPAD vision spatial features structural features multi-modal fusion material detection vision systems deep learning PyTorch Flask web app STO files spatiotemporal object detection material property classification custom vision models domain-specific models quality control vision food safety detection material verification structural analysis spatial analysis combined features feature fusion vision research specialized models material purity detection flat surface detection natural object detection material composition analysis computer vision demo vision demonstration platform machine learning artificial intelligence neural networks convolutional neural networks CNN image processing computer vision applications industrial vision quality assurance automated inspection material science vision technology research demonstration multi-sensor fusion temporal analysis spatial-temporal processing material identification object recognition scene understanding semantic segmentation instance segmentation bounding box detection material properties material characteristics surface analysis texture analysis pattern recognition feature extraction feature engineering model inference real-time processing batch processing image classification object localization material science computer vision deep learning models transfer learning fine-tuning custom datasets domain adaptation specialized computer vision applications -->
+Deborah Akuoko Ewurama Minka Edinburgh University SPAD sensors single photon avalanche diode machine vision computer vision machine intelligence artificial intelligence deborah akuoko ewurama akuoko spatiotemporal detection material classification object detection computer vision YOLOv3 YOLOv8 DINOv3 SPAD vision spatial features structural features multi-modal fusion material detection vision systems deep learning PyTorch Flask web app STO files spatiotemporal object detection material property classification custom vision models domain-specific models quality control vision food safety detection material verification structural analysis spatial analysis combined features feature fusion vision research specialized models material purity detection flat surface detection natural object detection material composition analysis computer vision demo vision demonstration platform machine learning artificial intelligence neural networks convolutional neural networks CNN image processing computer vision applications industrial vision quality assurance automated inspection material science vision technology research demonstration multi-sensor fusion temporal analysis spatial-temporal processing material identification object recognition scene understanding semantic segmentation instance segmentation bounding box detection material properties material characteristics surface analysis texture analysis pattern recognition feature extraction feature engineering model inference real-time processing batch processing image classification object localization material science computer vision deep learning models transfer learning fine-tuning custom datasets domain adaptation specialized computer vision applications -->
 
-<!-- Additional Hidden Keywords: Add your custom keywords here (they will be indexed by search engines but not visible to users) -->
+<!-- Additional Hidden Keywords: Deborah Akuoko, Deborah Akuoko Ewurama Minka, Edinburgh University, SPAD sensors, single photon avalanche diode, machine vision, computer vision, machine intelligence -->
 
 # SPAD for Vision - Demonstrating Combined Spatial and Structural Features
 
-**Keywords**: spatiotemporal detection, material classification, object detection, computer vision, YOLOv3, YOLOv8, DINOv3, SPAD vision, spatial features, structural features, multi-modal fusion, material detection, vision systems, deep learning, PyTorch, Flask web app, STO files, spatiotemporal object detection, material property classification, custom vision models, domain-specific models, quality control vision, food safety detection, material verification, structural analysis, spatial analysis, combined features, feature fusion, vision research, specialized models, material purity detection, flat surface detection, natural object detection, material composition analysis, computer vision demo, vision demonstration platform
+**Author**: Deborah Akuoko Ewurama Minka  
+**Institution**: The University of Edinburgh  
+**Research Area**: SPAD Sensors, Single Photon Avalanche Diode, Machine Vision, Computer Vision, Machine Intelligence
+
+**Keywords**: Deborah Akuoko, Deborah Akuoko Ewurama Minka, Edinburgh University, SPAD sensors, single photon avalanche diode, machine vision, computer vision, machine intelligence, artificial intelligence, spatiotemporal detection, material classification, object detection, computer vision, YOLOv3, YOLOv8, DINOv3, SPAD vision, spatial features, structural features, multi-modal fusion, material detection, vision systems, deep learning, PyTorch, Flask web app, STO files, spatiotemporal object detection, material property classification, custom vision models, domain-specific models, quality control vision, food safety detection, material verification, structural analysis, spatial analysis, combined features, feature fusion, vision research, specialized models, material purity detection, flat surface detection, natural object detection, material composition analysis, computer vision demo, vision demonstration platform
 
 ## Overview
 
 This web application is a **demonstration platform** for **spatiotemporal detection** and **material classification** that showcases the benefits of combining **spatial** (geometric/positional) and **structural** (material/compositional) features for computer vision tasks. The application emphasizes that relying solely on spatially resolved images has limitations, and demonstrates how incorporating structural information improves detection and classification capabilities.
+
+**Research by**: Deborah Akuoko Ewurama Minka (The University of Edinburgh)  
+**Technology**: SPAD (Single Photon Avalanche Diode) sensors for machine vision and computer vision applications
 
 **Search Terms**: spatiotemporal object detection, material classification system, combined spatial and structural features, multi-modal computer vision, YOLOv3 custom model, YOLOv8 custom model, DINOv3 custom model, material detection head, material property classification, vision system with material analysis, SPAD-based vision, spatiotemporal vision processing
 
@@ -169,7 +183,6 @@ See repository for license information.
 
 <!-- Hidden SEO Section (invisible to users, searchable by engines) -->
 <div style="display: none;">
-<!-- Add your custom hidden keywords here - they will be indexed by search engines but not visible to users -->
-<!-- Example format: keyword1 keyword2 keyword3 -->
-<!-- Replace this comment with your own keywords -->
+<!-- Author and Research Keywords -->
+Deborah Akuoko, Deborah Akuoko Ewurama Minka, Edinburgh University, The University of Edinburgh, SPAD sensors, Single Photon Avalanche Diode, machine vision, computer vision, machine intelligence, artificial intelligence, deborah akuoko research, deborah akuoko ewurama minka computer vision, edinburgh university computer vision research, SPAD vision systems, single photon avalanche diode vision, machine vision systems, computer vision research edinburgh, deborah akuoko edinburgh, akuoko ewurama minka, deborah akuoko machine learning, deborah akuoko artificial intelligence
 </div>

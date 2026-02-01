@@ -6,6 +6,44 @@
     <title>{% block title %}MV+{% endblock %}</title>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
     
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="SPAD for Vision - Spatiotemporal Detection & Material Classification by Deborah Akuoko Ewurama Minka, The University of Edinburgh. Computer vision research using SPAD sensors, single photon avalanche diode, machine vision, and machine intelligence.">
+    <meta name="keywords" content="Deborah Akuoko, Deborah Akuoko Ewurama Minka, Edinburgh University, SPAD sensors, single photon avalanche diode, machine vision, computer vision, machine intelligence, artificial intelligence, spatiotemporal detection, material classification, object detection, YOLOv3, YOLOv8, DINOv3, PyTorch, deep learning">
+    <meta name="author" content="Deborah Akuoko Ewurama Minka">
+    <meta name="institution" content="The University of Edinburgh">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="SPAD for Vision - Deborah Akuoko Ewurama Minka | Edinburgh University">
+    <meta property="og:description" content="Computer vision research using SPAD sensors, single photon avalanche diode, machine vision, and machine intelligence. Spatiotemporal detection and material classification.">
+    <meta property="og:site_name" content="SPAD for Vision">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="SPAD for Vision - Deborah Akuoko Ewurama Minka | Edinburgh University">
+    <meta name="twitter:description" content="Computer vision research using SPAD sensors, single photon avalanche diode, machine vision, and machine intelligence.">
+    
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "SPAD for Vision",
+      "description": "Spatiotemporal Detection & Material Classification using SPAD sensors and computer vision",
+      "applicationCategory": "Research Software",
+      "author": {
+        "@type": "Person",
+        "name": "Deborah Akuoko Ewurama Minka",
+        "affiliation": {
+          "@type": "Organization",
+          "name": "The University of Edinburgh"
+        }
+      },
+      "keywords": "Deborah Akuoko, Deborah Akuoko Ewurama Minka, Edinburgh University, SPAD sensors, single photon avalanche diode, machine vision, computer vision, machine intelligence, artificial intelligence, spatiotemporal detection, material classification"
+    }
+    </script>
+    
     <!-- Critical inline CSS to prevent white flash - MUST be first -->
     <style>
         /* Prevent FOUC (Flash of Unstyled Content) - Maximum aggressive approach */
