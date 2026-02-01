@@ -9,3 +9,4 @@ torchvision==0.15.2
 python-dotenv==1.0.0
 huggingface_hub>=0.20.0
 markdown>=3.4.0
+scikit-learn>=1.0.0
