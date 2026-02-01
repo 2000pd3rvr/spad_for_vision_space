@@ -270,6 +270,18 @@
     .image-controls {
         margin-bottom: 15px;
         display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        overflow: hidden !important;
+    }
+    
+    #imageControls {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        overflow: hidden !important;
     }
 
     .control-group {
@@ -1306,6 +1318,16 @@
     }
 
     function enableModelSelection() {
+        // Explicitly hide image controls
+        const imageControls = document.getElementById('imageControls');
+        if (imageControls) {
+            imageControls.style.display = 'none';
+            imageControls.style.visibility = 'hidden';
+            imageControls.style.opacity = '0';
+            imageControls.style.height = '0';
+            imageControls.style.overflow = 'hidden';
+        }
+        
         const modelSelect = document.getElementById('modelSelect');
         modelSelect.disabled = false;
         loadModelWeights();
@@ -1945,28 +1967,47 @@
         console.log('DEBUG: detections length:', data.detections ? data.detections.length : 0);
         
         // Always show top3_predictions regardless of detections
-        if (data.top3_predictions && data.top3_predictions.length >= 1 && data.top3_predictions[0].class !== 'none') {
-            prediction1.textContent = `1. ${data.top3_predictions[0].class}: ${(data.top3_predictions[0].probability * 100).toFixed(2)}%`;
-            console.log('DEBUG: Set prediction1 to:', prediction1.textContent);
+        // Check if predictions exist and have valid classes (not 'none' or empty)
+        if (data.top3_predictions && data.top3_predictions.length >= 1) {
+            const pred1 = data.top3_predictions[0];
+            if (pred1 && pred1.class && pred1.class !== 'none' && pred1.class.trim() !== '') {
+                prediction1.textContent = `1. ${pred1.class}: ${(pred1.probability * 100).toFixed(2)}%`;
+                console.log('DEBUG: Set prediction1 to:', prediction1.textContent);
+            } else {
+                prediction1.textContent = '1. -';
+                console.log('DEBUG: Set prediction1 to dash (invalid class)');
+            }
         } else {
             prediction1.textContent = '1. -';
-            console.log('DEBUG: Set prediction1 to dash');
+            console.log('DEBUG: Set prediction1 to dash (no predictions)');
         }
         
-        if (data.top3_predictions && data.top3_predictions.length >= 2 && data.top3_predictions[1].class !== 'none') {
-            prediction2.textContent = `2. ${data.top3_predictions[1].class}: ${(data.top3_predictions[1].probability * 100).toFixed(2)}%`;
-            console.log('DEBUG: Set prediction2 to:', prediction2.textContent);
+        if (data.top3_predictions && data.top3_predictions.length >= 2) {
+            const pred2 = data.top3_predictions[1];
+            if (pred2 && pred2.class && pred2.class !== 'none' && pred2.class.trim() !== '') {
+                prediction2.textContent = `2. ${pred2.class}: ${(pred2.probability * 100).toFixed(2)}%`;
+                console.log('DEBUG: Set prediction2 to:', prediction2.textContent);
+            } else {
+                prediction2.textContent = '2. -';
+                console.log('DEBUG: Set prediction2 to dash (invalid class)');
+            }
         } else {
             prediction2.textContent = '2. -';
-            console.log('DEBUG: Set prediction2 to dash');
+            console.log('DEBUG: Set prediction2 to dash (no predictions)');
         }
         
-        if (data.top3_predictions && data.top3_predictions.length >= 3 && data.top3_predictions[2].class !== 'none') {
-            prediction3.textContent = `3. ${data.top3_predictions[2].class}: ${(data.top3_predictions[2].probability * 100).toFixed(2)}%`;
-            console.log('DEBUG: Set prediction3 to:', prediction3.textContent);
+        if (data.top3_predictions && data.top3_predictions.length >= 3) {
+            const pred3 = data.top3_predictions[2];
+            if (pred3 && pred3.class && pred3.class !== 'none' && pred3.class.trim() !== '') {
+                prediction3.textContent = `3. ${pred3.class}: ${(pred3.probability * 100).toFixed(2)}%`;
+                console.log('DEBUG: Set prediction3 to:', prediction3.textContent);
+            } else {
+                prediction3.textContent = '3. -';
+                console.log('DEBUG: Set prediction3 to dash (invalid class)');
+            }
         } else {
             prediction3.textContent = '3. -';
-            console.log('DEBUG: Set prediction3 to dash');
+            console.log('DEBUG: Set prediction3 to dash (no predictions)');
         }
         
         // Store all_predictions for expand/collapse functionality
