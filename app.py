@@ -750,10 +750,10 @@ def api_fluid_purity_weights():
                 if not existing:
                     weights.append({
                         "filename": filename,
-                    "path": weight_file,  # Use local path
-                    "display_name": display_name,
-                    "accuracy": accuracy,
-                    "epoch": epoch,
+                        "path": weight_file,  # Use local path
+                        "display_name": display_name,
+                        "accuracy": accuracy,
+                        "epoch": epoch,
                         "weight_type": weight_type,
                         "source": "local"
                 })
@@ -860,10 +860,10 @@ def api_material_detection_head_weights():
                 if not existing:
                     weights.append({
                         "filename": filename,
-                    "path": weight_file,  # Use local path
-                    "display_name": display_name,
-                    "accuracy": accuracy,
-                    "epoch": epoch,
+                        "path": weight_file,  # Use local path
+                        "display_name": display_name,
+                        "accuracy": accuracy,
+                        "epoch": epoch,
                         "weight_type": weight_type,
                         "source": "local"
                 })
@@ -1977,8 +1977,8 @@ def api_yolov8_custom_weights():
                 if not existing:
                     yolov8_weights.append({
                         "filename": filename,
-                    "path": weight_file,
-                    "display_name": display_name,
+                        "path": weight_file,
+                        "display_name": display_name,
                         "weight_type": weight_type,
                         "source": "local"
                 })
@@ -2090,10 +2090,10 @@ def api_dinov3_weights():
                 if not existing:
                     dinov3_weights.append({
                         "filename": filename,
-                    "path": weight_file,
-                    "display_name": display_name,
-                    "weight_type": weight_type,
-                    "epoch": epoch,
+                        "path": weight_file,
+                        "display_name": display_name,
+                        "weight_type": weight_type,
+                        "epoch": epoch,
                         "accuracy": accuracy,
                         "source": "local"
                 })
@@ -2458,7 +2458,7 @@ def api_detect_yolov8_custom():
             # Load the YOLOv8 model using Ultralytics
             # Handle potential DFLoss attribute errors from version mismatches
             try:
-            model = YOLO(weight_path)
+                model = YOLO(weight_path)
                 debug_print(f"DEBUG: YOLOv8 model loaded successfully")
             except (AttributeError, ImportError, RuntimeError) as model_load_error:
                 error_msg = str(model_load_error)
