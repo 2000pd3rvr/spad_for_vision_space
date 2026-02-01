@@ -182,6 +182,69 @@ def demos():
     stats = get_visitor_stats()
     return render_template("demos.html", stats=stats)
 
+@app.route("/articles")
+def articles():
+    """Display list of articles"""
+    visitor_ip = request.environ.get("HTTP_X_FORWARDED_FOR", request.remote_addr)
+    log_visitor(visitor_ip)
+    stats = get_visitor_stats()
+    
+    # List available articles
+    articles_dir = os.path.join(BASE_DIR, "articles")
+    articles_list = []
+    
+    if os.path.exists(articles_dir):
+        for filename in os.listdir(articles_dir):
+            if filename.endswith('.md'):
+                article_name = filename.replace('.md', '').replace('_', ' ').title()
+                articles_list.append({
+                    'filename': filename,
+                    'name': article_name,
+                    'url': f"/articles/{filename.replace('.md', '')}"
+                })
+    
+    return render_template("articles.html", articles=articles_list, stats=stats)
+
+@app.route("/articles/<article_name>")
+def article_detail(article_name):
+    """Display a specific article"""
+    visitor_ip = request.environ.get("HTTP_X_FORWARDED_FOR", request.remote_addr)
+    log_visitor(visitor_ip)
+    stats = get_visitor_stats()
+    
+    # Read markdown file
+    articles_dir = os.path.join(BASE_DIR, "articles")
+    article_path = os.path.join(articles_dir, f"{article_name}.md")
+    
+    if not os.path.exists(article_path):
+        return render_template("article_not_found.html", article_name=article_name, stats=stats), 404
+    
+    # Read and parse markdown
+    try:
+        import markdown
+        with open(article_path, 'r', encoding='utf-8') as f:
+            markdown_content = f.read()
+        
+        # Convert markdown to HTML
+        html_content = markdown.markdown(markdown_content, extensions=['extra', 'codehilite'])
+    except ImportError:
+        # Fallback if markdown not available
+        with open(article_path, 'r', encoding='utf-8') as f:
+            markdown_content = f.read()
+        html_content = f"<pre>{markdown_content}</pre>"
+    
+    # Extract title from first line if it's a heading
+    title = article_name.replace('_', ' ').title()
+    if markdown_content.startswith('#'):
+        first_line = markdown_content.split('\n')[0]
+        title = first_line.replace('#', '').strip()
+    
+    return render_template("article_detail.html", 
+                         title=title, 
+                         content=html_content, 
+                         markdown_content=markdown_content,
+                         stats=stats)
+
 @app.route("/dinov3_demo")
 def dinov3_demo():
     visitor_ip = request.environ.get("HTTP_X_FORWARDED_FOR", request.remote_addr)

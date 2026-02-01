@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Article Not Found - MV+{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 900px; margin: 40px auto; padding: 20px; text-align: center;">
+    <h1 style="color: #00CED1; margin-bottom: 20px;">Article Not Found</h1>
+    <p style="color: #e0e0e0; font-size: 1.1em; margin-bottom: 30px;">
+        The article "{{ article_name }}" could not be found.
+    </p>
+    <a href="/articles" style="color: #00CED1; text-decoration: none; font-size: 1.1em;">
+        ← Back to Articles
+    </a>
+</div>
+{% endblock %}
+
