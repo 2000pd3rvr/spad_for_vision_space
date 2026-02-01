@@ -748,8 +748,7 @@ def api_fluid_purity_weights():
                 # Check if this weight is already in the list from Hub
                 existing = next((w for w in weights if w['filename'] == filename), None)
                 if not existing:
-                    if not existing:
-                        weights.append({
+                if not existing:
                     "filename": filename,
                     "path": weight_file,  # Use local path
                     "display_name": display_name,
@@ -860,7 +859,6 @@ def api_material_detection_head_weights():
                 existing = next((w for w in weights if w['filename'] == filename), None)
                 if not existing:
                 if not existing:
-                    weights.append({
                     "filename": filename,
                     "path": weight_file,  # Use local path
                     "display_name": display_name,
@@ -1868,7 +1866,6 @@ def api_yolov3_weights():
                 existing = next((w for w in yolov3_weights if w['filename'] == filename), None)
                 if not existing:
                 if not existing:
-                    yolov3_weights.append({
                     "filename": filename,
                     "path": weight_file,
                     "display_name": display_name,
@@ -1979,7 +1976,6 @@ def api_yolov8_custom_weights():
                 existing = next((w for w in yolov8_weights if w['filename'] == filename), None)
                 if not existing:
                 if not existing:
-                    yolov8_weights.append({
                     "filename": filename,
                     "path": weight_file,
                     "display_name": display_name,
@@ -2093,7 +2089,6 @@ def api_dinov3_weights():
                 existing = next((w for w in dinov3_weights if w['filename'] == filename), None)
                 if not existing:
                 if not existing:
-                    dinov3_weights.append({
                     "filename": filename,
                     "path": weight_file,
                     "display_name": display_name,
