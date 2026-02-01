@@ -262,10 +262,9 @@ body {
 }
 
 .main-content {
-    margin-top: 70px !important; /* Navbar (70px) only - banner is at bottom */
+    margin-top: 70px !important; /* Navbar (70px) only */
     min-height: calc(100vh - 70px) !important;
     padding: 1rem 0 !important;
-    padding-bottom: 60px !important; /* Space for bottom banner */
     overflow-y: visible !important;
     display: flex !important;
     flex-direction: column !important;
