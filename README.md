@@ -23,6 +23,11 @@ tags:
   - computer-vision-demo
 ---
 
+<!-- SEO Keywords (hidden from view but searchable by engines): 
+spatiotemporal detection material classification object detection computer vision YOLOv3 YOLOv8 DINOv3 SPAD vision spatial features structural features multi-modal fusion material detection vision systems deep learning PyTorch Flask web app STO files spatiotemporal object detection material property classification custom vision models domain-specific models quality control vision food safety detection material verification structural analysis spatial analysis combined features feature fusion vision research specialized models material purity detection flat surface detection natural object detection material composition analysis computer vision demo vision demonstration platform machine learning artificial intelligence neural networks convolutional neural networks CNN image processing computer vision applications industrial vision quality assurance automated inspection material science vision technology research demonstration multi-sensor fusion temporal analysis spatial-temporal processing material identification object recognition scene understanding semantic segmentation instance segmentation bounding box detection material properties material characteristics surface analysis texture analysis pattern recognition feature extraction feature engineering model inference real-time processing batch processing image classification object localization material science computer vision deep learning models transfer learning fine-tuning custom datasets domain adaptation specialized computer vision applications -->
+
+<!-- Additional Hidden Keywords: Add your custom keywords here (they will be indexed by search engines but not visible to users) -->
+
 # SPAD for Vision - Demonstrating Combined Spatial and Structural Features
 
 **Keywords**: spatiotemporal detection, material classification, object detection, computer vision, YOLOv3, YOLOv8, DINOv3, SPAD vision, spatial features, structural features, multi-modal fusion, material detection, vision systems, deep learning, PyTorch, Flask web app, STO files, spatiotemporal object detection, material property classification, custom vision models, domain-specific models, quality control vision, food safety detection, material verification, structural analysis, spatial analysis, combined features, feature fusion, vision research, specialized models, material purity detection, flat surface detection, natural object detection, material composition analysis, computer vision demo, vision demonstration platform
@@ -161,3 +166,10 @@ This repository and application are optimized for discovery through search terms
 ## License
 
 See repository for license information.
+
+<!-- Hidden SEO Section (invisible to users, searchable by engines) -->
+<div style="display: none;">
+<!-- Add your custom hidden keywords here - they will be indexed by search engines but not visible to users -->
+<!-- Example format: keyword1 keyword2 keyword3 -->
+<!-- Replace this comment with your own keywords -->
+</div>
