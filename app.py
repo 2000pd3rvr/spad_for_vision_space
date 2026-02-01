@@ -2788,19 +2788,14 @@ def api_detect_yolov3():
                 print(f"DEBUG: Warning - checkpoint import error (may be from old module path): {e}")
                 # Try loading with pickle to bypass module imports
                 import pickle
-                import io
                 with open(weight_path, 'rb') as f:
-                    # Use custom unpickler that ignores persistent IDs
-                    unpickler = pickle.Unpickler(f)
-                    # Override persistent_load to return None for unknown modules
-                    original_persistent_load = unpickler.persistent_load
-                    def safe_persistent_load(pid):
-                        try:
-                            return original_persistent_load(pid)
-                        except:
-                            return None
-                    unpickler.persistent_load = safe_persistent_load
-                    ckpt = unpickler.load()
+                    # Load with pickle, ignoring any module import errors
+                    try:
+                        ckpt = pickle.load(f)
+                    except Exception as pickle_error:
+                        print(f"DEBUG: Pickle load also failed: {pickle_error}")
+                        # Last resort: try loading just the state dict
+                        raise ValueError(f"Failed to load checkpoint: {e}. Original error: {pickle_error}")
             print(f"DEBUG: Custom checkpoint keys: {list(ckpt.keys())}")
             
             # Try to extract fitness score from checkpoint or filename
