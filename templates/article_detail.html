@@ -5,19 +5,19 @@
 {% block content %}
 <div class="container" style="max-width: 900px; margin: 40px auto; padding: 20px;">
     <div style="margin-bottom: 30px;">
-        <a href="/articles" style="color: #00CED1; text-decoration: none; font-size: 0.9em;">
+        <a href="/articles" style="color: #B91D30; text-decoration: none; font-size: 0.9em;">
             ← Back to Articles
         </a>
     </div>
     
-    <article style="background: rgba(0, 206, 209, 0.05); border: 1px solid rgba(0, 206, 209, 0.3); border-radius: 10px; padding: 40px; line-height: 1.8;">
+    <article style="background: rgba(26, 26, 26, 0.4); border: 1px solid rgba(185, 29, 48, 0.3); border-radius: 10px; padding: 40px; line-height: 1.8;">
         <div class="article-content" style="color: #e0e0e0;">
             {{ content|safe }}
         </div>
     </article>
     
     <div style="margin-top: 30px; text-align: center;">
-        <a href="/articles" style="color: #00CED1; text-decoration: none; font-size: 0.9em;">
+        <a href="/articles" style="color: #B91D30; text-decoration: none; font-size: 0.9em;">
             ← Back to Articles
         </a>
     </div>
@@ -25,22 +25,22 @@
 
 <style>
 .article-content h1 {
-    color: #00CED1;
+    color: #B91D30;
     font-size: 2.2em;
     margin-bottom: 20px;
-    border-bottom: 2px solid rgba(0, 206, 209, 0.3);
+    border-bottom: 2px solid rgba(185, 29, 48, 0.3);
     padding-bottom: 10px;
 }
 
 .article-content h2 {
-    color: #00CED1;
+    color: #B91D30;
     font-size: 1.8em;
     margin-top: 30px;
     margin-bottom: 15px;
 }
 
 .article-content h3 {
-    color: #00CED1;
+    color: #B91D30;
     font-size: 1.4em;
     margin-top: 25px;
     margin-bottom: 12px;
@@ -49,6 +49,7 @@
 .article-content p {
     margin-bottom: 15px;
     text-align: justify;
+    color: #e0e0e0;
 }
 
 .article-content ul, .article-content ol {
@@ -58,14 +59,15 @@
 
 .article-content li {
     margin-bottom: 8px;
+    color: #e0e0e0;
 }
 
 .article-content code {
-    background: rgba(0, 206, 209, 0.2);
+    background: rgba(185, 29, 48, 0.2);
     padding: 2px 6px;
     border-radius: 3px;
     font-family: 'Courier New', monospace;
-    color: #00CED1;
+    color: #B91D30;
 }
 
 .article-content pre {
@@ -73,11 +75,11 @@
     padding: 15px;
     border-radius: 5px;
     overflow-x: auto;
-    border-left: 3px solid #00CED1;
+    border-left: 3px solid #B91D30;
 }
 
 .article-content blockquote {
-    border-left: 4px solid #00CED1;
+    border-left: 4px solid #B91D30;
     padding-left: 20px;
     margin-left: 0;
     color: #b0b0b0;
@@ -85,16 +87,16 @@
 }
 
 .article-content strong {
-    color: #00CED1;
+    color: #B91D30;
 }
 
 .article-content a {
-    color: #00CED1;
+    color: #B91D30;
     text-decoration: underline;
 }
 
 .article-content a:hover {
-    color: #00FFFF;
+    color: #d03040;
 }
 </style>
 {% endblock %}
