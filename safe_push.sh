@@ -112,7 +112,8 @@ fi
 # Push changes
 echo ""
 echo "🚀 Pushing to remote..."
-git push -v origin main 2>&1
+# Use the original git push command (not the alias to avoid recursion)
+git -c alias.push= push -v origin main 2>&1
 
 if [ $? -eq 0 ]; then
     echo ""
