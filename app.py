@@ -2772,28 +2772,35 @@ def api_detect_yolov3():
                     'error': f'Failed to import model: {import_error}'
                 }), 500
             
-            # Load checkpoint - handle old module path references
+            # Load checkpoint - handle old module path references (e.g., 'models.yolo')
+            import sys
+            # Create dummy modules to satisfy old checkpoint imports
+            if 'models' not in sys.modules:
+                sys.modules['models'] = type(sys)('models')
+            if 'models.yolo' not in sys.modules:
+                class DummyYOLOModule:
+                    pass
+                sys.modules['models.yolo'] = DummyYOLOModule()
+            
             try:
                 ckpt = torch.load(weight_path, map_location='cpu', weights_only=False)
             except (ModuleNotFoundError, ImportError) as e:
-                # If checkpoint references old module paths, try loading with pickle
+                print(f"DEBUG: Warning - checkpoint import error (may be from old module path): {e}")
+                # Try loading with pickle to bypass module imports
                 import pickle
-                import sys
-                # Temporarily add a dummy models.yolo module to handle old checkpoints
-                class DummyModule:
-                    pass
-                if 'models.yolo' not in sys.modules:
-                    sys.modules['models'] = type(sys)('models')
-                    sys.modules['models.yolo'] = DummyModule()
-                try:
-                    ckpt = torch.load(weight_path, map_location='cpu', weights_only=False)
-                except Exception as e2:
-                    # If that fails, try with pickle_module
-                    import io
-                    with open(weight_path, 'rb') as f:
-                        unpickler = pickle.Unpickler(f)
-                        unpickler.persistent_load = lambda pid: None  # Ignore persistent IDs
-                        ckpt = unpickler.load()
+                import io
+                with open(weight_path, 'rb') as f:
+                    # Use custom unpickler that ignores persistent IDs
+                    unpickler = pickle.Unpickler(f)
+                    # Override persistent_load to return None for unknown modules
+                    original_persistent_load = unpickler.persistent_load
+                    def safe_persistent_load(pid):
+                        try:
+                            return original_persistent_load(pid)
+                        except:
+                            return None
+                    unpickler.persistent_load = safe_persistent_load
+                    ckpt = unpickler.load()
             print(f"DEBUG: Custom checkpoint keys: {list(ckpt.keys())}")
             
             # Try to extract fitness score from checkpoint or filename
