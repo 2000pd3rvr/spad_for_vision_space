@@ -3473,13 +3473,20 @@ def download_model_from_hub(hub_path):
             return hub_path if os.path.exists(hub_path) else None
         
         # Parse Hub path: hub://repo_id/path/to/file
-        parts = hub_path.replace('hub://', '').split('/', 1)
-        if len(parts) != 2:
-            print(f"Invalid Hub path format: {hub_path}")
+        # Repo ID can contain slashes (e.g., "mvplus/yolov3"), so we need to find the last part
+        path_without_prefix = hub_path.replace('hub://', '')
+        
+        # Find the last occurrence of '/' to separate repo_id from file_path
+        # The repo_id is everything before the last '/', file_path is everything after
+        last_slash_idx = path_without_prefix.rfind('/')
+        if last_slash_idx == -1:
+            print(f"Invalid Hub path format (no file path): {hub_path}")
             return None
         
-        repo_id = parts[0]
-        file_path = parts[1]
+        repo_id = path_without_prefix[:last_slash_idx]
+        file_path = path_without_prefix[last_slash_idx + 1:]
+        
+        print(f"DEBUG: Parsed Hub path - repo_id: {repo_id}, file_path: {file_path}")
         
         models_dir = get_models_dir()
         local_file_path = os.path.join(models_dir, file_path)
