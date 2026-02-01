@@ -68,7 +68,7 @@ def init_db():
 
 # Initialize database on startup (with error handling)
 try:
-init_db()
+    init_db()
 except Exception as e:
     print(f"Warning: Database initialization failed (non-critical): {e}")
     # Continue anyway - database will be created on first use
