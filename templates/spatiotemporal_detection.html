@@ -1599,12 +1599,16 @@ let stoIndex1 = null; // Store index 1 from .sto file
 }
 
 function updateDetectButtonState() {
-                const detectBtn = document.getElementById('detectBtn');
-    if (!detectBtn) return;
+    const detectBtn = document.getElementById('detectBtn');
+    if (!detectBtn) {
+        console.log('Detect button not found');
+        return;
+    }
     
     // Check if file is selected
     if (!selectedFile) {
         detectBtn.disabled = true;
+        console.log('Detect button disabled: No file selected');
         return;
     }
     
@@ -1613,20 +1617,23 @@ function updateDetectButtonState() {
     const materialHead = document.getElementById('materialHeadSelect')?.value;
     if (!spatialHead || !materialHead) {
         detectBtn.disabled = true;
-            return;
-        }
+        console.log('Detect button disabled: Heads not selected', { spatialHead, materialHead });
+        return;
+    }
     
     // Check if both weights are selected
     const spatialWeight = document.getElementById('spatialWeightSelect')?.value;
     const materialWeight = document.getElementById('materialWeightSelect')?.value;
     if (!spatialWeight || !materialWeight) {
         detectBtn.disabled = true;
-                    return;
-                }
+        console.log('Detect button disabled: Weights not selected', { spatialWeight, materialWeight });
+        return;
+    }
     
     // All conditions met, enable button
     detectBtn.disabled = false;
-    }
+    console.log('Detect button enabled: All conditions met');
+}
 
     async function loadSpatialWeights(spatialHead) {
         const selectEl = document.getElementById('spatialWeightSelect');
