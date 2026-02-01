@@ -1826,7 +1826,20 @@ body, html {
     font-weight: 600;
     color: #B91D30;
     margin-bottom: 0.5rem;
-    text-align: left;
+}
+
+/* Hide "Other Vision Models" card */
+.demo-card:first-child {
+    display: none !important;
+}
+
+/* Left align "MV+ Vision Models" card */
+.demo-card:last-child {
+    text-align: left !important;
+}
+
+.demo-card:last-child .demo-header {
+    text-align: left !important;
 }
 
 .demo-header p {
