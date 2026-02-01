@@ -748,8 +748,8 @@ def api_fluid_purity_weights():
                 # Check if this weight is already in the list from Hub
                 existing = next((w for w in weights if w['filename'] == filename), None)
                 if not existing:
-                if not existing:
-                    weights.append({
+                    if not existing:
+                        weights.append({
                     "filename": filename,
                     "path": weight_file,  # Use local path
                     "display_name": display_name,
