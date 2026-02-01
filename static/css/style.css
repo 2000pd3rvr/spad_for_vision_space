@@ -12,8 +12,26 @@
 }
 
 /* Hide image controls (rotate, flip, etc.) for all apps */
-.image-controls {
+.image-controls,
+.compact-controls,
+.transform-buttons-compact,
+.status-display,
+.crop-instructions,
+.transform-btn-small,
+.crop-content,
+.crop-container,
+.cropper-container,
+.cropper-view-box,
+.crop-overlay,
+.crop-btn,
+.transform-btn,
+.rotate-btn,
+.flip-btn {
     display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
 }
 
 

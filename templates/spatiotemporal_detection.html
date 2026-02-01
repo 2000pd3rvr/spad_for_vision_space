@@ -2682,7 +2682,18 @@ function updateStoImageDimensions() {
         
         // Show results container
         const resultsContainer = document.getElementById('detectionResultsContainer');
-        if (resultsContainer) resultsContainer.style.display = 'block';
+        if (resultsContainer) {
+            resultsContainer.style.display = 'block';
+            resultsContainer.style.visibility = 'visible';
+            resultsContainer.style.opacity = '1';
+        }
+        
+        // Ensure Performance & Architecture section is visible
+        const perfArchSection = document.querySelector('.performance-stats, .architecture-details, .performance-metrics');
+        if (perfArchSection) {
+            perfArchSection.style.display = 'block';
+            perfArchSection.style.visibility = 'visible';
+        }
 
         // Reset all predictions first
         for (let i = 1; i <= 6; i++) {

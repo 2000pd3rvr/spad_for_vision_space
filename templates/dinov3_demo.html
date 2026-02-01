@@ -1789,6 +1789,21 @@ let currentUploadMode = 'single';
     }
 
     function displayResults(data) {
+        // Ensure detection results container is visible
+        const detectionResultsContainer = document.getElementById('detectionResultsContainer');
+        if (detectionResultsContainer) {
+            detectionResultsContainer.style.display = 'block';
+            detectionResultsContainer.style.visibility = 'visible';
+            detectionResultsContainer.style.opacity = '1';
+        }
+        
+        // Ensure Performance & Architecture section is visible
+        const perfArchSection = document.querySelector('.performance-stats, .architecture-details');
+        if (perfArchSection) {
+            perfArchSection.style.display = 'block';
+            perfArchSection.style.visibility = 'visible';
+        }
+        
         // Update all stat-values from API response
         if (data.inference_time !== undefined) {
             document.getElementById('inferenceTime').textContent = `${data.inference_time.toFixed(1)}ms`;

@@ -1907,6 +1907,15 @@
         const detectionResultsContainer = document.getElementById('detectionResultsContainer');
         if (detectionResultsContainer) {
             detectionResultsContainer.style.display = 'block';
+            detectionResultsContainer.style.visibility = 'visible';
+            detectionResultsContainer.style.opacity = '1';
+        }
+        
+        // Ensure Performance & Architecture section is visible
+        const perfArchSection = document.querySelector('.performance-stats, .architecture-details');
+        if (perfArchSection) {
+            perfArchSection.style.display = 'block';
+            perfArchSection.style.visibility = 'visible';
         }
         
         document.getElementById('inferenceTime').textContent = `${data.inference_time.toFixed(1)}ms`;

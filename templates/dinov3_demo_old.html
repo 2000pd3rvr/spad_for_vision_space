@@ -1452,6 +1452,13 @@
         }
 
         function displayResults(data) {
+            // Ensure Performance & Architecture section is visible
+            const perfArchSection = document.querySelector('.performance-stats, .architecture-details');
+            if (perfArchSection) {
+                perfArchSection.style.display = 'block';
+                perfArchSection.style.visibility = 'visible';
+            }
+            
             // Update performance stats - ensure all fields are updated with null checks
             const inferenceTimeEl = document.getElementById('inferenceTime');
             const architectureEl = document.getElementById('architecture');

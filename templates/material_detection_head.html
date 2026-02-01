@@ -1492,6 +1492,13 @@
     }
 
     function displayResults(data) {
+        // Ensure Performance & Architecture section is visible
+        const perfArchSection = document.querySelector('.performance-stats, .architecture-details, .performance-metrics');
+        if (perfArchSection) {
+            perfArchSection.style.display = 'block';
+            perfArchSection.style.visibility = 'visible';
+        }
+        
         // Update performance metrics - ensure all fields are updated when detect is clicked
         const architectureEl = document.getElementById('architectureValue');
         const inferenceTimeEl = document.getElementById('inferenceTimeValue');

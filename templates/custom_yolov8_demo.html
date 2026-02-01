@@ -1796,6 +1796,21 @@
     }
 
     function displayResults(data) {
+        // Ensure detection results container is visible
+        const detectionResultsContainer = document.getElementById('detectionResultsContainer');
+        if (detectionResultsContainer) {
+            detectionResultsContainer.style.display = 'block';
+            detectionResultsContainer.style.visibility = 'visible';
+            detectionResultsContainer.style.opacity = '1';
+        }
+        
+        // Ensure Performance & Architecture section is visible
+        const perfArchSection = document.querySelector('.performance-stats, .architecture-details');
+        if (perfArchSection) {
+            perfArchSection.style.display = 'block';
+            perfArchSection.style.visibility = 'visible';
+        }
+        
         const modelSelect = document.getElementById('modelSelect');
         if (!modelSelect || !modelSelect.value) {
             return;
