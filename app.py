@@ -3465,7 +3465,11 @@ def list_testimages(app_name, subpath=''):
         print(f"ERROR listing testimages for {app_name}: {e}")
         import traceback
         traceback.print_exc()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'files': []
+        }), 500
 
 @app.route('/api/get_testimage/<app_name>/<path:filename>')
 def get_testimage(app_name, filename):
