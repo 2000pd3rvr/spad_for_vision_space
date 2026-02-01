@@ -272,12 +272,14 @@
         display: none !important;
     }
     
-    /* Ensure model selection is visible */
+    /* Ensure model selection is visible - override inline styles */
     #imageControls {
-        margin-bottom: 25px;
+        margin-bottom: 25px !important;
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
+        height: auto !important;
+        overflow: visible !important;
     }
 
     .control-group {
@@ -2095,14 +2097,19 @@ function updateStoImageDimensions() {
         // Show model selection div after image is uploaded
         const imageControls = document.getElementById('imageControls');
         if (imageControls) {
-            // Remove inline style and use CSS class
-            imageControls.removeAttribute('style');
+            // Force show using inline styles with !important equivalent
+            imageControls.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; height: auto !important; overflow: visible !important; margin-bottom: 25px !important;';
+            // Also set individual properties as fallback
             imageControls.style.display = 'block';
             imageControls.style.visibility = 'visible';
             imageControls.style.opacity = '1';
             imageControls.style.height = 'auto';
             imageControls.style.overflow = 'visible';
+            imageControls.style.marginBottom = '25px';
             console.log('Model selection div shown:', imageControls.style.display);
+            console.log('Model selection div computed style:', window.getComputedStyle(imageControls).display);
+        } else {
+            console.error('ERROR: imageControls element not found!');
         }
         
         // Enable spatial and material head selects after image upload
@@ -2111,10 +2118,14 @@ function updateStoImageDimensions() {
         if (spatialHeadSelect) {
             spatialHeadSelect.disabled = false;
             console.log('Spatial head select enabled');
+        } else {
+            console.error('ERROR: spatialHeadSelect element not found!');
         }
         if (materialHeadSelect) {
             materialHeadSelect.disabled = false;
             console.log('Material head select enabled');
+        } else {
+            console.error('ERROR: materialHeadSelect element not found!');
         }
         
         // Update detect button state (will be disabled until models/weights selected)
