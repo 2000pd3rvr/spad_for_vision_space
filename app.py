@@ -2772,39 +2772,58 @@ def api_detect_yolov3():
                     'error': f'Failed to import model: {import_error}'
                 }), 500
             
-            # Load checkpoint - handle old module path references (e.g., 'models.yolo')
+            # Load checkpoint - handle old module path references (e.g., 'models.yolo', 'models.common')
             import sys
-            # Create dummy modules to satisfy old checkpoint imports
+            import pickle
+            
+            # Create comprehensive dummy module structure to satisfy old checkpoint imports
+            class DummyModule:
+                """Dummy module that can handle any attribute access"""
+                def __getattr__(self, name):
+                    # Return a dummy class for any attribute access
+                    class DummyClass:
+                        def __init__(self, *args, **kwargs):
+                            pass
+                        def __call__(self, *args, **kwargs):
+                            return self
+                        def __getattr__(self, name):
+                            return DummyClass()
+                    return DummyClass
+            
+            # Create models module and all common submodules
             if 'models' not in sys.modules:
-                sys.modules['models'] = type(sys)('models')
-            if 'models.yolo' not in sys.modules:
-                # Create a dummy module that can handle any attribute access
-                class DummyYOLOModule:
-                    """Dummy module to satisfy old checkpoint imports"""
-                    def __getattr__(self, name):
-                        # Return a dummy class for any attribute access (e.g., Model, YOLO, etc.)
-                        class DummyClass:
-                            def __init__(self, *args, **kwargs):
-                                pass
-                            def __call__(self, *args, **kwargs):
-                                return self
-                        return DummyClass
-                sys.modules['models.yolo'] = DummyYOLOModule()
+                sys.modules['models'] = DummyModule()
+            
+            # Create all possible models submodules that might be referenced
+            models_submodules = ['yolo', 'common', 'experimental', 'utils', 'loss', 'head', 'backbone']
+            for submod in models_submodules:
+                module_name = f'models.{submod}'
+                if module_name not in sys.modules:
+                    sys.modules[module_name] = DummyModule()
+            
+            # Custom unpickler that handles persistent IDs
+            class SafeUnpickler(pickle.Unpickler):
+                def persistent_load(self, pid):
+                    # Return None for any persistent ID to bypass module loading
+                    return None
             
             try:
+                # First try normal torch.load
                 ckpt = torch.load(weight_path, map_location='cpu', weights_only=False)
-            except (ModuleNotFoundError, ImportError) as e:
+            except (ModuleNotFoundError, ImportError, AttributeError) as e:
                 print(f"DEBUG: Warning - checkpoint import error (may be from old module path): {e}")
-                # Try loading with pickle to bypass module imports
-                import pickle
-                with open(weight_path, 'rb') as f:
-                    # Load with pickle, ignoring any module import errors
+                # Try loading with custom unpickler
+                try:
+                    with open(weight_path, 'rb') as f:
+                        unpickler = SafeUnpickler(f)
+                        ckpt = unpickler.load()
+                except Exception as pickle_error:
+                    print(f"DEBUG: Safe unpickler also failed: {pickle_error}")
+                    # Last resort: try loading with weights_only=True (if supported)
                     try:
-                        ckpt = pickle.load(f)
-                    except Exception as pickle_error:
-                        print(f"DEBUG: Pickle load also failed: {pickle_error}")
-                        # Last resort: try loading just the state dict
-                        raise ValueError(f"Failed to load checkpoint: {e}. Original error: {pickle_error}")
+                        ckpt = torch.load(weight_path, map_location='cpu', weights_only=True)
+                    except:
+                        raise ValueError(f"Failed to load checkpoint: {e}. Pickle error: {pickle_error}")
             print(f"DEBUG: Custom checkpoint keys: {list(ckpt.keys())}")
             
             # Try to extract fitness score from checkpoint or filename
