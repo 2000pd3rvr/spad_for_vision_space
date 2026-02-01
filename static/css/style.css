@@ -190,10 +190,10 @@ body {
 }
 
 /* Main Content */
-/* Development Banner - HIGHLY VISIBLE */
+/* Development Banner - HIGHLY VISIBLE - AT BOTTOM */
 .dev-banner {
     position: fixed !important;
-    top: 70px !important; /* Below navbar */
+    bottom: 0 !important; /* At bottom of page */
     left: 0 !important;
     right: 0 !important;
     width: 100% !important;
@@ -202,9 +202,9 @@ body {
     color: #ffffff !important;
     padding: 16px 0 !important;
     text-align: center !important;
-    z-index: 1001 !important; /* Above navbar */
-    box-shadow: 0 4px 20px rgba(185, 29, 48, 0.8) !important;
-    border-bottom: 3px solid rgba(255, 255, 255, 0.3) !important;
+    z-index: 1001 !important; /* Above other content */
+    box-shadow: 0 -4px 20px rgba(185, 29, 48, 0.8) !important;
+    border-top: 3px solid rgba(255, 255, 255, 0.3) !important;
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
@@ -247,9 +247,10 @@ body {
 }
 
 .main-content {
-    margin-top: 120px !important; /* Navbar (70px) + Banner (~50px) */
-    min-height: calc(100vh - 120px) !important;
+    margin-top: 70px !important; /* Navbar (70px) only - banner is at bottom */
+    min-height: calc(100vh - 70px) !important;
     padding: 1rem 0 !important;
+    padding-bottom: 60px !important; /* Space for bottom banner */
     overflow-y: visible !important;
     display: flex !important;
     flex-direction: column !important;
