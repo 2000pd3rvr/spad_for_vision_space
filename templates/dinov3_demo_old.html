@@ -1452,12 +1452,28 @@
         }
 
         function displayResults(data) {
-            // Update performance stats
-            document.getElementById('inferenceTime').textContent = `${data.inference_time.toFixed(1)}ms`;
-            document.getElementById('architecture').textContent = data.architecture;
-            document.getElementById('modelSize').textContent = data.model_size;
-            document.getElementById('inputSize').textContent = data.input_size;
-            document.getElementById('batchSize').textContent = data.batch_size;
+            // Update performance stats - ensure all fields are updated with null checks
+            const inferenceTimeEl = document.getElementById('inferenceTime');
+            const architectureEl = document.getElementById('architecture');
+            const modelSizeEl = document.getElementById('modelSize');
+            const inputSizeEl = document.getElementById('inputSize');
+            const batchSizeEl = document.getElementById('batchSize');
+            
+            if (inferenceTimeEl && data.inference_time !== undefined) {
+                inferenceTimeEl.textContent = `${data.inference_time.toFixed(1)}ms`;
+            }
+            if (architectureEl) {
+                architectureEl.textContent = data.architecture || '--';
+            }
+            if (modelSizeEl) {
+                modelSizeEl.textContent = data.model_size || '--';
+            }
+            if (inputSizeEl) {
+                inputSizeEl.textContent = data.input_size || '--';
+            }
+            if (batchSizeEl) {
+                batchSizeEl.textContent = data.batch_size || '--';
+            }
 
             // Display image
             const resultImage = document.getElementById('resultImage');

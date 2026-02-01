@@ -1391,9 +1391,18 @@
     }
 
     function displayResults(data) {
-        // Update performance metrics
-        document.getElementById('architectureValue').textContent = data.architecture || '-';
-        document.getElementById('inferenceTimeValue').textContent = data.inference_time ? `${data.inference_time.toFixed(1)}ms` : '-';
+        // Update performance metrics - ensure all fields are updated when detect is clicked
+        const architectureEl = document.getElementById('architectureValue');
+        const inferenceTimeEl = document.getElementById('inferenceTimeValue');
+        
+        if (architectureEl) {
+            architectureEl.textContent = data.architecture || '-';
+        }
+        if (inferenceTimeEl && data.inference_time !== undefined) {
+            inferenceTimeEl.textContent = `${data.inference_time.toFixed(1)}ms`;
+        } else if (inferenceTimeEl) {
+            inferenceTimeEl.textContent = '-';
+        }
         
         // Update classes display
         console.log('DEBUG: Classes data from API:', data.classes);
