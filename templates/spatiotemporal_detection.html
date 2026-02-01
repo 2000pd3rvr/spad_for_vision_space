@@ -1088,9 +1088,9 @@
                 <div style="display: flex; gap: 20px; align-items: flex-start;">
                     <img id="finalInputPreview" class="result-image" alt="Final input preview" style="display:none;" />
                     <div id="hpWhiteboardContainer" style="display: none; position: relative; align-items: flex-start; gap: 0px;">
-                        <img src="/static/hp.gif" alt="HP" id="hpGifImage" style="max-width: 120px; height: auto; margin-top: 4px; margin-right: 0px;" onerror="this.src=HP_GIF_DATA_URI;" />
+                        <img src="/static/hp.gif" alt="HP" id="hpGifImage" style="max-width: 120px; height: auto; margin-top: 4px; margin-right: 0px;" onerror="if(typeof HP_GIF_DATA_URI !== 'undefined') this.src=HP_GIF_DATA_URI;" />
                         <div style="position: relative;">
-                            <img src="/static/whiteboardi.png" alt="Whiteboard" id="whiteboardImage" style="max-width: 200px; height: auto; margin-left: 0;" onerror="this.src=WHITEBOARD_PNG_DATA_URI;" />
+                            <img src="/static/whiteboardi.png" alt="Whiteboard" id="whiteboardImage" style="max-width: 200px; height: auto; margin-left: 0;" onerror="if(typeof WHITEBOARD_PNG_DATA_URI !== 'undefined') this.src=WHITEBOARD_PNG_DATA_URI;" />
                             <div id="whiteboardCaption" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 10px; text-align: center; width: 80%; white-space: normal; word-wrap: break-word; display: none;">-</div>
                         </div>
                     </div>
