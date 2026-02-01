@@ -2806,7 +2806,11 @@ function updateStoImageDimensions() {
         // Generate whiteboard caption with detected object, material, and random values
         if (whiteboardCaption) {
             // Check if detections lists are empty - check both spatial and material separately
-            const hasSpatialDetections = spatialData && spatialData.detections && spatialData.detections.length > 0;
+            // Use top3_predictions for spatial (same as material) to get the highest confidence prediction
+            const hasSpatialDetections = spatialData && spatialData.top3_predictions && spatialData.top3_predictions.length > 0 && 
+                                         spatialData.top3_predictions[0] && spatialData.top3_predictions[0].class && 
+                                         spatialData.top3_predictions[0].class !== '-' && 
+                                         (spatialData.top3_predictions[0].probability || 0) > 0;
             const hasMaterialDetections = materialData && materialData.top3_predictions && materialData.top3_predictions.length > 0 && 
                                          materialData.top3_predictions[0] && materialData.top3_predictions[0].class && 
                                          materialData.top3_predictions[0].class !== '-';
@@ -2841,8 +2845,9 @@ function updateStoImageDimensions() {
                 caption = `${detectedObject} object detected at ${targetDist}cm.\nNo materials detected.`;
             } else {
                 // Both detected - show full caption
+                // Use the highest confidence prediction (first in top3_predictions)
                 const topSpatial = spatialData.top3_predictions[0];
-                const detectedObject = topSpatial.class;
+                const detectedObject = topSpatial.display_class || topSpatial.class;
                 const topMaterial = materialData.top3_predictions[0];
                 const detectedMaterial = topMaterial.display_class || topMaterial.class;
                 
