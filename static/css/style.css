@@ -208,25 +208,22 @@ body {
 }
 
 /* Main Content */
-/* Development Banner - HIGHLY VISIBLE - AT BOTTOM */
+/* Development Banner - At bottom of page content, above footer */
 .dev-banner {
-    position: fixed !important;
-    bottom: 0 !important; /* At bottom of page */
-    left: 0 !important;
-    right: 0 !important;
+    position: relative !important;
     width: 100% !important;
     background: linear-gradient(90deg, #B91D30 0%, #8B1523 100%) !important;
     background-color: #B91D30 !important;
     color: #ffffff !important;
     padding: 16px 0 !important;
     text-align: center !important;
-    z-index: 1001 !important; /* Above other content */
+    margin-top: 2rem !important;
+    margin-bottom: 0 !important;
     box-shadow: 0 -4px 20px rgba(185, 29, 48, 0.8) !important;
     border-top: 3px solid rgba(255, 255, 255, 0.3) !important;
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
-    margin: 0 !important;
 }
 
 .dev-banner-content {
