@@ -68,7 +68,7 @@ def init_db():
 
 # Initialize database on startup (with error handling)
 try:
-    init_db()
+init_db()
 except Exception as e:
     print(f"Warning: Database initialization failed (non-critical): {e}")
     # Continue anyway - database will be created on first use
@@ -1975,8 +1975,8 @@ def api_yolov8_custom_weights():
                 # Check if this weight is already in the list from Hub
                 existing = next((w for w in yolov8_weights if w['filename'] == filename), None)
                 if not existing:
-                yolov8_weights.append({
-                    "filename": filename,
+                    yolov8_weights.append({
+                        "filename": filename,
                     "path": weight_file,
                     "display_name": display_name,
                         "weight_type": weight_type,
@@ -2088,8 +2088,8 @@ def api_dinov3_weights():
                 # Check if this weight is already in the list from Hub
                 existing = next((w for w in dinov3_weights if w['filename'] == filename), None)
                 if not existing:
-                dinov3_weights.append({
-                    "filename": filename,
+                    dinov3_weights.append({
+                        "filename": filename,
                     "path": weight_file,
                     "display_name": display_name,
                     "weight_type": weight_type,
