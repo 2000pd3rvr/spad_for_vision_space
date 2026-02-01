@@ -437,6 +437,47 @@ def api_stats():
     stats = get_visitor_stats()
     return jsonify(stats)
 
+def fetch_weights_from_hub(repo_id, subfolder=None):
+    """Fetch list of weight files from Hugging Face Hub repository
+    
+    Args:
+        repo_id: Repository ID (e.g., 'mvplus/dinov3')
+        subfolder: Optional subfolder path (None for individual repos)
+    
+    Returns:
+        List of file paths relative to repo root
+    """
+    try:
+        from huggingface_hub import HfApi
+        api = HfApi()
+        
+        # List all files in the repository
+        repo_files = api.list_repo_files(repo_id=repo_id, repo_type="model")
+        
+        # Filter for weight files (.pth, .pt, .ckpt, etc.)
+        weight_extensions = {'.pth', '.pt', '.ckpt', '.h5', '.pb', '.onnx'}
+        weight_files = []
+        
+        for file_path in repo_files:
+            # If subfolder specified, filter by subfolder
+            if subfolder:
+                if file_path.startswith(f"{subfolder}/") or file_path == subfolder:
+                    # Remove subfolder prefix for return value
+                    rel_path = file_path[len(subfolder)+1:] if file_path.startswith(f"{subfolder}/") else file_path
+                    if any(rel_path.lower().endswith(ext) for ext in weight_extensions):
+                        weight_files.append(file_path)  # Keep full path for hub:// format
+            else:
+                # No subfolder - check if it's a weight file in root
+                if any(file_path.lower().endswith(ext) for ext in weight_extensions):
+                    weight_files.append(file_path)
+        
+        return weight_files
+    except Exception as e:
+        print(f"Error fetching weights from Hub {repo_id}: {e}")
+        import traceback
+        traceback.print_exc()
+        return []
+
 @app.route("/api/flat_surface_detection_weights", methods=["GET"])
 def api_flat_surface_detection_weights():
     """API endpoint to get flat surface detection model weights from local directory or Hugging Face Hub"""
@@ -447,8 +488,8 @@ def api_flat_surface_detection_weights():
     try:
         weights = []
         weights_dir = os.path.join(get_models_dir(), "flat_surface")
-        repo_id = "mvplus/spatiotemporal_models"
-        subfolder = "flat_surface"
+        repo_id = MODEL_REPO_MAP.get('flat_surface', 'mvplus/flat_surface')
+        subfolder = None  # Individual repo, no subfolder
         
         # First, try to get weights from Hugging Face Hub
         hub_files = fetch_weights_from_hub(repo_id, subfolder)
@@ -482,7 +523,9 @@ def api_flat_surface_detection_weights():
                 "accuracy": accuracy,
                 "epoch": epoch,
                 "weight_type": weight_type,
-                "source": "hub"
+                "source": "hub",
+                "repo_url": f"https://huggingface.co/{repo_id}",
+                "repo_id": repo_id
             })
         
         # Also check local files
@@ -560,8 +603,8 @@ def api_fluid_purity_weights():
     try:
         weights = []
         weights_dir = os.path.join(get_models_dir(), "material_purity")
-        repo_id = "mvplus/spatiotemporal_models"
-        subfolder = "material_purity"
+        repo_id = MODEL_REPO_MAP.get('material_purity', 'mvplus/material_purity')
+        subfolder = None  # Individual repo, no subfolder
         
         # First, try to get weights from Hugging Face Hub
         hub_files = fetch_weights_from_hub(repo_id, subfolder)
@@ -670,8 +713,8 @@ def api_material_detection_head_weights():
     try:
         weights = []
         weights_dir = os.path.join(get_models_dir(), "material_detection_head")
-        repo_id = "mvplus/spatiotemporal_models"
-        subfolder = "material_detection_head"
+        repo_id = MODEL_REPO_MAP.get('material_detection_head', 'mvplus/material_detection_head')
+        subfolder = None  # Individual repo, no subfolder
         
         # First, try to get weights from Hugging Face Hub
         hub_files = fetch_weights_from_hub(repo_id, subfolder)
@@ -1675,8 +1718,8 @@ def api_yolov3_weights():
         
         yolov3_weights = []
         weights_dir = os.path.join(get_models_dir(), "yolov3")
-        repo_id = "mvplus/spatiotemporal_models"
-        subfolder = "yolov3"
+        repo_id = MODEL_REPO_MAP.get('yolov3', 'mvplus/yolov3')
+        subfolder = None  # Individual repo, no subfolder
         
         # First, try to get weights from Hugging Face Hub
         hub_files = fetch_weights_from_hub(repo_id, subfolder)
@@ -1708,7 +1751,9 @@ def api_yolov3_weights():
                 "path": f"hub://{repo_id}/{hub_file}",
                 "display_name": display_name,
                 "weight_type": weight_type,
-                "source": "hub"
+                "source": "hub",
+                "repo_url": f"https://huggingface.co/{repo_id}",
+                "repo_id": repo_id
             })
         
         # Also check local files
@@ -1759,7 +1804,9 @@ def api_yolov3_weights():
         
         return jsonify({
             'success': True,
-            'weights': yolov3_weights
+            'weights': yolov3_weights,
+            'repo_url': f"https://huggingface.co/{repo_id}",
+            'repo_id': repo_id
         })
     except Exception as e:
         import traceback
@@ -1781,8 +1828,8 @@ def api_yolov8_custom_weights():
     try:
         yolov8_weights = []
         weights_dir = os.path.join(get_models_dir(), "yolov8")
-        repo_id = "mvplus/spatiotemporal_models"
-        subfolder = "yolov8"
+        repo_id = MODEL_REPO_MAP.get('yolov8', 'mvplus/yolov8')
+        subfolder = None  # Individual repo, no subfolder
         
         # First, try to get weights from Hugging Face Hub
         hub_files = fetch_weights_from_hub(repo_id, subfolder)
@@ -1814,7 +1861,9 @@ def api_yolov8_custom_weights():
                 "path": f"hub://{repo_id}/{hub_file}",
                 "display_name": display_name,
                 "weight_type": weight_type,
-                "source": "hub"
+                "source": "hub",
+                "repo_url": f"https://huggingface.co/{repo_id}",
+                "repo_id": repo_id
             })
         
         # Also check local files
@@ -1866,7 +1915,9 @@ def api_yolov8_custom_weights():
         
         return jsonify({
             'success': True,
-            'weights': yolov8_weights
+            'weights': yolov8_weights,
+            'repo_url': f"https://huggingface.co/{repo_id}",
+            'repo_id': repo_id
         })
     except Exception as e:
         import traceback
@@ -1888,8 +1939,8 @@ def api_dinov3_weights():
     try:
         dinov3_weights = []
         weights_dir = os.path.join(get_models_dir(), "dinov3")
-        repo_id = "mvplus/spatiotemporal_models"
-        subfolder = "dinov3"
+        repo_id = MODEL_REPO_MAP.get('dinov3', 'mvplus/dinov3')
+        subfolder = None  # Individual repo, no subfolder
         
         # First, try to get weights from Hugging Face Hub
         hub_files = fetch_weights_from_hub(repo_id, subfolder)
@@ -1920,7 +1971,9 @@ def api_dinov3_weights():
                 "weight_type": weight_type,
                 "epoch": epoch,
                 "accuracy": accuracy,
-                "source": "hub"
+                "source": "hub",
+                "repo_url": f"https://huggingface.co/{repo_id}",
+                "repo_id": repo_id
             })
         
         # Also check local files
@@ -1981,7 +2034,9 @@ def api_dinov3_weights():
         
         return jsonify({
             'success': True,
-            'weights': dinov3_weights
+            'weights': dinov3_weights,
+            'repo_url': f"https://huggingface.co/{repo_id}",
+            'repo_id': repo_id
         })
     except Exception as e:
         import traceback
@@ -3038,6 +3093,28 @@ def api_detect_yolov3():
             'error_type': 'detection_failed'
         }), 500
 
+# Mapping of model types to their Hugging Face repositories
+MODEL_REPO_MAP = {
+    'dinov3': 'mvplus/dinov3',
+    'yolov3': 'mvplus/yolov3',
+    'yolov8': 'mvplus/yolov8',
+    'flat_surface': 'mvplus/flat_surface',
+    'material_purity': 'mvplus/material_purity',
+    'material_detection_head': 'mvplus/material_detection_head',
+    'spatiotemporal': 'mvplus/spatiotemporal'
+}
+
+# Mapping of dataset types to their Hugging Face repositories
+DATASET_REPO_MAP = {
+    'flat_surface_detection': 'mvplus/testmages__flatsurface',
+    'fluid_purity_demo': 'mvplus/testmages__milkpurity',
+    'dinov3_demo': 'mvplus/testmages_dino',
+    'custom_yolov8_demo': 'mvplus/testmages__yolov8',
+    'spatiotemporal_detection': 'mvplus/testmages_spatiotemporal',
+    'detect_yolov3': 'mvplus/testmages__yolov3',
+    'material_detection_head': 'mvplus/val_natural_material_detection'
+}
+
 # Map app names to their testimages directories (datasets is sibling to BASE_DIR)
 # Lazy evaluation of TESTIMAGES_DIRS to avoid issues if directories don't exist at startup
 def get_testimages_dirs():
@@ -3148,6 +3225,10 @@ def list_testimages(app_name, subpath=''):
         else:
             relative_path = ''
         
+        # Get dataset repo URL if available
+        dataset_repo_id = DATASET_REPO_MAP.get(app_name)
+        dataset_repo_url = f"https://huggingface.co/datasets/{dataset_repo_id}" if dataset_repo_id else None
+        
         return jsonify({
             'success': True,
             'app_name': app_name,
@@ -3155,8 +3236,10 @@ def list_testimages(app_name, subpath=''):
             'relative_path': relative_path,
             'items': items,
             'directories': directories,
-            'files': files,
-            'count': len(items)
+            'files': files,  # For backward compatibility
+            'count': len(items),
+            'repo_url': dataset_repo_url,
+            'repo_id': dataset_repo_id
         })
     except Exception as e:
         print(f"ERROR listing testimages for {app_name}: {e}")

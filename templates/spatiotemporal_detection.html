@@ -1270,9 +1270,18 @@ let stoIndex1 = null; // Store index 1 from .sto file
             const response = await fetch('/api/list_testimages/spatiotemporal_detection');
                 const data = await response.json();
                 
-                if (data.success && data.files.length > 0) {
-                    fileBrowserList.innerHTML = '';
-                    data.files.forEach(file => {
+                // Display dataset repo link if available
+                if (data.repo_url) {
+                    const repoLinkDiv = document.createElement('div');
+                    repoLinkDiv.className = 'dataset-repo-link';
+                    repoLinkDiv.style.cssText = 'padding: 10px; margin-bottom: 10px; background: rgba(0, 206, 209, 0.1); border-radius: 5px; border: 1px solid rgba(0, 206, 209, 0.3);';
+                    repoLinkDiv.innerHTML = `<a href="${data.repo_url}" target="_blank" style="color: #00CED1; text-decoration: none; font-size: 0.9em;"><i class="fas fa-external-link-alt"></i> View Dataset on Hugging Face: ${data.repo_id || 'Dataset Repository'}</a>`;
+                    fileBrowserList.appendChild(repoLinkDiv);
+                }
+                
+                if (data.success && (data.files || data.items || []).length > 0) {
+                    const files = data.files || data.items || [];
+                    files.forEach(file => {
                         const fileItem = document.createElement('div');
                         fileItem.className = 'file-browser-item';
                         fileItem.dataset.filename = file.name;
@@ -1645,6 +1654,16 @@ function updateDetectButtonState() {
                 return;
             }
             selectEl.innerHTML = '<option value="">Select weight...</option>';
+            
+            // Display repo link if available
+            if (data.repo_url) {
+                const repoLink = document.createElement('div');
+                repoLink.className = 'repo-link';
+                repoLink.style.cssText = 'margin-top: 5px; font-size: 0.85em; color: #00CED1;';
+                repoLink.innerHTML = `<a href="${data.repo_url}" target="_blank" style="color: #00CED1; text-decoration: none;">📦 View on Hugging Face: ${data.repo_id || 'Model Repository'}</a>`;
+                selectEl.parentElement.appendChild(repoLink);
+            }
+            
             weights.forEach(w => {
                 const path = w.path || w.weight_path || w.file || '';
                 const display = w.display_name || w.name || w.label || (w.path ? w.path.split('/').pop() : path.split('/').pop());
@@ -1682,6 +1701,16 @@ function updateDetectButtonState() {
                     return;
                 }
                 sel.innerHTML = '<option value="">Select a weight...</option>';
+                
+                // Display repo link if available
+                if (data.repo_url) {
+                    const repoLink = document.createElement('div');
+                    repoLink.className = 'repo-link';
+                    repoLink.style.cssText = 'margin-top: 5px; font-size: 0.85em; color: #00CED1;';
+                    repoLink.innerHTML = `<a href="${data.repo_url}" target="_blank" style="color: #00CED1; text-decoration: none;">📦 View on Hugging Face: ${data.repo_id || 'Model Repository'}</a>`;
+                    sel.parentElement.appendChild(repoLink);
+                }
+                
                 weights.forEach(w => {
                     const opt = document.createElement('option');
                     opt.value = w.path || '';
