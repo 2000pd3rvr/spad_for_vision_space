@@ -122,6 +122,56 @@
 
     </div>
     <script>
+        // Suppress SSE-related errors from Hugging Face UI components
+        (function() {
+            // Override console.error to filter out SSE-related errors
+            const originalConsoleError = console.error;
+            console.error = function(...args) {
+                const errorMessage = args.join(' ');
+                // Suppress SSE-related errors from Hugging Face UI
+                if (errorMessage.includes('SSE') || 
+                    errorMessage.includes('Server-Sent Events') ||
+                    errorMessage.includes('Space status') ||
+                    errorMessage.includes('Error in input stream') ||
+                    errorMessage.includes('SSE Stream ended') ||
+                    errorMessage.includes('SpaceHeader') ||
+                    errorMessage.match(/index\.js.*SSE/i)) {
+                    // Silently ignore these errors
+                    return;
+                }
+                // Call original console.error for other errors
+                originalConsoleError.apply(console, args);
+            };
+
+            // Handle unhandled promise rejections related to SSE
+            window.addEventListener('unhandledrejection', function(event) {
+                const errorMessage = event.reason?.message || String(event.reason || '');
+                if (errorMessage.includes('SSE') || 
+                    errorMessage.includes('Server-Sent Events') ||
+                    errorMessage.includes('Space status') ||
+                    errorMessage.includes('Error in input stream') ||
+                    errorMessage.includes('SSE Stream ended')) {
+                    event.preventDefault(); // Suppress the error
+                    return;
+                }
+            });
+
+            // Handle general errors related to SSE
+            window.addEventListener('error', function(event) {
+                const errorMessage = event.message || String(event.error || '');
+                if (errorMessage.includes('SSE') || 
+                    errorMessage.includes('Server-Sent Events') ||
+                    errorMessage.includes('Space status') ||
+                    errorMessage.includes('Error in input stream') ||
+                    errorMessage.includes('SSE Stream ended') ||
+                    event.filename?.includes('SpaceHeader') ||
+                    event.filename?.includes('index.js')) {
+                    event.preventDefault(); // Suppress the error
+                    return false;
+                }
+            }, true);
+        })();
+
         // Prevent white flash during page transitions
         (function() {
             // Set background immediately, even before DOM is ready
