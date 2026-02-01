@@ -2266,10 +2266,10 @@ def api_detect_dinov3():
                     # Use default names if we have the right number, otherwise use generic
                     if num_classes <= len(DEFAULT_CLASS_NAMES_ALPHABETICAL):
                         class_names = DEFAULT_CLASS_NAMES_ALPHABETICAL[:num_classes]
-                        print(f"DEBUG: Using alphabetical default class names for DINOv3: {class_names}")
+                        debug_print(f"DEBUG: Using alphabetical default class names for DINOv3: {class_names}")
                     else:
-                    class_names = [f'class_{i}' for i in range(num_classes)]
-                    print(f"DEBUG: Warning - using generic class names: {class_names}")
+                        class_names = [f'class_{i}' for i in range(num_classes)]
+                        debug_print(f"DEBUG: Warning - using generic class names: {class_names}")
             
             # Ensure class_names length matches num_classes
             if len(class_names) != num_classes:
