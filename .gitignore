@@ -111,3 +111,8 @@ Thumbs.db
 
 # Hidden SEO keywords file (should not be visible)
 .keywords
+
+# Deployment and utility scripts (may contain sensitive info)
+safe_push.sh
+safepush.sh
+push_to_hf_after_rate_limit.sh
