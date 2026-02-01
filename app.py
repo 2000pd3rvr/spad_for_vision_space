@@ -2772,8 +2772,28 @@ def api_detect_yolov3():
                     'error': f'Failed to import model: {import_error}'
                 }), 500
             
-            # Load checkpoint
-            ckpt = torch.load(weight_path, map_location='cpu')
+            # Load checkpoint - handle old module path references
+            try:
+                ckpt = torch.load(weight_path, map_location='cpu', weights_only=False)
+            except (ModuleNotFoundError, ImportError) as e:
+                # If checkpoint references old module paths, try loading with pickle
+                import pickle
+                import sys
+                # Temporarily add a dummy models.yolo module to handle old checkpoints
+                class DummyModule:
+                    pass
+                if 'models.yolo' not in sys.modules:
+                    sys.modules['models'] = type(sys)('models')
+                    sys.modules['models.yolo'] = DummyModule()
+                try:
+                    ckpt = torch.load(weight_path, map_location='cpu', weights_only=False)
+                except Exception as e2:
+                    # If that fails, try with pickle_module
+                    import io
+                    with open(weight_path, 'rb') as f:
+                        unpickler = pickle.Unpickler(f)
+                        unpickler.persistent_load = lambda pid: None  # Ignore persistent IDs
+                        ckpt = unpickler.load()
             print(f"DEBUG: Custom checkpoint keys: {list(ckpt.keys())}")
             
             # Try to extract fitness score from checkpoint or filename
