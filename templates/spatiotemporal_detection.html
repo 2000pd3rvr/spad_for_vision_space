@@ -2472,9 +2472,12 @@ function updateStoImageDimensions() {
             return;
         }
 
-        // Check if .sto file is selected
-        if (!originalStoFile || !stoIndex0 || !stoIndex1) {
-            showMessage('Please upload a .sto file for spatiotemporal detection', 'error');
+        // Check if image is selected (either STO file or regular image)
+        const isStoFile = originalStoFile && stoIndex0 && stoIndex1;
+        const isRegularImage = selectedFile && !selectedFile.name.toLowerCase().endsWith('.sto');
+        
+        if (!isStoFile && !isRegularImage) {
+            showMessage('Please select an image file', 'error');
             return;
         }
 
@@ -2529,8 +2532,7 @@ function updateStoImageDimensions() {
         } catch (e) {}
 
         try {
-            // 1) Material detection request - use index 1 (16x16 material detection image) from STO file
-            // Note: stoIndex0 comes from /api/extract_sto_index0 which extracts index 1 from the STO file
+            // 1) Material detection request
             const matForm = new FormData();
             matForm.append('weight_path', materialWeight);
             
@@ -2538,25 +2540,35 @@ function updateStoImageDimensions() {
             console.log('DEBUG: Sending material detection request');
             console.log('DEBUG: Material head:', materialHead);
             console.log('DEBUG: Material weight path:', materialWeight);
-            console.log('DEBUG: Using stoIndex0 (which contains index 1 from STO: 16x16 material detection image)');
             
-            // Convert base64 image to blob for material detection (index 1 from STO, stored in stoIndex0)
-            const base64Data0 = stoIndex0.split(',')[1] || stoIndex0;
-            const byteCharacters0 = atob(base64Data0);
-            const byteNumbers0 = new Array(byteCharacters0.length);
-            for (let i = 0; i < byteCharacters0.length; i++) {
-                byteNumbers0[i] = byteCharacters0.charCodeAt(i);
-            }
-            const byteArray0 = new Uint8Array(byteNumbers0);
-            const blob0 = new Blob([byteArray0], { type: 'image/png' });
-            const index0File = new File([blob0], 'index0_material.png', { type: 'image/png' });
+            // Use STO index 0 (which contains index 1 from STO: 16x16 material detection image) if available,
+            // otherwise use the selected regular image
+            if (isStoFile && stoIndex0) {
+                console.log('DEBUG: Using stoIndex0 (which contains index 1 from STO: 16x16 material detection image)');
+                // Convert base64 image to blob for material detection (index 1 from STO, stored in stoIndex0)
+                const base64Data0 = stoIndex0.split(',')[1] || stoIndex0;
+                const byteCharacters0 = atob(base64Data0);
+                const byteNumbers0 = new Array(byteCharacters0.length);
+                for (let i = 0; i < byteCharacters0.length; i++) {
+                    byteNumbers0[i] = byteCharacters0.charCodeAt(i);
+                }
+                const byteArray0 = new Uint8Array(byteNumbers0);
+                const blob0 = new Blob([byteArray0], { type: 'image/png' });
+                const index0File = new File([blob0], 'index0_material.png', { type: 'image/png' });
                 matForm.append('file', index0File);
+            } else if (isRegularImage && selectedFile) {
+                console.log('DEBUG: Using regular image for material detection:', selectedFile.name);
+                matForm.append('file', selectedFile);
+            } else {
+                showMessage('No image available for material detection', 'error');
+                return;
+            }
                 
             const matReq = fetch('/api/detect_material_head', { method: 'POST', body: matForm })
                 .then(r => r.json())
                 .catch(e => ({ success: false, error: String(e) }));
 
-            // 2) Spatial object detection request - use index 1 with transformations applied
+            // 2) Spatial object detection request
             let spatialEndpoint = '';
             if (spatialHead === 'yolov3_custom') spatialEndpoint = '/api/detect_yolov3';
             else if (spatialHead === 'yolov8_custom') spatialEndpoint = '/api/detect_yolov8_custom';
@@ -2571,7 +2583,7 @@ function updateStoImageDimensions() {
             console.log('DEBUG: Spatial weight path:', spatialWeight);
             console.log('DEBUG: Spatial endpoint:', spatialEndpoint);
             
-            // Get the current canvas image (index 1 with transformations applied)
+            // Get the current canvas image (with transformations applied)
             const imageCanvas = document.getElementById('imagePreview');
             let spatialImageData;
             
@@ -2595,7 +2607,8 @@ function updateStoImageDimensions() {
             // Convert data URL to blob for spatial detection
             const spatialImageResponse = await fetch(spatialImageData);
             const spatialBlob = await spatialImageResponse.blob();
-            spaForm.append('file', spatialBlob, 'spatial_index1.png');
+            const spatialFileName = isStoFile ? 'spatial_index1.png' : selectedFile.name;
+            spaForm.append('file', spatialBlob, spatialFileName);
             
             // Display transformed spatial input preview
                 const finalImg = document.getElementById('finalInputPreview');
@@ -2638,7 +2651,7 @@ function updateStoImageDimensions() {
             // Update results and metrics
             displayResultsCombined(matRes, spaRes);
             
-            // Update input file metrics - use original .sto file if available
+            // Update input file metrics - use original .sto file if available, otherwise use selected file
             if (originalStoFile) {
                 updateFileMetrics(originalStoFile);
             } else if (selectedFile) {
