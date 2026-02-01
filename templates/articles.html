@@ -7,12 +7,12 @@
     {% if articles %}
     <div class="articles-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 30px;">
         {% for article in articles %}
-        <div class="article-card" style="background: #000000; border: 1px solid rgba(255, 82, 82, 0.3); border-radius: 10px; padding: 25px; transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s; cursor: pointer;" 
-             onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 5px 15px rgba(255, 82, 82, 0.3)'; this.style.borderColor='rgba(255, 82, 82, 0.6)';" 
-             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='rgba(255, 82, 82, 0.3)';"
+        <div class="article-card" style="background: #000000; border: 1px solid rgba(185, 29, 48, 0.3); border-radius: 10px; padding: 25px; transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s; cursor: pointer;" 
+             onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 5px 15px rgba(185, 29, 48, 0.3)'; this.style.borderColor='rgba(185, 29, 48, 0.6)';" 
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='rgba(185, 29, 48, 0.3)';"
              onclick="window.location.href='{{ article.url }}'">
-            <h3 style="color: #FF5252; margin-bottom: 15px; font-size: 1.4em;">
-                <a href="{{ article.url }}" style="color: #FF5252; text-decoration: none;">{{ article.name }}</a>
+            <h3 style="color: #B91D30; margin-bottom: 15px; font-size: 1.4em;">
+                <a href="{{ article.url }}" style="color: #B91D30; text-decoration: none;">{{ article.name }}</a>
             </h3>
             <p style="color: #b0b0b0; font-size: 0.95em; line-height: 1.6;">
                 Click to read the full article
