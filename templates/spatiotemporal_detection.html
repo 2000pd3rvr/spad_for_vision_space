@@ -2807,13 +2807,15 @@ function updateStoImageDimensions() {
         if (whiteboardCaption) {
             // Check if detections lists are empty - check both spatial and material separately
             // Use top3_predictions for spatial (same as material) to get the highest confidence prediction
+            // A valid detection must have: non-empty class, class not '-', and probability > 0
             const hasSpatialDetections = spatialData && spatialData.top3_predictions && spatialData.top3_predictions.length > 0 && 
                                          spatialData.top3_predictions[0] && spatialData.top3_predictions[0].class && 
                                          spatialData.top3_predictions[0].class !== '-' && 
                                          (spatialData.top3_predictions[0].probability || 0) > 0;
             const hasMaterialDetections = materialData && materialData.top3_predictions && materialData.top3_predictions.length > 0 && 
                                          materialData.top3_predictions[0] && materialData.top3_predictions[0].class && 
-                                         materialData.top3_predictions[0].class !== '-';
+                                         materialData.top3_predictions[0].class !== '-' &&
+                                         (materialData.top3_predictions[0].probability || 0) > 0;
             
             // Helper function to generate random value from range (can be decimal/continuous)
             function randomFromRange(min, max) {
