@@ -1,11 +1,26 @@
 ---
-title: SPAD for Vision
+title: SPAD for Vision - Spatiotemporal Detection & Material Classification
 emoji: 🔍
 colorFrom: blue
 colorTo: purple
 sdk: docker
 app_file: app.py
 pinned: false
+tags:
+  - computer-vision
+  - object-detection
+  - material-classification
+  - spatiotemporal-detection
+  - yolov3
+  - yolov8
+  - dinov3
+  - pytorch
+  - deep-learning
+  - vision-systems
+  - multi-modal-fusion
+  - material-analysis
+  - quality-control
+  - computer-vision-demo
 ---
 
 # SPAD for Vision - Demonstrating Combined Spatial and Structural Features
